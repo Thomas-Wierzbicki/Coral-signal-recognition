@@ -41,6 +41,7 @@ Träger und FM nach Signalparametern untersucht werden.
 15. [Referenzen](#15-referenzen)
 16. [Persistenter Coral-Prozess und Schnittstellentest](#16-persistenter-coral-prozess-und-schnittstellentest)
 17. [Gezielte Fehlerdiagnose nach Signalparametern](#17-gezielte-fehlerdiagnose-nach-signalparametern)
+18. [Kontrollierter Pegeltest](#18-kontrollierter-pegeltest)
 
 ## 1. Aufgabenteilung und Voraussetzungen
 
@@ -1141,5 +1142,121 @@ python -m unittest test_coral_worker test_diagnosis -v
 
 Fünf Tests ohne Hardware prüften unter anderem Metadaten, Rauschskalierung,
 Gruppenauswertung und die bestehende Prozessschnittstelle.
-Der tatsächliche Diagnoselauf auf dem Coral muss auf dem Windows-Rechner
-ausgeführt werden; seine Ergebnisse sind hier noch nicht dokumentiert.
+Der Diagnoselauf wurde inzwischen auf dem Windows-Rechner ausgeführt:
+947/1.050 richtige Entscheidungen (90,2 %), 16 Fehler mit mindestens 80 %
+Modellbewertung. Die Matrix lautet:
+
+| Soll / erkannt | noise | carrier | fm |
+|---|---:|---:|---:|
+| noise | 349 | 1 | 0 |
+| carrier | 1 | 284 | 65 |
+| fm | 0 | 36 | 314 |
+
+Die hochgeladene Zusammenfassung zeigte eine auffällige Pegelabhängigkeit:
+
+| Amplitudenbereich | Träger richtig | FM richtig |
+|---|---:|---:|
+| 0,2–0,4 | 96/104 (92,3 %) | 65/91 (71,4 %) |
+| 0,4–0,6 | 87/93 (93,5 %) | 85/93 (91,4 %) |
+| 0,6–0,9 | 101/153 (66,0 %) | 164/166 (98,8 %) |
+
+52 der 65 Träger→FM-Verwechslungen liegen im höchsten Amplitudenbereich,
+26 der 36 FM→Träger-Verwechslungen im niedrigsten.
+Die groben Frequenzbereiche erreichten insgesamt jeweils etwa 90 %.
+Diese Gruppen belegen Zusammenhänge, aber noch keine isolierte Ursache.
+Daher wurde anschließend der gepaarte Pegeltest aus Abschnitt 18 ergänzt.
+
+## 18. Kontrollierter Pegeltest
+
+`level_sweep.py` untersucht die beobachtete Pegelabhängigkeit ohne neues Training.
+
+### Durchführung
+
+In Anaconda Prompt:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+python level_sweep.py
+```
+
+Das bestehende kompilierte Modell bleibt unverändert. Es muss nicht erneut
+trainiert oder kompiliert werden.
+
+### Was konstant bleibt
+
+Für jedes Grundsignal wird genau ein IQ-Block einschließlich Rauschen erzeugt.
+Dieser Block wird achtmal gemeinsam skaliert:
+
+- Zielamplituden: 0,2; 0,3; 0,4; 0,5; 0,6; 0,7; 0,8; 0,9.
+- Festes SNR je Grundsignal: 0, +10 oder +25 dB.
+- Frequenzversatz, Phase, FM-Hub und Modulationston bleiben innerhalb jeder
+  Achtergruppe gleich.
+- Auch die konkrete Rauschrealisierung bleibt gleich und wird mitskaliert.
+- Es werden nur Träger und FM getestet; Rauschen war in der Diagnose bereits
+  nahezu durchgehend richtig erkannt worden.
+- Es wird kein IQ-Clipping ergänzt; das entspricht dem bisherigen Generator.
+  Die bestehende Spektrogrammbegrenzung bleibt aktiv.
+
+Damit verändert die Skalierung das Verhältnis von Nutzsignal zu Rauschen nicht.
+Verändert sich die Vorhersage, zeigt das eine Abhängigkeit dieser gesamten
+Vorverarbeitungs-/Modellkette vom absoluten Pegel. Es beweist noch nicht,
+welche einzelne Komponente dafür verantwortlich ist.
+
+### Anzahl und Ausgaben
+
+Standard: 20 Grundsignale je Klasse und SNR-Stufe, Seed 2029.
+
+- 3 SNR-Stufen × 2 Klassen × 20 Grundsignale = **120 Grundsignale**.
+- Jedes Grundsignal wird bei acht Amplituden ausgewertet:
+  **960 Klassifikationen**.
+
+Die skalierten Varianten sind gepaarte Messungen. Sie sind keine 960
+unabhängigen Testbeispiele.
+
+Die Konsole zeigt je SNR-Stufe die Erkennungsraten für alle acht Amplituden.
+Danach folgt die Anzahl der Grundsignale, deren Vorhersage sich innerhalb der
+Achtergruppe verändert hat, insgesamt sowie getrennt nach Klasse und SNR.
+
+Dateien unter `models/signal/level-sweep`:
+
+| Datei | Inhalt |
+|---|---|
+| `cases.csv` | Alle skalierten Varianten mit gemeinsamer pair_id, Parametern und Modellbewertungen |
+| `summary.json` | Matrizen je SNR/Amplitude, Vorhersagereihen je Grundsignal, Zahl der Klassenwechsel und Modellhash |
+
+Ein stabiler Klassenname bedeutet nicht automatisch eine richtige Entscheidung.
+Die Trefferquoten müssen zusammen mit der Zahl der Klassenwechsel gelesen werden.
+Die Zusammenfassung enthält zusätzlich die Spannweite der Bewertung der wahren
+Klasse je Achtergruppe.
+
+Vorhandene Ergebnisse werden nicht überschrieben. Für eine Wiederholung:
+
+```text
+python level_sweep.py --output models/signal/level-sweep-run2
+```
+
+Mehr Grundsignale:
+
+```text
+python level_sweep.py --per-class 100 --output models/signal/level-sweep-large
+```
+
+Das ergibt 600 Grundsignale und 4.800 Klassifikationen.
+Die Ausgaben liegen unter dem von Git ausgeschlossenen Ordner `models`
+und sollten bei Bedarf separat gesichert werden.
+
+### Prüfung und aktueller Status
+
+```text
+python -m unittest test_coral_worker test_diagnosis test_level_sweep -q
+```
+
+Sieben Tests ohne Hardware liefen erfolgreich. Geprüft wurden unter anderem
+gemeinsame Skalierung des gesamten IQ-Blocks, unveränderte Parameter je
+Achtergruppe und die Anzahl der Messungen.
+Der tatsächliche Pegeltest auf dem USB-Coral steht noch aus.
+
+Eine Pegelnormalisierung oder ein neu trainiertes Modell wird erst nach
+Auswertung dieses kontrollierten Tests ausgewählt.
