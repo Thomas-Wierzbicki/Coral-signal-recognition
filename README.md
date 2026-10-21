@@ -1,86 +1,842 @@
 # Coral-signal-recognition
 
-Experiment zur Klassifikation von SDR-Signalen mit dem Google Coral USB Accelerator.
-Startklassen: Rauschen, unmodulierter Traeger und schmalbandiges FM-Testsignal.
+Experimentelle Erkennung von **Rauschen, unmoduliertem Träger und FM-Testsignalen**
+mit dem **Google Coral USB Accelerator**.
 
-## Aktueller Stand
+**Stand: 21. Oktober 2026.** Die vollständige Kette wurde auf dem Windows-Rechner
+des Projektinhabers ausgeführt: Daten erzeugen → CNN trainieren → INT8-TFLite
+exportieren → unter Ubuntu/WSL für die Edge TPU kompilieren → unter Windows auf
+dem USB-Coral auswerten.
 
-- Coral-Hardwaretest mit offiziellem Vogelmodell und Zeitmessung.
-- Generator fuer synthetische komplexe IQ-Signale und numerische Spektrogramme.
-- Getrennte Trainings-, Validierungs- und Testdaten sowie PNG-Vorschauen.
-- Noch kein trainiertes Funkmodell und noch keine Verbindung zum Qt-Analyzer.
+**Ergebnis:** 91,5 % Genauigkeit auf 600 synthetischen Testbeispielen.
+Alle zehn Modelloperationen wurden vom Compiler der Edge TPU zugeordnet.
+Die gemessene Inferenzdauer betrug im Median 0,427 ms und am 95. Perzentil 0,543 ms.
 
-Das Vogelmodell ist ausschliesslich ein Hardwaretest. Seine Ergebnisse sind
-fuer Funksignale nicht verwendbar.
+Es gibt noch keine Anbindung an den SDR-Analyzer und noch keine Bewertung anhand
+echter Empfangssignale. Das sind die nächsten Entwicklungsschritte.
 
-## Windows: erste Schritte
+## Inhaltsverzeichnis
 
-Anaconda Prompt verwenden. Die bereits funktionierende Umgebung beibehalten:
+1. [Aufgabenteilung und Voraussetzungen](#1-aufgabenteilung-und-voraussetzungen)
+2. [Coral und Python unter Windows einrichten](#2-coral-und-python-unter-windows-einrichten)
+3. [Repository auf den Rechner holen](#3-repository-auf-den-rechner-holen)
+4. [Gerät und Laufzeit prüfen](#4-gerät-und-laufzeit-prüfen)
+5. [Erster Bildtest: Vogelarten erkennen](#5-erster-bildtest-vogelarten-erkennen)
+6. [Synthetische Signaldaten erzeugen](#6-synthetische-signaldaten-erzeugen)
+7. [CNN trainieren und quantisieren](#7-cnn-trainieren-und-quantisieren)
+8. [Compiler unter Ubuntu/WSL bereitstellen](#8-compiler-unter-ubuntuwsl-bereitstellen)
+9. [Funkmodell für die Edge TPU kompilieren](#9-funkmodell-für-die-edge-tpu-kompilieren)
+10. [Funkmodell auf dem Coral testen](#10-funkmodell-auf-dem-coral-testen)
+11. [Ergebnisse und ihre Aussagekraft](#11-ergebnisse-und-ihre-aussagekraft)
+12. [Dateien, Sicherung und Wiederholung](#12-dateien-sicherung-und-wiederholung)
+13. [Fehler und Warnmeldungen](#13-fehler-und-warnmeldungen)
+14. [Nächste Entwicklungsschritte](#14-nächste-entwicklungsschritte)
+15. [Referenzen](#15-referenzen)
+
+## 1. Aufgabenteilung und Voraussetzungen
+
+### Zwei Konsolen und zwei Python-Umgebungen
+
+| Aufgabe | Wo ausführen? | Umgebung |
+|---|---|---|
+| Coral-Gerätetest, Bilderkennung, Signaldaten erzeugen, Coral-Auswertung | **Anaconda Prompt unter Windows** | `coral` |
+| Modell auf der CPU trainieren und TFLite exportieren | **Anaconda Prompt unter Windows** | `coral-train` |
+| TFLite-Modell für den Coral kompilieren | **Ubuntu-Terminal unter WSL** | Linux-Compiler, kein Conda erforderlich |
+
+**Wichtig:** Python-Befehle hier in Anaconda Prompt ausführen. In der normalen
+PowerShell war die passende Python-Installation nicht erreichbar.
+Die Umgebung wird mit `conda activate ...` gewählt; ihr Name erscheint links
+in der Eingabezeile.
+
+Der Coral bleibt für die Inferenz an Windows angeschlossen. Für die Kompilierung
+unter WSL braucht er nicht an Ubuntu durchgereicht zu werden.
+
+### Im Projekt erfolgreich verwendeter Stand
+
+| Bestandteil | Version beziehungsweise Einstellung |
+|---|---|
+| Hardware | Google Coral USB Accelerator, Modell G950-01456-01 |
+| Windows-Python in Conda | Python 3.9.25 |
+| PyCoral | 2.0.0 |
+| tflite-runtime | 2.5.0.post1 |
+| NumPy für `coral` | 1.26.4 gemäß `requirements.txt` |
+| Pillow für `coral` | mindestens 10, kleiner als 12 |
+| TensorFlow für `coral-train` | 2.10.1 |
+| NumPy für `coral-train` | 1.23.5 |
+| protobuf für `coral-train` | 3.19.6 |
+| Edge-TPU-Laufzeit unter Windows | `RuntimeVersion(14)`, Build vom 20. Juli 2021 |
+| Compiler unter Ubuntu | 14.1.317412892 |
+| Ubuntu | 24.04 / noble, Architektur `x86_64` |
+
+Diese Tabelle dokumentiert den verwendeten Projektstand, keine allgemeine
+Kompatibilitätszusage für beliebige andere Versionen.
+Python 3.14 war zunächst vorhanden; für das verwendete PyCoral-Paket wurde
+zusätzlich Python 3.9 in einer eigenen Conda-Umgebung eingerichtet.
+
+## 2. Coral und Python unter Windows einrichten
+
+### 2.1 Hardware anschließen
+
+1. Coral möglichst direkt an einen USB-3-Anschluss des Rechners anschließen.
+2. Ein USB-Datenkabel verwenden.
+3. Im Geräte-Manager nach **Coral USB Accelerator** suchen.
+4. Unter Eigenschaften → Allgemein den Gerätestatus prüfen.
+
+Im Projekt leuchtete die LED und Windows spielte beim Anschluss einen USB-Ton.
+Der Eintrag im Geräte-Manager und später der erfolgreiche Modelltest bestätigten
+die Verbindung.
+
+Die **Edge-TPU-Laufzeit für Windows** muss ebenfalls installiert sein.
+Bei einer Neuinstallation die Windows-Schritte der
+[offiziellen USB-Accelerator-Anleitung](https://coral.ai/docs/accelerator/get-started/)
+verwenden. Die Laufzeit ist eine separate Installation; `pip install pycoral`
+ersetzt sie nicht. Auf dem hier getesteten Rechner war die Laufzeit bereits
+funktionsfähig; ihre ursprüngliche Installation wurde in diesem Projektablauf
+nicht separat protokolliert.
+
+### 2.2 Conda-Umgebung erstellen
+
+In **Anaconda Prompt**, einmalig:
 
 ```text
+conda create -n coral python=3.9 pip -y
 conda activate coral
-git clone https://github.com/Thomas-Wierzbicki/Coral-signal-recognition.git
-cd Coral-signal-recognition
-python -m pip install -r requirements.txt
-python coral_check.py
-python signal_lab.py
+python --version
 ```
 
-Falls das Repository bereits lokal vorhanden ist: in seinen Ordner wechseln und
-statt erneut zu klonen zuerst `git pull --ff-only` ausfuehren.
+Im erfolgreichen Ablauf wurde `Python 3.9.25` ausgegeben.
+Wenn die Umgebung bereits existiert, nur `conda activate coral` ausführen.
 
-Nur falls PyCoral in dieser Umgebung noch fehlt:
+### 2.3 PyCoral installieren
 
 ```text
 python -m pip install --extra-index-url https://google-coral.github.io/py-repo/ "pycoral~=2.0"
+python -m pip install "numpy==1.26.4" "Pillow>=10,<12"
+```
+
+Dabei wurden PyCoral 2.0.0 und tflite-runtime 2.5.0.post1 installiert.
+Der erste Installationslauf wählte automatisch NumPy 2.0.2. Für die ältere
+Coral-Laufzeit wurde NumPy anschließend auf 1.x festgelegt.
+
+**TensorFlow nicht in dieser Umgebung installieren.** Das Training verwendet
+die separate Umgebung `coral-train`.
+
+## 3. Repository auf den Rechner holen
+
+Das eigenständige Projekt liegt unter:
+
+https://github.com/Thomas-Wierzbicki/Coral-signal-recognition
+
+Es ist ein separates Repository neben `Intel_RTL_Analyzer_Next`.
+Der zuvor dort angelegte Branch `feature/coral-signal-recognition` wird für
+die hier beschriebenen Schritte nicht benötigt.
+
+### Erstmaliges Klonen
+
+In **Anaconda Prompt**:
+
+```text
+cd /d C:\Users\thwie\source\repos
+git clone https://github.com/Thomas-Wierzbicki/Coral-signal-recognition.git
+cd Coral-signal-recognition
+conda activate coral
 python -m pip install -r requirements.txt
 ```
 
-Die Edge-TPU-Laufzeit muss separat installiert sein; ein sichtbares USB-Geraet
-allein bestaetigt noch keine erfolgreiche Inferenz.
+### Bereits vorhandene Kopie aktualisieren
 
-## Ergebnis des Signalgenerators
+```text
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+```
 
-`data/train.npz`, `validation.npz`, `test.npz` enthalten jeweils:
+Nicht erneut klonen, wenn dieser Projektordner bereits existiert.
+Bei lokalen Änderungen, die ein Update blockieren, zuerst `git status` prüfen.
 
-- `x`: float32-Spektrogramme, Form [Anzahl, 64, 256, 1], Werte 0 bis 1.
-- `y`: Klassenindex 0 = noise, 1 = carrier, 2 = fm.
+Der Projektordner lautet auf dem Windows-Rechner:
 
-`data/metadata.json` beschreibt Abtastrate, Klassen und Vorverarbeitung.
-Die PNG-Dateien dienen nur der Ansicht; trainiert werden soll mit numerischen Daten.
+```text
+C:\Users\thwie\source\repos\Coral-signal-recognition
+```
 
-Standard: 600 Trainingsbeispiele, je 120 Validierungs- und Testbeispiele.
-Mehr Daten:
+Alle folgenden Python-Skripte werden aus diesem Ordner gestartet.
+Bei einem anderen Benutzernamen oder Speicherort die Pfade entsprechend anpassen.
+
+## 4. Gerät und Laufzeit prüfen
+
+In **Anaconda Prompt**, Umgebung `coral`:
+
+```text
+conda activate coral
+python -c "from pycoral.utils.edgetpu import list_edge_tpus; print(list_edge_tpus())"
+```
+
+Erfolgreiche Ausgabe auf dem getesteten Rechner:
+
+```text
+[{'type': 'usb', 'path': '/sys/bus/usb/devices/22-4'}]
+```
+
+Dieser von PyCoral gemeldete Gerätepfad erschien auch unter Windows.
+Er bedeutet in diesem Fall nicht, dass die Berechnung unter WSL lief.
+Der genaue Pfad kann auf anderen Rechnern abweichen.
+
+Laufzeit prüfen:
+
+```text
+python -c "from pycoral.utils.edgetpu import get_runtime_version; print(get_runtime_version())"
+```
+
+Beobachtetes Ergebnis:
+
+```text
+BuildLabel(COMPILER=MSVC 192528612,DATE=Jul 20 2021,TIME=14:31:41), RuntimeVersion(14)
+```
+
+### Wiederholter Hardwaretest
+
+```text
+python coral_check.py
+```
+
+Das Skript lädt bei Bedarf ein offizielles Vogelmodell nach
+`models/bird_edgetpu.tflite`, öffnet eine Verbindung, führt einen Aufwärmlauf
+und anschließend standardmäßig 100 Berechnungen mit Null-Eingabedaten aus.
+
+Es prüft die Modellausführung, keine sinnvolle Bildklassifikation.
+Das Vogelmodell erkennt keine Funksignale.
+
+Im ersten manuellen Test wurden ebenfalls 100 Berechnungen erfolgreich
+ausgeführt. Dabei waren zwei USB-Tonfolgen hörbar. Die genaue Ursache wurde
+nicht bestimmt; der Test zeigte keinen Berechnungsabbruch.
+
+## 5. Erster Bildtest: Vogelarten erkennen
+
+Dieser optionale Test wurde vor dem eigenen Signalmodell erfolgreich ausgeführt.
+Das Modell unterscheidet Vogelarten, keine allgemeinen Gegenstände.
+
+In **Anaconda Prompt**, Umgebung `coral`, Projektordner:
+
+```text
+python -c "import urllib.request; b='https://raw.githubusercontent.com/google-coral/test_data/master/'; urllib.request.urlretrieve(b+'mobilenet_v2_1.0_224_inat_bird_quant_edgetpu.tflite','coral_test.tflite'); urllib.request.urlretrieve(b+'parrot.jpg','parrot.jpg'); urllib.request.urlretrieve(b+'inat_bird_labels.txt','inat_bird_labels.txt'); print('Downloads fertig')"
+```
+
+Bild anzeigen:
+
+```text
+python -c "from PIL import Image; Image.open('parrot.jpg').show()"
+```
+
+Drei beste Ergebnisse berechnen:
+
+```text
+python -c "from PIL import Image; from pycoral.utils.edgetpu import make_interpreter; from pycoral.utils.dataset import read_label_file; from pycoral.adapters import common, classify; i=make_interpreter('coral_test.tflite'); i.allocate_tensors(); img=Image.open('parrot.jpg').convert('RGB').resize(common.input_size(i), Image.Resampling.LANCZOS); common.set_input(i,img); i.invoke(); labels=read_label_file('inat_bird_labels.txt'); print('\n'.join('{}: {:.1f} Prozent'.format(labels.get(c.id,c.id),100*c.score) for c in classify.get_classes(i,top_k=3)))"
+```
+
+Beobachtetes Ergebnis:
+
+| Modellklasse | Modellbewertung |
+|---|---:|
+| Ara macao / Scarlet Macaw / Scharlachara | 75,8 % |
+| Platycercus elegans / Crimson Rosella / Pennantsittich | 7,4 % |
+| Coracias caudatus / Lilac-breasted Roller / Gabelracke | 1,6 % |
+
+Die Werte sind Modellbewertungen, keine garantierten Wahrscheinlichkeiten.
+Für ein eigenes Vogelfoto den Bildpfad `parrot.jpg` im Erkennungsbefehl ersetzen.
+
+Diese optionalen Downloads liegen bei den obigen Befehlen im Projektstamm.
+Sie werden für das Funkmodell nicht gebraucht und sollen nicht versehentlich
+als zusätzliche Projektdateien committed werden.
+
+## 6. Synthetische Signaldaten erzeugen
+
+### 6.1 Klassen und Signalparameter
+
+| Index | Kennung | Bedeutung |
+|---|---|---|
+| 0 | `noise` | Komplexes gaußverteiltes Rauschen ohne Nutzsignal |
+| 1 | `carrier` | Unmodulierter komplexer Träger mit Rauschen |
+| 2 | `fm` | Mit einem Sinuston frequenzmodulierter Träger mit Rauschen |
+
+Der Generator variiert:
+
+| Parameter | Bereich |
+|---|---|
+| Frequenzversatz | −60 bis +60 kHz |
+| Signalamplitude | 0,2 bis 0,9 |
+| nominelles SNR für Träger/FM | −5 bis +25 dB |
+| FM-Frequenzhub | 1,5 bis 6 kHz |
+| FM-Modulationston | 300 bis 3.000 Hz |
+| Phase | zufällig |
+
+Bei der Klasse `noise` wird nur der nach derselben Regel skalierte
+Rauschanteil erzeugt. Ihr gezogener SNR-Parameter beschreibt kein tatsächlich
+vorhandenes Nutzsignal.
+
+### 6.2 Vorverarbeitung
+
+| Eigenschaft | Wert |
+|---|---|
+| IQ-Abtastrate | 240.000 Samples/s |
+| IQ-Samples je Beispiel | 16.384 |
+| Zeitdauer je Beispiel | etwa 68,27 ms |
+| FFT-Länge | 256 |
+| FFT-Fenster | Hann |
+| Aufeinanderfolgende Zeitblöcke | 64, ohne Überlappung |
+| Frequenzanordnung | `fftshift`, negative bis positive Basisbandfrequenzen |
+| Frequenzabstand je FFT-Bin | 937,5 Hz |
+| numerischer Pegelbereich | −80 bis 0 dBFS gemäß Generator-Normierung |
+| Eingangswerte | auf 0 bis 1 skaliert und begrenzt |
+| Form eines Beispiels | `(64, 256, 1)`, Zeit × Frequenz × Kanal |
+| Datentyp vor Quantisierung | `float32` |
+
+Die dBFS-Skalierung ist eine rechnerische Referenz im Generator.
+Sie ist keine kalibrierte Leistungsmessung in dBm an einem realen Empfänger.
+Es findet keine individuelle Helligkeitsnormalisierung jedes Beispiels statt.
+
+### 6.3 Erster kleiner Datensatz
+
+```text
+conda activate coral
+python signal_lab.py
+```
+
+Dieser erste Lauf erzeugte:
+
+| Aufteilung | Je Klasse | Gesamt |
+|---|---:|---:|
+| Training | 200 | 600 |
+| Validierung | 40 | 120 |
+| Test | 40 | 120 |
+
+### 6.4 Größerer Datensatz für den erfolgreichen Coral-Test
 
 ```text
 python signal_lab.py --per-class 1000
 ```
 
-Das Programm ueberschreibt seine generierten Dateien im gewaehlten Ausgabeordner.
-IQ-Abtastrate: 240 kS/s; FFT: 256; 64 aufeinanderfolgende Bloecke.
-Fester Pegelbereich: -80 bis 0 dBFS, keine individuelle Bildnormalisierung.
-SNR, Pegel, Frequenzversatz und FM-Parameter variieren.
-Dies ist eine synthetische Machbarkeitsstudie. Reale Empfaengerdaten mit
-unabhaengigen Aufnahmesitzungen werden fuer eine belastbare Bewertung benoetigt.
-Das Rauschen stammt aus demselben Generator wie das Hintergrundrauschen der Signale;
-eine Erkennung kann trotzdem auf den kuenstlichen Daten besser wirken als im Funkbetrieb.
+Ergebnis:
 
-## Weitere Entwicklung
+| Aufteilung | Je Klasse | Gesamt |
+|---|---:|---:|
+| Training | 1.000 | 3.000 |
+| Validierung | 200 | 600 |
+| Test | 200 | 600 |
 
-1. Kompaktes CNN trainieren und auf zurueckgehaltenen Daten auswerten.
-2. Vollstaendig ganzzahlig quantisiertes TFLite-Modell exportieren.
-3. Unter geeignetem Linux-x86-64-System mit dem Edge-TPU-Compiler kompilieren
-   und dessen Operatorzuordnung pruefen.
-4. CPU- und Coral-Ergebnisse vergleichen.
-5. Qt-Analyzer ueber einen dauerhaft laufenden Python-Prozess anbinden.
+Ausgaben unter `data`:
 
-Die bestehende Anaconda-Umgebung dient der Inferenz. Training bekommt eine
-separate Umgebung, damit die funktionierende Coral-Installation erhalten bleibt.
-Der Analyzer verwendet bisher eine andere Signalverarbeitung; vor einer Kopplung
-muessen Abtastrate, Vorverarbeitung und Frequenzausschnitt angeglichen werden.
+- `train.npz`, `validation.npz`, `test.npz`: Arrays `x` und `y`.
+- `metadata.json`: Klassen, Abtastrate, FFT-Größe, Skalierung und Seed.
+- Neun PNG-Vorschauen: je Klasse und Aufteilung ein Beispiel.
 
-## Referenzen
+PNG-Dateien dienen der Ansicht. Das Modell arbeitet mit numerischen
+Spektrogrammen aus den NPZ-Dateien.
 
-- https://coral.ai/docs/accelerator/get-started/
-- https://github.com/google-coral/test_data
-- https://coral.ai/docs/edgetpu/models-intro/
+**Erneutes Generieren überschreibt diese Dateien.** Der Standard-Seed ist 2026;
+Training, Validierung und Test verwenden getrennte Zufallsströme.
+Ein geänderter Datenumfang verändert auch Teile der erzeugten Aufteilungen.
+Die kleinen und großen Trainingsläufe wurden daher nicht auf einem identischen
+festgehaltenen Testdatensatz verglichen.
+
+Für einen neuen Ausgabeordner ist beispielsweise möglich:
+
+```text
+python signal_lab.py --per-class 1000 --seed 2027 --output data-neu
+```
+
+Dann beim Training auch `--data data-neu` angeben.
+Der zusätzliche Ordner `data-neu` wird nicht von der vorhandenen
+`data/`-Regel in `.gitignore` abgedeckt.
+
+## 7. CNN trainieren und quantisieren
+
+### 7.1 Separate Trainingsumgebung erstellen
+
+Einmalig in **Anaconda Prompt**:
+
+```text
+conda create -n coral-train python=3.9 pip -y
+conda activate coral-train
+python -m pip install -r requirements-training.txt
+```
+
+Die Datei legt TensorFlow 2.10.1, NumPy 1.23.5 und protobuf 3.19.6 fest.
+Wenn die Umgebung schon vorhanden und eingerichtet ist, nur aktivieren.
+
+### 7.2 Training starten
+
+```text
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+conda activate coral-train
+python train_signal.py
+```
+
+Das Training findet auf dem Rechner statt, nicht auf dem Coral.
+Der Coral beschleunigt später die Ausführung des trainierten Modells.
+
+Standardwerte:
+
+- Maximal 30 Epochen, Batchgröße 32, Seed 2026.
+- Optimierer Adam; Sparse Categorical Crossentropy.
+- EarlyStopping anhand von `val_loss`, Geduld sechs Epochen.
+- Die Gewichte mit dem besten Validierungsverlust werden wiederhergestellt.
+
+Netzstruktur:
+
+1. Eingang `64 × 256 × 1`.
+2. Conv2D, acht Filter, Kernel 3, Schrittweite 2, ReLU.
+3. MaxPooling2D, Größe 2.
+4. Conv2D, 16 Filter, Kernel 3, Schrittweite 2, ReLU.
+5. MaxPooling2D, Größe 2.
+6. Flatten.
+7. Dense mit 24 Einheiten und ReLU.
+8. Dense mit drei Ausgaben und Softmax.
+
+### 7.3 Quantisierung und Auswertung
+
+Das Skript exportiert ein vollständig ganzzahlig quantisiertes TFLite-Modell
+mit `uint8`-Ein- und -Ausgängen. Zur Kalibrierung verwendet es bis zu
+100 Trainingsbeispiele je Klasse. Testdaten werden nicht zur Kalibrierung
+oder zur Wahl des EarlyStopping-Zeitpunkts verwendet.
+
+Anschließend prüft es Float- und INT8-Modell auf dem Testdatensatz.
+
+Erzeugte Dateien:
+
+| Datei unter `models/signal` | Inhalt |
+|---|---|
+| `signal_float.h5` | Trainiertes Keras-Modell ohne gespeicherten Optimierer |
+| `signal_int8.tflite` | Quantisiertes CPU-TFLite-Modell, noch nicht für die TPU kompiliert |
+| `labels.txt` | Klassenindex und Klassenname |
+| `report.json` | Genauigkeit, Recall, Konfusionsmatrizen, Vorhersageübereinstimmung und Metadaten |
+
+Das Skript überschreibt diese Ausgabedateien beim nächsten Lauf.
+
+### 7.4 Beobachtete Warnungen
+
+Während des erfolgreichen Ablaufs erschienen:
+
+```text
+Found untraced functions such as _jit_compiled_convolution_op ...
+Statistics for quantized inputs were expected, but not specified; continuing anyway.
+fully_quantize: 0, ... input_inference_type: UINT8, output_inference_type: UINT8
+```
+
+Diese Meldungen haben in diesem konkreten Lauf den Export nicht verhindert.
+Das exportierte Modell wurde anschließend auf der CPU ausgeführt, erfolgreich
+für die TPU kompiliert und auf dem Coral ausgewertet.
+
+Die einzelne Textzeile `fully_quantize: 0` ist daher hier kein Beleg für einen
+fehlgeschlagenen INT8-Export. Maßgeblich sind die konfigurierten
+Ganzzahloperationen, die geprüften Tensoren sowie Compiler- und Laufzeitergebnis.
+Bei einem Abbruch oder einer anderen Fehlermeldung den vollständigen Fehler prüfen.
+
+## 8. Compiler unter Ubuntu/WSL bereitstellen
+
+### 8.1 Ubuntu und Architektur prüfen
+
+Unter Windows kann PowerShell vorhandene WSL-Systeme auflisten:
+
+```powershell
+wsl --list --verbose
+```
+
+Ubuntu über das Startmenü öffnen. Im **Ubuntu-Terminal**:
+
+```bash
+uname -m
+```
+
+Im erfolgreichen Ablauf:
+
+```text
+x86_64
+```
+
+Der zunächst getestete Befehl
+
+```bash
+edgetpu_compiler --version
+```
+
+lieferte `command not found`.
+
+### 8.2 Paketquelle lieferte HTTP 403
+
+Die offizielle APT-Quelle unter
+
+```text
+https://packages.cloud.google.com/apt coral-edgetpu-stable main
+```
+
+lieferte bei der Einrichtung am 21. Oktober 2026:
+
+```text
+403 Forbidden
+The repository ... is not signed.
+```
+
+Das Abrufen der Metadaten war blockiert. Die folgende Signaturmeldung ließ
+sich durch das erneute Hinzufügen des Schlüssels nicht sinnvoll beheben.
+Die Signaturprüfung wurde nicht abgeschaltet.
+
+Wenn diese Quelle bereits wie im Projekt eingerichtet wurde, sie deaktivieren:
+
+```bash
+sudo mv /etc/apt/sources.list.d/coral-edgetpu.list /etc/apt/sources.list.d/coral-edgetpu.list.disabled
+sudo apt-get update
+```
+
+Wenn die Datei schon deaktiviert ist oder nie angelegt wurde, den
+`mv`-Befehl überspringen. Andere Paketquellen nicht verändern.
+
+### 8.3 Erfolgreicher Ersatz: Compiler aus dem offiziellen GitHub-Repository
+
+Im **Ubuntu-Terminal**:
+
+```bash
+cd ~
+git clone --depth 1 https://github.com/google-coral/edgetpu.git coral-tools
+~/coral-tools/compiler/x86_64/edgetpu_compiler --version
+```
+
+Falls Git fehlt, zuerst:
+
+```bash
+sudo apt-get install -y git
+```
+
+Wenn `~/coral-tools` bereits existiert und der Compiler funktioniert, nicht
+erneut klonen.
+
+Erfolgreich getestete Ausgabe:
+
+```text
+Edge TPU Compiler version 14.1.317412892
+```
+
+Der verwendete Startwrapper liegt unter `compiler/x86_64/edgetpu_compiler`.
+Er startet den Compiler mit den im Repository mitgelieferten Bibliotheken.
+Deshalb den Ordner zusammenlassen und den vollständigen Wrapperpfad verwenden.
+
+Dies ist eine ältere Compiler-Version. Sie hat das hier verwendete Modell
+erfolgreich verarbeitet. Daraus folgt keine Kompatibilität mit beliebigen
+neueren TensorFlow-Modellen oder Operatorversionen.
+Der Klonbefehl verwendet den jeweils verfügbaren Repository-Stand.
+Für eine spätere Reproduktion den lokalen Commit zusätzlich festhalten:
+
+```bash
+git -C ~/coral-tools rev-parse HEAD
+```
+
+## 9. Funkmodell für die Edge TPU kompilieren
+
+Weiter im **Ubuntu-Terminal**:
+
+```bash
+cd /mnt/c/Users/thwie/source/repos/Coral-signal-recognition/models/signal
+mkdir -p compiled
+~/coral-tools/compiler/x86_64/edgetpu_compiler -s -o compiled signal_int8.tflite
+```
+
+WSL greift über `/mnt/c` auf Laufwerk C: zu. Es wird dieselbe Datei gelesen,
+die zuvor unter Windows exportiert wurde; eine Kopie nach Linux ist nicht nötig.
+
+Die Ausgabe liegt danach auch unter Windows im Projektordner:
+
+```text
+C:\Users\thwie\source\repos\Coral-signal-recognition\models\signal\compiled\signal_int8_edgetpu.tflite
+```
+
+Zusätzlich entsteht `signal_int8_edgetpu.log`.
+
+### Beobachtetes Compiler-Ergebnis
+
+| Kennzahl | Ergebnis |
+|---|---:|
+| Kompilierdauer | 41 ms |
+| Eingabemodell | 30,22 KiB |
+| Ausgabemodell | 84,56 KiB |
+| On-Chip-Cache für Modellparameter | 74,25 KiB |
+| Verbleibender Parametercache | 7,71 MiB |
+| Off-Chip-Streaming ungecachter Parameter | 0 Byte |
+| Edge-TPU-Teilgraphen | 1 |
+| Operationen insgesamt | 10 |
+
+| Operator | Anzahl | Zuordnung |
+|---|---:|---|
+| FULLY_CONNECTED | 2 | Edge TPU |
+| RESHAPE | 1 | Edge TPU |
+| MAX_POOL_2D | 2 | Edge TPU |
+| QUANTIZE | 2 | Edge TPU |
+| SOFTMAX | 1 | Edge TPU |
+| CONV_2D | 2 | Edge TPU |
+
+Alle zehn Operationen wurden auf die Edge TPU abgebildet.
+Daten laden, Spektrogramme erzeugen, Eingaben vorbereiten und Ergebnisse
+auswerten bleiben Aufgaben des Host-Rechners.
+
+**Nach jedem erneuten Training muss erneut kompiliert werden.**
+Ein vorhandenes kompiliertes Modell aktualisiert sich nicht automatisch.
+
+## 10. Funkmodell auf dem Coral testen
+
+Zurück in **Anaconda Prompt unter Windows**, nicht im Ubuntu-Terminal:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+python evaluate_coral.py
+```
+
+Standardmäßig liest das Programm:
+
+- `data/test.npz`.
+- `data/metadata.json`.
+- `models/signal/compiled/signal_int8_edgetpu.tflite`.
+
+Es öffnet den Interpreter einmal, führt einen Aufwärmlauf aus und wertet
+anschließend alle Testbeispiele über dieselbe Verbindung aus.
+Die Eingaben werden mit Skala und Nullpunkt des Modells nach `uint8` quantisiert.
+
+Andere Pfade können explizit angegeben werden:
+
+```text
+python evaluate_coral.py --model models/signal/compiled/signal_int8_edgetpu.tflite --data data
+```
+
+Es ist keine erneute Installation von TensorFlow in `coral` erforderlich.
+
+### Erfolgreiche Ausgabe
+
+```text
+Coral-Geraete: [{'type': 'usb', 'path': '/sys/bus/usb/devices/22-4'}]
+100/600 berechnet
+200/600 berechnet
+300/600 berechnet
+400/600 berechnet
+500/600 berechnet
+600/600 berechnet
+
+Coral-Testgenauigkeit: 91.5%
+Konfusionsmatrix: Zeilen wahr, Spalten vorhergesagt
+[[200   0   0]
+ [  0 169  31]
+ [  0  20 180]]
+Klassenreihenfolge: ['noise', 'carrier', 'fm']
+noise: 200/200 richtig
+carrier: 169/200 richtig
+fm: 180/200 richtig
+Inferenz inklusive Python/USB, ohne Vorverarbeitung:
+Median 0.427 ms; p95 0.543 ms
+Nur synthetische Testdaten; keine Bewertung echter Empfangssignale.
+```
+
+## 11. Ergebnisse und ihre Aussagekraft
+
+### Entwicklung der Testgenauigkeit
+
+| Lauf | Trainingsbeispiele | Testbeispiele | Float / CPU | INT8 / CPU | INT8 / Coral |
+|---|---:|---:|---:|---:|---:|
+| Kleiner Startdatensatz | 600 | 120 | 77,5 % | 80,0 % | nicht getestet |
+| Größerer Datensatz | 3.000 | 600 | 91,3 % | 91,5 % | 91,5 % |
+
+Die Genauigkeit stieg im beobachteten größeren Lauf deutlich.
+Da sich auch der Testdatensatz änderte, ist dies kein kontrollierter Vergleich
+ausschließlich des Einflusses der Trainingsmenge.
+
+### Konfusionsmatrix des größeren Coral-Tests
+
+Zeilen = tatsächliche Klasse, Spalten = vorhergesagte Klasse:
+
+| Tatsächlich / vorhergesagt | Rauschen | Träger | FM |
+|---|---:|---:|---:|
+| Rauschen | 200 | 0 | 0 |
+| Träger | 0 | 169 | 31 |
+| FM | 0 | 20 | 180 |
+
+| Klasse | Richtig | Recall |
+|---|---:|---:|
+| Rauschen | 200 von 200 | 100 % |
+| Träger | 169 von 200 | 84,5 % |
+| FM | 180 von 200 | 90 % |
+| Gesamt | 549 von 600 | 91,5 % Genauigkeit |
+
+CPU-INT8 und Coral lieferten dieselbe aggregierte Konfusionsmatrix.
+Die aktuellen Programme vergleichen nicht jede einzelne CPU-Vorhersage direkt
+mit der zugehörigen Coral-Vorhersage. Eine identische Matrix beweist deshalb
+keine vollständige Identität aller Einzelentscheidungen.
+
+### Laufzeit richtig lesen
+
+- Median: **0,427 ms**.
+- 95. Perzentil: **0,543 ms**.
+- Gemessen wird der Aufruf von `interpreter.invoke()` nach dem Aufwärmen.
+- Python-Aufruf und USB-Kommunikation während dieses Aufrufs sind enthalten.
+- Nicht enthalten: Daten laden, IQ-Erfassung, FFT/Spektrogramm, Quantisierung,
+  `set_tensor()`, Ergebnisabholung und grafische Anzeige.
+- Es wurde keine vergleichbare CPU-Laufzeit gemessen; ein Beschleunigungsfaktor
+  gegenüber der CPU ist daher noch nicht bestimmt.
+
+Ein Beispiel repräsentiert etwa 68,27 ms IQ-Daten.
+Die kurze Modelllaufzeit allein ist keine Zusage für die Gesamtlatenz eines
+späteren Echtzeitsystems.
+
+### Grenzen
+
+Die Daten sind synthetisch. Es fehlen bislang reale Empfangsbedingungen wie
+abweichende Empfänger, Filter, AGC, Frequenzfehler, Übersteuerung, mehrere
+gleichzeitige Signale und andere Modulationsarten.
+Das Modell hat keine eigene Klasse für unbekannte Signale.
+Eine hohe Softmax-Bewertung ist kein verlässlicher Nachweis, dass ein Eingang
+zu einer der drei bekannten Klassen gehört.
+
+Wiederholtes Optimieren anhand desselben Testsatzes verringert dessen Wert als
+unabhängige Prüfung. Für belastbare Aussagen neue, getrennte Aufnahmesitzungen
+und einen zurückgehaltenen abschließenden Testsatz verwenden.
+
+## 12. Dateien, Sicherung und Wiederholung
+
+### Projektdateien auf GitHub
+
+| Datei | Zweck |
+|---|---|
+| `README.md` | Vollständiger Ablauf und dokumentierte Ergebnisse |
+| `TRAINING.md` | Ergänzende Anleitung für Training und Export |
+| `requirements.txt` | NumPy/Pillow für die Coral-Umgebung; PyCoral separat |
+| `requirements-training.txt` | Festgelegte Trainingsabhängigkeiten |
+| `signal_lab.py` | Synthetische IQ-Daten und Spektrogramme erzeugen |
+| `train_signal.py` | CNN trainieren, quantisieren und auf CPU auswerten |
+| `coral_check.py` | Hardwaretest mit offiziellem Vogelmodell |
+| `evaluate_coral.py` | Eigenes kompiliertes Signalmodell auf Coral auswerten |
+| `.gitignore` | Generierte Daten, Modelle und Python-Cache ausschließen |
+
+### Lokale Ergebnisse
+
+**`data/` und `models/` werden durch `.gitignore` ausgeschlossen.**
+Ein normaler Commit oder Push sichert diese Ordner nicht auf GitHub.
+Nach einem neuen Klonen fehlen deshalb die lokal trainierten Modelle und Daten.
+
+Für den exakt erreichten Stand gemeinsam sichern:
+
+1. Den vollständigen Ordner `data`.
+2. Den vollständigen Ordner `models/signal`, einschließlich `compiled`,
+   `report.json` und Compilerlog.
+3. Die verwendete Git-Revision sowie die Conda-Paketlisten.
+4. Bei Bedarf den Compilerordner `~/coral-tools` oder dessen Git-Revision.
+
+Die Paketstände lassen sich in Anaconda Prompt anzeigen:
+
+```text
+conda list -n coral
+conda list -n coral-train
+git rev-parse HEAD
+```
+
+Der aktuelle Coral-Auswerter schreibt seine Ergebnisse nur auf die Konsole.
+Für eine zusätzliche lokale Ergebnisdatei:
+
+```text
+python evaluate_coral.py > models\signal\compiled\coral_evaluation.txt 2>&1
+```
+
+Während dieses Befehls ist die laufende Ausgabe in die Datei umgeleitet.
+Nach Beendigung kann sie geöffnet werden.
+
+Zufallsseeds erleichtern die Wiederholung, garantieren aber keine bitgenau
+identischen Trainingsgewichte auf unterschiedlichen Rechnern oder
+Bibliotheksständen. Für exakt dasselbe Modell die erzeugten Dateien aufbewahren.
+
+### Kurzablauf: nur das fertige Modell erneut testen
+
+In Anaconda Prompt, sofern Daten und kompiliertes Modell noch vorhanden sind:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+python evaluate_coral.py
+```
+
+### Kurzablauf: vollständig neu erzeugen
+
+**Dieser Ablauf überschreibt die generierten Daten und Modellausgaben.**
+Zuerst gegebenenfalls sichern.
+
+Anaconda Prompt:
+
+```text
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+conda activate coral
+python signal_lab.py --per-class 1000
+conda activate coral-train
+python train_signal.py
+```
+
+Ubuntu:
+
+```bash
+cd /mnt/c/Users/thwie/source/repos/Coral-signal-recognition/models/signal
+mkdir -p compiled
+~/coral-tools/compiler/x86_64/edgetpu_compiler -s -o compiled signal_int8.tflite
+```
+
+Nach erfolgreicher Kompilierung zurück in Anaconda Prompt:
+
+```text
+conda activate coral
+python evaluate_coral.py
+```
+
+Nur das zu diesem Trainingslauf gehörende, frisch kompilierte Modell auswerten.
+
+## 13. Fehler und Warnmeldungen
+
+| Beobachtung | Vorgehen |
+|---|---|
+| `python` in PowerShell nicht gefunden | Anaconda Prompt öffnen und passende Umgebung aktivieren |
+| `No module named pycoral` | `conda activate coral`, PyCoral-Installation und `python --version` prüfen |
+| NumPy-2-/ABI-Importfehler | In `coral`: `python -m pip install -r requirements.txt` |
+| `TensorFlow fehlt` | `coral-train` aktivieren und Trainingsabhängigkeiten installieren |
+| `list_edge_tpus()` liefert `[]` | Gerät, Datenkabel, USB-Anschluss, Geräte-Manager und Windows-Laufzeit prüfen |
+| Delegate/Laufzeit lässt sich nicht laden | Windows-Edge-TPU-Laufzeit prüfen; kompletten Fehlertext auswerten |
+| Compiler in Ubuntu nicht gefunden | Den vollständigen Wrapperpfad unter `~/coral-tools` verwenden |
+| Google-APT-Quelle liefert 403 | Quelle wie oben deaktivieren und den erfolgreich getesteten GitHub-Compiler verwenden |
+| `signal_int8.tflite` fehlt | Training vollständig ausführen und Arbeitsordner prüfen |
+| Kompiliertes Modell fehlt | Ubuntu-Kompilierung ausführen; Standardpfad des Auswerters prüfen |
+| Nach Training unerwartete alte Ergebnisse | Prüfen, ob das neue TFLite-Modell tatsächlich erneut kompiliert wurde |
+| USB-An-/Abmeldetöne | Einzelne Tonfolgen wurden bei erfolgreichen Tests beobachtet; bei Wiederholungen während einer Dauerauswertung oder Fehlern USB-Verbindung genauer prüfen |
+| Compiler meldet nicht unterstützte Operatorversion | Konkreten Compilerbericht prüfen; eine ältere Version unterstützt nicht jede neuere Exportvariante |
+
+Das Auftreten eines USB-Tons allein wurde nicht als Hardwaredefekt nachgewiesen.
+Umgekehrt beweist eine leuchtende LED allein noch keine funktionierende Inferenz.
+
+## 14. Nächste Entwicklungsschritte
+
+1. Trainings- und Auswertungsstand einschließlich Modellartefakten sichern.
+2. Verwechslungen zwischen Träger und FM systematisch nach SNR und Parametern
+   untersuchen; unabhängige Daten für weitere Vergleiche festhalten.
+3. Echte SDR-Aufnahmen sammeln und getrennt nach Aufnahmesitzungen auswerten.
+4. Abtastrate, Frequenzausschnitt und Vorverarbeitung des Qt-Analyzers an den
+   Modelleingang angleichen.
+5. Einen dauerhaft laufenden Python-Prozess für die Coral-Auswertung anbinden.
+6. Ergebnisse und eine passende Behandlung unbekannter Signale im Analyzer anzeigen.
+
+Die Qt-Anbindung ist bisher **geplant, nicht implementiert**.
+Der Coral übernimmt die neuronale Klassifikation; FFT, Wasserfall und klassische
+Signalverarbeitung des Analyzers werden dadurch nicht automatisch beschleunigt.
+
+## 15. Referenzen
+
+- [Projekt](https://github.com/Thomas-Wierzbicki/Coral-signal-recognition)
+- [Bestehender SDR-Analyzer](https://github.com/Thomas-Wierzbicki/Intel_RTL_Analyzer_Next)
+- [Coral USB Accelerator: Einrichtung](https://coral.ai/docs/accelerator/get-started/)
+- [PyCoral](https://github.com/google-coral/pycoral)
+- [Offizielle Coral-Testmodelle und Bilder](https://github.com/google-coral/test_data)
+- [Verwendeter Compiler-Ordner bei Google Coral](https://github.com/google-coral/edgetpu/tree/master/compiler/x86_64)
+- [Edge-TPU-Compiler](https://coral.ai/docs/edgetpu/compiler/)
+- [Modellanforderungen der Edge TPU](https://coral.ai/docs/edgetpu/models-intro/)
+- [TensorFlow-Lite-Quantisierung](https://www.tensorflow.org/lite/performance/post_training_quantization)
+
+Die numerischen Ergebnisse in dieser README stammen aus den am 21. Oktober 2026
+vom Projektinhaber ausgeführten und im Projektverlauf protokollierten Läufen.
