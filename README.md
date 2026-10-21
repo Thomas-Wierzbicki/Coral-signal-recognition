@@ -32,6 +32,7 @@ echter Empfangssignale. Das sind die nächsten Entwicklungsschritte.
 13. [Fehler und Warnmeldungen](#13-fehler-und-warnmeldungen)
 14. [Nächste Entwicklungsschritte](#14-nächste-entwicklungsschritte)
 15. [Referenzen](#15-referenzen)
+16. [Persistenter Coral-Prozess und Schnittstellentest](#16-persistenter-coral-prozess-und-schnittstellentest)
 
 ## 1. Aufgabenteilung und Voraussetzungen
 
@@ -840,3 +841,133 @@ Signalverarbeitung des Analyzers werden dadurch nicht automatisch beschleunigt.
 
 Die numerischen Ergebnisse in dieser README stammen aus den am 21. Oktober 2026
 vom Projektinhaber ausgeführten und im Projektverlauf protokollierten Läufen.
+
+## 16. Persistenter Coral-Prozess und Schnittstellentest
+
+Nach dem erfolgreichen 600-Beispiele-Hardwaretest wurde eine Prozessschnittstelle
+als Vorbereitung der Qt-Anbindung ergänzt. Der eigentliche Analyzer ist noch
+nicht angeschlossen.
+
+### Test unter Windows
+
+In Anaconda Prompt:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+python live_demo.py
+```
+
+Das bereits kompilierte Modell muss unter
+`models/signal/compiled/signal_int8_edgetpu.tflite` vorhanden sein.
+Erneutes Training oder Kompilieren ist für diesen Schnittstellentest nicht nötig.
+
+`live_demo.py` startet `coral_worker.py` mit dem Python-Interpreter der aktiven
+Umgebung. Das Modell wird einmal geladen und aufgewärmt. Anschließend werden
+je zehn neue synthetische IQ-Blöcke der Klassen noise, carrier und fm geschickt.
+Jeder Block ist unabhängig erzeugt; dies ist kein kontinuierlicher Empfangsstrom.
+Der Standard-Seed 2027 unterscheidet sich vom bisherigen Generator-Standard 2026.
+
+Ausgegeben werden Sollklasse, erkannte Klasse, Modellbewertung, Dauer des
+TPU-Aufrufs und Dauer der vollständigen Anfrage. Eine abschließende Matrix
+zeigt die Verwechslungen. Keine bestimmte Trefferzahl wird vorausgesetzt.
+Dieser kleine Test prüft die Schnittstelle und ist kein unabhängiger
+Genauigkeitsnachweis.
+
+Längerer Test:
+
+```text
+python live_demo.py --per-class 100 --interval 0.1
+```
+
+Abbruch mit Strg+C. Der Testclient beendet seinen Unterprozess beim normalen
+Ende sowie bei Abbruch und Fehlern.
+
+### Protokoll für einen späteren Qt-QProcess-Client
+
+Kein Netzwerkport wird geöffnet. Kommunikation erfolgt über die Standardeingabe
+und Standardausgabe des Unterprozesses. Jede Nachricht ist ein JSON-Objekt,
+abgeschlossen durch einen Zeilenumbruch. Diagnoseausgaben gehören auf stderr.
+
+Startbefehl des Dienstes:
+
+```text
+python -u coral_worker.py
+```
+
+Der Dienst meldet nach erfolgreicher Initialisierung `type: ready`,
+`protocol: 1`, `sample_rate: 240000`, `samples: 16384` und die drei Klassen.
+Beim manuellen Start wartet er danach auf Aufträge. Für den normalen Test
+stattdessen `live_demo.py` verwenden.
+
+Eine Klassifikationsanfrage enthält:
+
+| Feld | Inhalt |
+|---|---|
+| `type` | `classify` |
+| `id` | Ganzzahl oder Zeichenfolge zur Zuordnung der Antwort |
+| `sample_rate` | Genau 240000 |
+| `iq_base64` | Base64-kodierte 16.384 komplexe float32-Samples, Little Endian |
+
+Jedes Sample besteht aus Realteil I und Imaginärteil Q, jeweils float32.
+Die Nutzdaten entsprechen NumPy-Datentyp `<c8`, insgesamt 131.072 Byte vor
+Base64-Kodierung. Es werden keine Sollklassen übertragen.
+
+Der Worker führt dieselbe Spektrogrammvorverarbeitung wie der Generator aus.
+Andere Abtastraten, falsche Blocklängen und nichtendliche Werte werden abgelehnt.
+Er führt noch kein Resampling aus.
+
+Eine erfolgreiche Antwort enthält:
+
+| Feld | Inhalt |
+|---|---|
+| `type` | `result` |
+| `id` | Auftragskennung |
+| `label` | `noise`, `carrier` oder `fm` |
+| `scores` | Dequantisierte Modellbewertungen für alle drei Klassen |
+| `invoke_ms` | Nur Interpreter-Aufruf, einschließlich darin anfallender Python-/USB-Kosten |
+| `processing_ms` | Vorverarbeitung, Quantisierung und Auswertung im Worker; ohne Prozessübertragung |
+
+Die Modellbewertungen sind keine garantierten Wahrscheinlichkeiten.
+Der Client misst zusätzlich die Anfragedauer einschließlich Prozesskommunikation,
+Vorverarbeitung und Antwort; die vorherige Signalerzeugung/Base64-Kodierung ist
+darin nicht enthalten.
+
+Fehlerantwort: `type: error`, `id` soweit zuordenbar und `message`.
+Normale fehlerhafte Aufträge beenden den Dienst nicht.
+Überlange Nachrichten über 256 KiB führen zum Beenden.
+`type: shutdown` wird mit `type: bye` beantwortet; anschließend endet der Prozess.
+Auch das Schließen seiner Eingabe beendet ihn.
+
+Der Testclient hält jeweils nur eine Anfrage offen. Das verhindert einen
+wachsenden Rückstau im Test. Ein späterer Qt-Client muss ebenfalls begrenzen,
+wie viele noch nicht beantwortete Signalblöcke er vorhält.
+
+### Automatische Tests ohne Hardware
+
+```text
+python -m unittest test_coral_worker -v
+```
+
+Die Tests verwenden einen künstlichen Interpreter, keine Ersatz-Erkennung.
+Geprüft werden IQ-Kodierung, Ablehnung ungültiger Daten, Quantisierung,
+Antwortzuordnung, Fehlerbehandlung und Wiederverwendung eines Interpreters.
+
+Diese Tests wurden in der Entwicklungsumgebung erfolgreich ausgeführt.
+Der neue Prozessablauf muss zusätzlich am echten Coral unter Windows ausgeführt
+werden; die bisherigen 600-Beispiele-Ergebnisse stammen aus `evaluate_coral.py`.
+
+Zusätzliche Projektdateien:
+
+- `coral_worker.py`: persistenter Inferenzprozess.
+- `live_demo.py`: synthetischer Prozess-/Schnittstellentest.
+- `test_coral_worker.py`: Tests ohne Hardware.
+
+### Vor der tatsächlichen Analyzer-Anbindung
+
+Die IQ-Daten des Analyzers müssen zuerst auf 240 kS/s gebracht und zu Blöcken
+mit 16.384 Samples zusammengesetzt werden. Die bisherige FFT-/Wasserfallanzeige
+ist kein direkter Ersatz für diesen Eingang. Ein unpassender Ausschnitt oder
+eine andere Pegelskalierung kann die Erkennung trotz funktionierender
+Prozessschnittstelle verschlechtern.
