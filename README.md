@@ -40,6 +40,7 @@ Träger und FM nach Signalparametern untersucht werden.
 14. [Nächste Entwicklungsschritte](#14-nächste-entwicklungsschritte)
 15. [Referenzen](#15-referenzen)
 16. [Persistenter Coral-Prozess und Schnittstellentest](#16-persistenter-coral-prozess-und-schnittstellentest)
+17. [Gezielte Fehlerdiagnose nach Signalparametern](#17-gezielte-fehlerdiagnose-nach-signalparametern)
 
 ## 1. Aufgabenteilung und Voraussetzungen
 
@@ -1038,9 +1039,8 @@ die bereits bekannte Schwäche bei der Unterscheidung von Träger und FM.
 #### Nächster fachlicher Schritt
 
 Vor der Qt-Anbindung sollen Fehlentscheidungen nach SNR, Frequenzversatz,
-Signalamplitude und FM-Parametern untersucht werden. Dazu müssen diese Parameter
-je Beispiel protokolliert werden; der derzeitige Generator speichert sie noch
-nicht für jedes einzelne Beispiel.
+Signalamplitude und FM-Parametern untersucht werden. Dafür steht inzwischen `diagnose_signal.py` bereit: Es protokolliert diese
+Parameter je Beispiel, ohne das bestehende Modell neu zu trainieren. Siehe Abschnitt 17.
 
 Bis dahin ist die Prozessschnittstelle funktionsfähig getestet. Die
 Zuverlässigkeit unter echten Empfangsbedingungen bleibt ungeprüft.
@@ -1052,3 +1052,94 @@ mit 16.384 Samples zusammengesetzt werden. Die bisherige FFT-/Wasserfallanzeige
 ist kein direkter Ersatz für diesen Eingang. Ein unpassender Ausschnitt oder
 eine andere Pegelskalierung kann die Erkennung trotz funktionierender
 Prozessschnittstelle verschlechtern.
+
+## 17. Gezielte Fehlerdiagnose nach Signalparametern
+
+Nach dem Prozesstest mit 23/30 Treffern wurde eine Diagnose des vorhandenen
+Modells ergänzt. Sie soll die Bedingungen der Verwechslungen zwischen Träger
+und FM sichtbar machen. Eine Verbesserung des Modells ist damit noch nicht
+implementiert.
+
+### Ausführen
+
+In Anaconda Prompt unter Windows:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+python diagnose_signal.py
+```
+
+Das vorhandene kompilierte Modell wird einmal geladen und unverändert verwendet.
+Training, Datensatzerzeugung mit `signal_lab.py` und Kompilierung müssen nicht
+wiederholt werden. Die Diagnose überschreibt keine Trainings- oder Testdaten.
+
+Geprüft werden jeweils 50 neue Beispiele je Klasse und je SNR-Stufe:
+**−5, 0, 5, 10, 15, 20 und 25 dB**. Insgesamt sind das **1.050 Beispiele**.
+Frequenzversatz, Signalamplitude und FM-Parameter variieren weiterhin zufällig.
+Standard-Seed: 2028.
+
+Die Konsole zeigt für jede SNR-Stufe die Trefferquote je Klasse, anschließend
+die Gesamtmatrix und die Anzahl falscher Entscheidungen mit mindestens
+80 % Modellbewertung. Diese Grenze ist eine Diagnoseauswahl, keine validierte
+Annahmeschwelle für ein späteres Produkt.
+
+Für Rauschen ist die SNR-Angabe nur der Parameter der Rauschskalierung.
+Ohne Nutzsignal gibt es kein Nutzsignal-Rausch-Verhältnis im üblichen Sinn.
+
+### Ergebnisdateien
+
+Unter `models/signal/diagnostics` entstehen:
+
+| Datei | Inhalt |
+|---|---|
+| `cases.csv` | Eine Zeile je Beispiel mit Soll-/Vorhersageklasse, Modellbewertungen und Signalparametern |
+| `summary.json` | Gesamtergebnis, Gruppen nach SNR/Pegel/Frequenzversatz und FM-Modulationsindex, hoch bewertete Fehler, Seed und SHA-256 des verwendeten Modells |
+
+Die CSV enthält Frequenzversatz in Hz, Amplitude, SNR, bei FM Frequenzhub,
+Modulationston und Modulationsindex sowie die gemessene Inferenzdauer.
+Die FM-Parameter sind bei Rauschen und Träger leer.
+
+Der Modellhash dokumentiert, welches kompilierte Modell untersucht wurde.
+Die Dateien liegen unter dem bereits von Git ausgeschlossenen Ordner `models`;
+bei Bedarf separat sichern.
+
+Existieren `cases.csv` oder `summary.json` bereits, bricht das Skript ab,
+damit ein voriger Lauf erhalten bleibt. Für einen weiteren Lauf einen neuen
+Ausgabeordner wählen:
+
+```text
+python diagnose_signal.py --output models/signal/diagnostics-run2
+```
+
+Mehr Beispiele:
+
+```text
+python diagnose_signal.py --per-class 200 --output models/signal/diagnostics-large
+```
+
+Das ergibt 4.200 Beispiele, nicht 600. Ein anderer Seed ist mit `--seed`
+möglich. Die Gesamtgenauigkeit dieses festen SNR-Rasters ist nicht direkt mit
+den bisherigen 91,5 % oder 76,7 % vergleichbar, weil die Stichproben und die
+SNR-Verteilung unterschiedlich sind.
+
+Die Gruppenauswertungen zeigen Zusammenhänge, belegen allein aber keine
+isolierte Ursache. Ein kontrollierter Folgetest müsste einzelne Parameter
+bei sonst gleichen Bedingungen verändern.
+
+### Implementierung und Prüfung
+
+`generate_iq()` unterstützt jetzt optional `return_metadata=True` und
+`snr_db=...`. Ohne diese Optionen bleibt die bisherige Aufrufweise erhalten.
+Ein Vergleich mit dem vorigen Generator bestätigte für 30 geprüfte Signale
+bitidentische Standardausgaben.
+
+```text
+python -m unittest test_coral_worker test_diagnosis -v
+```
+
+Fünf Tests ohne Hardware prüften unter anderem Metadaten, Rauschskalierung,
+Gruppenauswertung und die bestehende Prozessschnittstelle.
+Der tatsächliche Diagnoselauf auf dem Coral muss auf dem Windows-Rechner
+ausgeführt werden; seine Ergebnisse sind hier noch nicht dokumentiert.

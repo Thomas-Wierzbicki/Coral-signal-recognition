@@ -11,11 +11,14 @@ FRAMES = 64
 SAMPLES = FFT_SIZE * FRAMES
 
 
-def generate_iq(label, rng):
+def generate_iq(label, rng, *, return_metadata=False, snr_db=None):
     t = np.arange(SAMPLES, dtype=np.float64) / SAMPLE_RATE
     offset = rng.uniform(-60000, 60000)
     amplitude = rng.uniform(0.2, 0.9)
-    snr_db = rng.uniform(-5, 25)
+    sampled_snr = rng.uniform(-5, 25)
+    snr_db = sampled_snr if snr_db is None else float(snr_db)
+    if not np.isfinite(snr_db) or not -100 <= snr_db <= 100:
+        raise ValueError("SNR muss endlich und zwischen -100 und 100 dB liegen")
     phase0 = rng.uniform(-np.pi, np.pi)
     deviation = rng.uniform(1500, 6000)
     audio_hz = rng.uniform(300, 3000)
@@ -29,7 +32,14 @@ def generate_iq(label, rng):
     iq = sigma * (rng.standard_normal(SAMPLES) + 1j * rng.standard_normal(SAMPLES))
     if label != "noise":
         iq += amplitude * np.exp(1j * phase)
-    return iq.astype(np.complex64)
+    iq = iq.astype(np.complex64)
+    if return_metadata:
+        metadata = dict(label=label, snr_db=float(snr_db), offset_hz=float(offset),
+                        amplitude=float(amplitude),
+                        deviation_hz=float(deviation) if label == "fm" else None,
+                        audio_hz=float(audio_hz) if label == "fm" else None)
+        return iq, metadata
+    return iq
 
 
 def spectrogram(iq):
