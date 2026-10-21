@@ -39,12 +39,16 @@ def main():
     parser.add_argument("--interval", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=2027)
     parser.add_argument("--model", type=Path, default=DEFAULT_MODEL)
+    parser.add_argument("--preprocessing", choices=("raw", "rms-v1"), default=None)
     args = parser.parse_args()
     if args.per_class < 1 or not np.isfinite(args.interval) or args.interval < 0:
         parser.error("Positive Beispielzahl und endliches, nichtnegatives Intervall erforderlich")
     worker = Path(__file__).resolve().with_name("coral_worker.py")
+    command = [sys.executable, "-u", str(worker), "--model", str(args.model.resolve())]
+    if args.preprocessing is not None:
+        command.extend(["--preprocessing", args.preprocessing])
     process = subprocess.Popen(
-        [sys.executable, "-u", str(worker), "--model", str(args.model.resolve())],
+        command,
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
         encoding="utf-8", bufsize=1)
     responses = queue.Queue()
@@ -57,6 +61,9 @@ def main():
         ready = receive(responses, 60)
         if ready.get("type") != "ready" or ready.get("protocol") != 1:
             raise RuntimeError("Unbekanntes Startprotokoll")
+        if args.preprocessing is not None and ready.get("preprocessing") != args.preprocessing:
+            raise RuntimeError("Worker verwendet nicht die erwartete Vorverarbeitung")
+        print("Vorverarbeitung:", ready.get("preprocessing", "nicht gemeldet"), flush=True)
         print("Coral bereit; das Modell bleibt fuer alle Signale geladen.", flush=True)
         print("Synthetischer Schnittstellentest, kein Live-Empfang und kein unabhaengiger Benchmark.")
         request_id = 0

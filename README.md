@@ -5,22 +5,27 @@ mit dem **Google Coral USB Accelerator**.
 
 **Stand: 21. Oktober 2026.** Die vollständige Kette wurde auf dem Windows-Rechner
 des Projektinhabers ausgeführt: Daten erzeugen → CNN trainieren → INT8-TFLite
-exportieren → unter Ubuntu/WSL für die Edge TPU kompilieren → unter Windows auf
-dem USB-Coral auswerten.
+exportieren → unter Ubuntu/WSL kompilieren → auf dem USB-Coral auswerten.
 
-**Ergebnis:** 91,5 % Genauigkeit auf 600 synthetischen Testbeispielen.
-Alle zehn Modelloperationen wurden vom Compiler der Edge TPU zugeordnet.
-Die gemessene Inferenzdauer betrug im Median 0,427 ms und am 95. Perzentil 0,543 ms.
+**Aktuell bevorzugte Variante: RMS-Normalisierung (`rms-v1`).**
+Das Modell unter `models/signal-rms` erreichte auf 600 synthetischen
+Testbeispielen **98,7 %**. Alle zehn Modelloperationen wurden der Edge TPU
+zugeordnet. Die Inferenzdauer lag im Median bei **0,464 ms**, am 95. Perzentil
+bei **0,655 ms**, ohne Vorverarbeitung.
 
-**Zusätzlich bestätigt:** Der persistente Coral-Prozess hat unter Windows alle
-30 Aufträge von `live_demo.py` verarbeitet, ohne das Modell zwischen den
-Aufträgen neu zu laden. Ergebnis: 23/30 Treffer (76,7 %), Anfrage-Median 4,61 ms.
-Dieser Schnittstellentest verwendet neue synthetische Beispiele und ist vom
-600-Beispiele-Test zu unterscheiden; Details stehen in Abschnitt 16.
+Im kontrollierten Pegeltest zeigte die RMS-Variante **0/120 Klassenwechsel**.
+Die Rohdatenreferenz unter `models/signal` erreichte zuvor 91,5 % Testgenauigkeit
+und 64/120 Klassenwechsel. Beide Modellstände sollen erhalten bleiben.
 
-Es gibt noch keine Anbindung an den SDR-Analyzer und noch keine Bewertung anhand
-echter Empfangssignale. Vor der Qt-Anbindung sollen die Verwechslungen zwischen
-Träger und FM nach Signalparametern untersucht werden.
+Der persistente Prozess wurde bisher mit dem Rohdatenmodell auf Hardware
+getestet: 23/30 Treffer, Anfrage-Median 4,61 ms.
+Für die RMS-Variante steht der entsprechende Prozesstest noch aus.
+`checkpoint_rms.py` sichert den lokalen Stand und startet anschließend diesen
+Test mit explizit geprüfter RMS-Vorverarbeitung.
+
+Es gibt noch keine Anbindung an den SDR-Analyzer und noch keine Bewertung
+anhand echter Empfangssignale. Die folgenden früheren Ergebnisse dokumentieren
+den Entwicklungsweg; für den aktuellen Modellvergleich siehe Abschnitt 20.
 
 ## Inhaltsverzeichnis
 
@@ -43,6 +48,7 @@ Träger und FM nach Signalparametern untersucht werden.
 17. [Gezielte Fehlerdiagnose nach Signalparametern](#17-gezielte-fehlerdiagnose-nach-signalparametern)
 18. [Kontrollierter Pegeltest](#18-kontrollierter-pegeltest)
 19. [Zweite Modellvariante mit RMS-Normalisierung](#19-zweite-modellvariante-mit-rms-normalisierung)
+20. [Validierter RMS-Stand, Sicherung und Prozesstest](#20-validierter-rms-stand-sicherung-und-prozesstest)
 
 ## 1. Aufgabenteilung und Voraussetzungen
 
@@ -1294,7 +1300,9 @@ Die neue Variante muss neu trainiert werden. Eine nachträgliche Normalisierung
 vor dem alten Modell ist kein gleichwertiger Vergleich.
 Zehn Tests ohne Hardware, einschließlich Skalierungsinvarianz und Manifestprüfung,
 bestanden. Ein kleiner normalisierter Datensatz wurde erfolgreich erzeugt.
-Das tatsächliche Training und die Hardwareprüfung der neuen Variante stehen aus.
+Training, Kompilierung und Hardwareauswertung der RMS-Variante wurden inzwischen
+erfolgreich ausgeführt: 98,7 % Testgenauigkeit und 0/120 Klassenwechsel im
+kontrollierten Pegeltest. Die genauen Ergebnisse stehen in Abschnitt 20.
 
 ### Schritt A: Neue Daten separat erzeugen
 
@@ -1422,3 +1430,183 @@ Zusätzliche beziehungsweise erweiterte Funktionen:
 
 Neue Daten und Modelle liegen weiterhin unter den von Git ausgeschlossenen
 Ordnern `data` und `models`. Referenz und Kandidat gemeinsam separat sichern.
+
+## 20. Validierter RMS-Stand, Sicherung und Prozesstest
+
+### Dokumentierte Ergebnisse auf dem Windows-Rechner
+
+Das normalisierte Modell wurde mit derselben Netzarchitektur auf den
+entsprechenden normalisierten synthetischen Daten trainiert.
+
+| Kennzahl | Rohdatenreferenz | RMS-Variante |
+|---|---:|---:|
+| Float-Testgenauigkeit auf CPU | 91,3 % | 98,0 % |
+| INT8-Testgenauigkeit auf CPU | 91,5 % | 98,7 % |
+| INT8-Testgenauigkeit auf Coral | 91,5 % | 98,7 % |
+| Rauschen richtig | 200/200 | 200/200 |
+| Träger richtig | 169/200 | 194/200 |
+| FM richtig | 180/200 | 198/200 |
+| Träger/FM-Verwechslungen | 51 | 6 |
+| Klassenwechsel durch Skalierung | 64/120 | 0/120 |
+| Median Inferenz ohne Vorverarbeitung | 0,427 ms | 0,464 ms |
+| p95 Inferenz ohne Vorverarbeitung | 0,543 ms | 0,655 ms |
+
+Die Laufzeiten stammen aus verschiedenen Läufen und erlauben keinen gesicherten
+Vergleich kleiner Geschwindigkeitsunterschiede. Ein Lauf misst jeweils
+`invoke()` einschließlich darin anfallender Python-/USB-Kosten, ohne FFT,
+Normalisierung, Quantisierung und Datentransport zum Unterprozess.
+
+Die RMS-Konfusionsmatrix war auf CPU und Coral aggregiert gleich:
+
+| Soll / erkannt | noise | carrier | fm |
+|---|---:|---:|---:|
+| noise | 200 | 0 | 0 |
+| carrier | 2 | 194 | 4 |
+| fm | 0 | 2 | 198 |
+
+Es wurden 592/600 Beispiele richtig klassifiziert. Identische aggregierte
+Matrizen beweisen nicht die Gleichheit jeder einzelnen CPU-/Coral-Entscheidung.
+
+Der Compiler 14.1.317412892 ordnete auch beim RMS-Modell alle zehn Operationen
+einem Edge-TPU-Teilgraphen zu. Das kompilierte Modell ist 84,56 KiB groß;
+74,25 KiB On-Chip-Speicher werden für Modellparameter verwendet.
+
+### RMS-Pegeltest: vollständige Ergebniseinordnung
+
+Für alle acht Amplituden von 0,2 bis 0,9 blieben die Trefferquoten je SNR gleich:
+
+| SNR | Träger richtig bei jedem Pegel | FM richtig bei jedem Pegel |
+|---|---:|---:|
+| 0 dB | 20/20 (100 %) | 20/20 (100 %) |
+| +10 dB | 20/20 (100 %) | 18/20 (90 %) |
+| +25 dB | 20/20 (100 %) | 19/20 (95 %) |
+
+Damit änderte sich bei keinem der 120 Grundsignale die Klasse durch Skalierung.
+Drei FM-Grundsignale wurden dennoch bei allen acht Pegeln falsch klassifiziert.
+Die Normalisierung reduzierte also die beobachtete Pegelabhängigkeit und
+verbesserte hier die Erkennung; sie beseitigte nicht sämtliche Fehler.
+
+Die 960 Klassifikationen sind gepaarte Varianten von 120 Grundsignalen.
+Es wurden keine echten Empfangssignale geprüft.
+
+### Lokalen Stand sichern und danach RMS-Prozess testen
+
+Die trainierten Modelle, Daten und Diagnose-JSONs befinden sich auf dem
+Windows-Rechner, nicht im GitHub-Repository. Die USB-Hardware ist ebenfalls
+nur dort verfügbar. Deshalb müssen Sicherung und Hardwaretest dort laufen.
+
+In **Anaconda Prompt unter Windows**:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+python checkpoint_rms.py
+```
+
+Das Skript arbeitet in dieser Reihenfolge:
+
+1. Vorhandensein von Float-, INT8- und kompiliertem RMS-Modell,
+   `preprocessing.json`, Trainingsbericht und normalisierten Daten prüfen.
+2. Die ausgewählte Vorverarbeitung und die Datenmetadaten auf `rms-v1` prüfen.
+3. Eine neue ZIP-Sicherung mit Zeitstempel außerhalb des Projektordners erstellen.
+4. Alle aufgenommenen Dateien erneut aus der ZIP lesen und ihre SHA-256 prüfen.
+5. Erst nach erfolgreicher Sicherung den persistenten RMS-Prozesstest starten.
+6. Seine Ausgabe einschließlich Exit-Code in einer separaten Protokolldatei
+   neben der ZIP speichern und gleichzeitig im Terminal anzeigen.
+
+Standardziel:
+
+```text
+C:\Users\thwie\source\repos\Coral-signal-recognition-backups
+```
+
+Die Sicherung ist lokal. Sie wird nicht auf GitHub oder einen anderen Dienst
+hochgeladen. Für eine zusätzliche Sicherung auf einem anderen Datenträger
+kann ein eigener externer Zielordner angegeben werden:
+
+```text
+python checkpoint_rms.py --output D:\Coral-Backups
+```
+
+Der Zielordner muss außerhalb des Projektordners liegen. Vorhandene
+Sicherungen werden nicht überschrieben. Der Platzbedarf hängt vor allem von
+den erzeugten Datensätzen ab. Vor dem Sichern Training und andere Programme
+beenden, die die zu sichernden Dateien gerade überschreiben könnten.
+
+### Inhalt der Sicherung
+
+| Archivbestandteil | Inhalt |
+|---|---|
+| `project/` | Vorhandene versionierte Dateien und zusätzliche Python-/Markdown-/Requirements-Dateien im Projektstamm |
+| `project/models/` | Beide Modellvarianten, kompilierte Modelle, Manifeste, Berichte und vorhandene Diagnosedateien |
+| `project/data/` | Vorhandene Roh- und normalisierte Datensätze einschließlich Metadaten und PNG-Vorschauen |
+| `repository.bundle` | Git-Commits und lokale Git-Referenzen |
+| `working-tree.patch` | Nicht committete Änderungen versionierter Dateien gegenüber HEAD |
+| `environment.json` | Git-Revision/-Status, aktives Python und dessen Pakete; vorhandene Conda-Paketmetadaten von coral-train |
+| `SHA256SUMS.json` | Hashes der archivierten Nutzdateien |
+| `RESTORE.txt` | Hinweise zum Wiederherstellen |
+
+Installiertes Anaconda, Windows-Treiber, Edge-TPU-Laufzeit und der Compilerordner
+in Ubuntu werden nicht als installierte Programme archiviert. Die README
+beschreibt deren Einrichtung. Beliebige zusätzliche unversionierte Ordner
+außerhalb von `data` und `models` gehören nicht automatisch zum Snapshot.
+
+Das neue Testprotokoll wird erst **nach** der ZIP-Erstellung geschrieben und
+liegt daher neben der ZIP. Es ist nicht rückwirkend im Archiv enthalten.
+
+Wenn die Sicherung abbricht, startet der Prozesstest nicht.
+Eine unvollständige Datei hat die Endung `.zip.partial` und gilt nicht als
+abgeschlossene Sicherung.
+Scheitert anschließend der Hardwaretest, bleibt die bereits geprüfte ZIP erhalten.
+
+### Was der RMS-Prozesstest prüft
+
+Der Sicherungsbefehl startet danach intern:
+
+```text
+python live_demo.py --model models/signal-rms/compiled/signal_int8_edgetpu.tflite --preprocessing rms-v1
+```
+
+Das erwartete Manifest muss direkt neben dem kompilierten Modell liegen.
+Der Worker prüft die Erwartung vor der Inferenz und meldet die verwendete
+Vorverarbeitung. Die Ausgabe muss **`Vorverarbeitung: rms-v1`** enthalten.
+Ein fehlendes oder abweichendes Manifest führt bei dieser expliziten Erwartung
+zum Abbruch statt zu einer versehentlichen Rohdaten-Inferenz.
+
+Das Modell bleibt für 30 neue synthetische IQ-Blöcke geladen: je zehn Rauschen,
+Träger und FM, Generator-Seed 2027. Die Sollklasse wird nicht an den Worker
+übertragen. Die IQ-Blöcke werden im Worker einmal normalisiert und in
+Spektrogramme umgewandelt.
+
+Das Programm zeigt alle Entscheidungen, Modellbewertungen, Inferenz- und
+Anfragezeiten und abschließend die Konfusionsmatrix. Es gibt keine vorgegebene
+Mindesttrefferzahl. Erfolgreiche Kommunikation ist von fehlerfreier
+Klassifikation zu unterscheiden.
+
+Nur sichern, ohne Hardwaretest:
+
+```text
+python checkpoint_rms.py --backup-only
+```
+
+Nur den RMS-Prozesstest erneut ausführen:
+
+```text
+python live_demo.py --model models/signal-rms/compiled/signal_int8_edgetpu.tflite --preprocessing rms-v1
+```
+
+### Prüfung und Status
+
+Die Archivierung wurde in einem temporären echten Git-Repository getestet:
+Modellbytes und JSON-Dateien werden aufgenommen, Hashes stimmen, und das
+archivierte Git-Bundle lässt sich verifizieren.
+Die vorhandenen zehn Tests sowie drei Sicherungstests bestanden.
+
+```text
+python -m unittest test_coral_worker test_diagnosis test_level_sweep test_preprocessing test_checkpoint -q
+```
+
+Die aktualisierte Dokumentation und Sicherungs-/Testprogramme sind auf GitHub.
+**Die tatsächliche Sicherung der trainierten Dateien und der RMS-Prozesstest
+stehen aus, bis `checkpoint_rms.py` auf dem Windows-Rechner ausgeführt wurde.**

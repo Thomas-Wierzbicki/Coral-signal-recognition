@@ -77,7 +77,7 @@ def send(message):
 
 def serve(classifier, stream):
     send(dict(type="ready", protocol=1, sample_rate=SAMPLE_RATE,
-              samples=SAMPLES, labels=LABELS))
+              samples=SAMPLES, labels=LABELS, preprocessing=classifier.preprocessing))
     while True:
         line = stream.readline(MAX_LINE + 1)
         if not line:
@@ -108,9 +108,11 @@ def serve(classifier, stream):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", type=Path, default=DEFAULT_MODEL)
+    parser.add_argument("--preprocessing", choices=("raw", "rms-v1"), default=None,
+                        help="Erwartete Vorverarbeitung, gegen Manifest geprueft")
     args = parser.parse_args()
     try:
-        classifier = CoralClassifier(args.model)
+        classifier = CoralClassifier(args.model, expected_preprocessing=args.preprocessing)
     except Exception as error:
         send(dict(type="error", id=None, message="Initialisierung: " + str(error)))
         return 1
