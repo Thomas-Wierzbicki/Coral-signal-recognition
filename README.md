@@ -12,8 +12,15 @@ dem USB-Coral auswerten.
 Alle zehn Modelloperationen wurden vom Compiler der Edge TPU zugeordnet.
 Die gemessene Inferenzdauer betrug im Median 0,427 ms und am 95. Perzentil 0,543 ms.
 
+**Zusätzlich bestätigt:** Der persistente Coral-Prozess hat unter Windows alle
+30 Aufträge von `live_demo.py` verarbeitet, ohne das Modell zwischen den
+Aufträgen neu zu laden. Ergebnis: 23/30 Treffer (76,7 %), Anfrage-Median 4,61 ms.
+Dieser Schnittstellentest verwendet neue synthetische Beispiele und ist vom
+600-Beispiele-Test zu unterscheiden; Details stehen in Abschnitt 16.
+
 Es gibt noch keine Anbindung an den SDR-Analyzer und noch keine Bewertung anhand
-echter Empfangssignale. Das sind die nächsten Entwicklungsschritte.
+echter Empfangssignale. Vor der Qt-Anbindung sollen die Verwechslungen zwischen
+Träger und FM nach Signalparametern untersucht werden.
 
 ## Inhaltsverzeichnis
 
@@ -820,7 +827,8 @@ Umgekehrt beweist eine leuchtende LED allein noch keine funktionierende Inferenz
 3. Echte SDR-Aufnahmen sammeln und getrennt nach Aufnahmesitzungen auswerten.
 4. Abtastrate, Frequenzausschnitt und Vorverarbeitung des Qt-Analyzers an den
    Modelleingang angleichen.
-5. Einen dauerhaft laufenden Python-Prozess für die Coral-Auswertung anbinden.
+5. Den bereits implementierten und auf Hardware getesteten persistenten
+   Coral-Prozess mit dem Qt-Analyzer verbinden.
 6. Ergebnisse und eine passende Behandlung unbekannter Signale im Analyzer anzeigen.
 
 Die Qt-Anbindung ist bisher **geplant, nicht implementiert**.
@@ -955,14 +963,87 @@ Geprüft werden IQ-Kodierung, Ablehnung ungültiger Daten, Quantisierung,
 Antwortzuordnung, Fehlerbehandlung und Wiederverwendung eines Interpreters.
 
 Diese Tests wurden in der Entwicklungsumgebung erfolgreich ausgeführt.
-Der neue Prozessablauf muss zusätzlich am echten Coral unter Windows ausgeführt
-werden; die bisherigen 600-Beispiele-Ergebnisse stammen aus `evaluate_coral.py`.
+Auch der Prozessablauf wurde inzwischen auf dem echten Coral unter Windows
+erfolgreich ausgeführt: 30/30 Aufträge verarbeitet, 23 richtige Klassifikationen.
+Die 600-Beispiele-Ergebnisse stammen weiterhin aus `evaluate_coral.py`;
+sie sind ein anderer Lauf als der Schnittstellentest.
 
 Zusätzliche Projektdateien:
 
 - `coral_worker.py`: persistenter Inferenzprozess.
 - `live_demo.py`: synthetischer Prozess-/Schnittstellentest.
 - `test_coral_worker.py`: Tests ohne Hardware.
+
+### Beobachteter Prozesstest auf dem echten Coral
+
+Am 21. Oktober 2026 wurde `python live_demo.py` in der Windows-Umgebung
+`coral` mit den Standardparametern ausgeführt. Der Dienst meldete sich bereit;
+alle 30 Anfragen wurden beantwortet und der Test lief bis zur Abschlussmatrix.
+
+| Eigenschaft | Ergebnis |
+|---|---|
+| Testart | Synthetische IQ-Blöcke über einen persistenten Unterprozess |
+| Modelleinsatz | Einmal initialisiert, für sämtliche Aufträge wiederverwendet |
+| Beispiele | Je zehn Rauschen, Träger und FM; insgesamt 30 |
+| Verarbeitete Aufträge | 30 von 30 |
+| Richtige Klassifikationen | 23 von 30, entsprechend 76,7 % |
+| Median der vollständigen Anfrage | 4,61 ms |
+| Beobachtete TPU-Aufrufzeiten | 0,421 bis 0,615 ms |
+
+Konfusionsmatrix, Zeilen = Sollklasse, Spalten = Vorhersage:
+
+| Tatsächlich / vorhergesagt | Rauschen | Träger | FM |
+|---|---:|---:|---:|
+| Rauschen | 10 | 0 | 0 |
+| Träger | 0 | 5 | 5 |
+| FM | 0 | 2 | 8 |
+
+Damit wurden Rauschen in 10/10 Fällen, Träger in 5/10 Fällen und FM in 8/10
+Fällen richtig erkannt. Eine fehlerfreie Prozesskommunikation bedeutet nicht,
+dass jede Klassifikation richtig sein muss.
+
+Auffällige Einzelentscheidungen:
+
+- Ein tatsächlicher Träger wurde als FM mit **92,6 % Modellbewertung** ausgegeben.
+- Ein tatsächliches FM-Signal wurde als Träger mit **84,4 % Modellbewertung**
+  ausgegeben.
+
+Die Werte zeigen, dass auch hohe Modellbewertungen bei falschen Entscheidungen
+vorkommen. Eine einfache Schwelle auf der höchsten Bewertung ist deshalb allein
+kein nachgewiesener Schutz vor solchen Verwechslungen.
+
+#### Vergleich mit dem vorherigen Test
+
+| Merkmal | `evaluate_coral.py` | `live_demo.py` |
+|---|---|---|
+| Daten | Gespeicherte 600 Testbeispiele | 30 neu erzeugte synthetische Blöcke |
+| Generator-Seed | 2026 für den ursprünglichen Datensatz | 2027 |
+| Kommunikation | Auswertung im selben Python-Prozess | Aufträge und Antworten über Prozess-Pipes |
+| Trefferquote | 91,5 % | 76,7 % |
+| Gemeldeter Median | 0,427 ms für `invoke()` | 4,61 ms für die vollständige Anfrage |
+
+Die Laufzeitwerte messen unterschiedliche Teile des Ablaufs und dürfen nicht
+als direkter Leistungsvergleich der TPU interpretiert werden.
+Im Prozesstest benötigte der TPU-Aufruf meist etwa 0,5 ms; die vollständige
+Anfrage einschließlich Übertragung und Vorverarbeitung dauerte meist etwa
+4,4 bis 5,5 ms. Die erste Anfrage dauerte 10,71 ms.
+Die Differenz lässt sich mit den vorhandenen Messungen nicht weiter in einzelne
+Kosten für FFT, JSON, Base64, Pipes und Scheduling zerlegen.
+
+Die kleinere Trefferquote stammt aus anderen Beispielen mit einem anderen Seed
+und einer sehr kleinen Stichprobe. Sie belegt keinen gesicherten Rückgang der
+Modellqualität gegenüber dem 600-Beispiele-Lauf. Sie bestätigt jedoch erneut
+die bereits bekannte Schwäche bei der Unterscheidung von Träger und FM.
+
+#### Nächster fachlicher Schritt
+
+Vor der Qt-Anbindung sollen Fehlentscheidungen nach SNR, Frequenzversatz,
+Signalamplitude und FM-Parametern untersucht werden. Dazu müssen diese Parameter
+je Beispiel protokolliert werden; der derzeitige Generator speichert sie noch
+nicht für jedes einzelne Beispiel.
+
+Bis dahin ist die Prozessschnittstelle funktionsfähig getestet. Die
+Zuverlässigkeit unter echten Empfangsbedingungen bleibt ungeprüft.
 
 ### Vor der tatsächlichen Analyzer-Anbindung
 
