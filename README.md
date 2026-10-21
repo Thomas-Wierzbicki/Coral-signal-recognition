@@ -42,6 +42,7 @@ Träger und FM nach Signalparametern untersucht werden.
 16. [Persistenter Coral-Prozess und Schnittstellentest](#16-persistenter-coral-prozess-und-schnittstellentest)
 17. [Gezielte Fehlerdiagnose nach Signalparametern](#17-gezielte-fehlerdiagnose-nach-signalparametern)
 18. [Kontrollierter Pegeltest](#18-kontrollierter-pegeltest)
+19. [Zweite Modellvariante mit RMS-Normalisierung](#19-zweite-modellvariante-mit-rms-normalisierung)
 
 ## 1. Aufgabenteilung und Voraussetzungen
 
@@ -1256,7 +1257,168 @@ python -m unittest test_coral_worker test_diagnosis test_level_sweep -q
 Sieben Tests ohne Hardware liefen erfolgreich. Geprüft wurden unter anderem
 gemeinsame Skalierung des gesamten IQ-Blocks, unveränderte Parameter je
 Achtergruppe und die Anzahl der Messungen.
-Der tatsächliche Pegeltest auf dem USB-Coral steht noch aus.
+Der tatsächliche Pegeltest wurde inzwischen auf dem USB-Coral durchgeführt:
+Bei **64/120 Grundsignalen (53,3 %)** änderte sich die Klasse allein durch
+gemeinsame Skalierung von Signal und Rauschen.
 
-Eine Pegelnormalisierung oder ein neu trainiertes Modell wird erst nach
-Auswertung dieses kontrollierten Tests ausgewählt.
+| SNR | Träger mit Klassenwechsel | FM mit Klassenwechsel |
+|---|---:|---:|
+| 0 dB | 17/20 | 16/20 |
+| +10 dB | 7/20 | 9/20 |
+| +25 dB | 14/20 | 1/20 |
+
+Bei 0 dB SNR fiel die Träger-Trefferquote von 100 % bei Amplitude 0,3/0,4
+auf 30 % bei Amplitude 0,9. Gleichzeitig stieg die FM-Trefferquote von 20 %
+bei Amplitude 0,2 auf 100 % ab Amplitude 0,6.
+Damit ist die Pegelabhängigkeit für diese Verarbeitungskette und Stichprobe
+belegt. Die genaue Verteilung nach SNR und Parametern bleibt zusätzlich relevant.
+
+Als kontrollierte Folgemaßnahme wurde eine zweite Modellvariante mit
+RMS-Normalisierung vorbereitet; siehe Abschnitt 19.
+
+## 19. Zweite Modellvariante mit RMS-Normalisierung
+
+### Ziel und Stand
+
+Die Rohdatenvariante unter `models/signal` bleibt Referenz.
+Die neue Variante verwendet **denselben Generator und dieselbe Netzarchitektur**,
+normalisiert aber jeden vollständigen IQ-Block vor der FFT auf komplexen
+RMS-Wert **0,5**. Nutzsignal und Rauschen werden gemeinsam skaliert;
+das SNR wird dadurch nicht gezielt verändert.
+
+Die Vorverarbeitung liegt zentral in `signal_preprocessing.py`.
+Ein vollständig leerer Nullblock bleibt null; NaN/Unendlich werden abgelehnt.
+Normalisiert wird vor Fensterung, FFT und dB-Skalierung.
+
+Die neue Variante muss neu trainiert werden. Eine nachträgliche Normalisierung
+vor dem alten Modell ist kein gleichwertiger Vergleich.
+Zehn Tests ohne Hardware, einschließlich Skalierungsinvarianz und Manifestprüfung,
+bestanden. Ein kleiner normalisierter Datensatz wurde erfolgreich erzeugt.
+Das tatsächliche Training und die Hardwareprüfung der neuen Variante stehen aus.
+
+### Schritt A: Neue Daten separat erzeugen
+
+Anaconda Prompt:
+
+```text
+conda activate coral
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+python signal_lab.py --per-class 1000 --preprocessing rms-v1 --output data/normalized
+```
+
+Es entstehen 3.000 Trainings-, 600 Validierungs- und 600 Testbeispiele
+unter `data/normalized`. Die bisherigen Dateien direkt unter `data`
+bleiben erhalten. Gleicher Standard-Seed und gleiche Parameterziehung
+ermöglichen einen Vergleich auf entsprechenden synthetischen Grundsignalen.
+
+Das Programm verhindert die versehentliche Speicherung normalisierter Daten
+im bisherigen Standardordner `data`.
+Erneutes Ausführen in `data/normalized` überschreibt dortige Daten.
+
+### Schritt B: Neues Modell separat trainieren
+
+In derselben Anaconda Prompt:
+
+```text
+conda activate coral-train
+python train_signal.py --data data/normalized --output models/signal-rms
+```
+
+Die Trainingsumgebung und deren installierte Pakete können weiterverwendet werden.
+Ausgaben unter `models/signal-rms`:
+
+- `signal_float.h5`, `signal_int8.tflite`.
+- `report.json` und `labels.txt`.
+- Neu: **`preprocessing.json`**, das die Vorverarbeitung `rms-v1`,
+  Ziel-RMS, Klassen und Eingangsdimensionen festhält.
+
+Der Trainer liest die Vorverarbeitung aus den Datenmetadaten.
+Er normalisiert die fertigen Spektrogramme nicht erneut.
+Der Standardmodellordner `models/signal` ist für diese neue Variante gesperrt;
+einen separaten Ausgabeordner explizit wählen.
+
+### Schritt C: Kompilieren und Manifest danebenlegen
+
+Nach erfolgreichem Training im **Ubuntu-Terminal**:
+
+```bash
+cd /mnt/c/Users/thwie/source/repos/Coral-signal-recognition/models/signal-rms
+mkdir -p compiled
+~/coral-tools/compiler/x86_64/edgetpu_compiler -s -o compiled signal_int8.tflite
+```
+
+Nur nach erfolgreicher Kompilierung:
+
+```bash
+cp preprocessing.json compiled/preprocessing.json
+```
+
+**Wichtig:** Das Manifest muss neben dem kompilierten Modell liegen.
+Wird das Modell später verschoben oder gesichert, `preprocessing.json`
+immer mitnehmen. Beide Dateien bilden für die IQ-Inferenz eine Einheit.
+
+Alte Modelle ohne Manifest werden weiterhin als `raw` behandelt.
+Damit bleiben die bisherigen Befehle für das Referenzmodell verwendbar.
+Die explizite Angabe `--preprocessing rms-v1` beim folgenden Pegeltest
+verhindert, dass ein fehlendes/falsches Manifest unbemerkt bleibt.
+
+### Schritt D: Passenden gespeicherten Testsatz auswerten
+
+Zurück in **Anaconda Prompt unter Windows**:
+
+```text
+conda activate coral
+python evaluate_coral.py --model models/signal-rms/compiled/signal_int8_edgetpu.tflite --data data/normalized
+```
+
+Dieser Auswerter bekommt bereits vorbereitete normalisierte Spektrogramme
+aus `data/normalized`; er führt keine IQ-Normalisierung aus.
+Modell und Datensatz müssen daher wie im Befehl zusammenpassen.
+
+Rauscherkennung, Träger- und FM-Recall getrennt betrachten.
+Eine hohe Gesamtgenauigkeit allein genügt nicht.
+
+### Schritt E: Gepaarter Pegeltest der neuen Variante
+
+```text
+python level_sweep.py --model models/signal-rms/compiled/signal_int8_edgetpu.tflite --preprocessing rms-v1 --output models/signal-rms/level-sweep
+```
+
+Der Worker liest das Manifest und normalisiert jeden unvorverarbeiteten
+IQ-Eingang genau einmal vor der Spektrogrammberechnung.
+Das Modell bleibt für alle Aufträge geladen.
+
+Ohne zusätzliche Argumentänderungen verwendet der Test wieder 120 Grundsignale,
+acht Amplituden und Seed 2029. Es sind die gleichen Grundsignale wie beim
+bisherigen Referenz-Pegeltest.
+
+Verglichen werden:
+
+1. Klassenwechsel bei Skalierung: Referenz **64/120**.
+2. Trefferquoten je Klasse, SNR und Amplitude.
+3. Genauigkeit auf den entsprechenden gespeicherten Testdaten, einschließlich Rauschen.
+
+Die Normalisierung soll die Pegelabhängigkeit reduzieren. Das belegt allein
+noch keine höhere Klassifikationsgenauigkeit: Ein Modell kann über alle
+Amplituden hinweg stabil falsch liegen. Auch reale Empfangsdaten fehlen weiterhin.
+
+### Tests ohne Hardware
+
+```text
+python -m unittest test_coral_worker test_diagnosis test_level_sweep test_preprocessing -q
+```
+
+Zusätzliche beziehungsweise erweiterte Funktionen:
+
+| Datei | Änderung |
+|---|---|
+| `signal_preprocessing.py` | Gemeinsame RMS-Normalisierung und Manifestprüfung |
+| `signal_lab.py` | Option `--preprocessing rms-v1` für neue Datensätze |
+| `train_signal.py` | Metadatenprüfung und Export des Modellmanifests |
+| `coral_worker.py` | Auswahl der Vorverarbeitung über das Modellmanifest |
+| `level_sweep.py` | Option `--preprocessing` zur Prüfung der erwarteten Variante |
+| `test_preprocessing.py` | Invarianz-, Nullblock- und Manifesttests |
+
+Neue Daten und Modelle liegen weiterhin unter den von Git ausgeschlossenen
+Ordnern `data` und `models`. Referenz und Kandidat gemeinsam separat sichern.

@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 from signal_lab import generate_iq
 from coral_worker import CoralClassifier, DEFAULT_MODEL
+from signal_preprocessing import MODES
 
 AMPLITUDES = (0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)
 SNR_VALUES = (0,10,25)
@@ -81,6 +82,8 @@ def main():
                         help="Grundsignale je Klasse UND SNR-Stufe; jedes wird achtfach skaliert")
     parser.add_argument("--seed",type=int,default=2029)
     parser.add_argument("--output",type=Path,default=Path("models/signal/level-sweep"))
+    parser.add_argument("--preprocessing",choices=MODES,default=None,
+                        help="Optional erwartete Vorverarbeitung; prueft das Modellmanifest")
     args=parser.parse_args()
     if args.per_class<1:
         parser.error("--per-class muss positiv sein")
@@ -88,7 +91,7 @@ def main():
         parser.error("Ergebnisse existieren bereits; neuen --output-Ordner verwenden")
     try:
         model_hash=hashlib.sha256(args.model.read_bytes()).hexdigest()
-        classifier=CoralClassifier(args.model)
+        classifier=CoralClassifier(args.model,expected_preprocessing=args.preprocessing)
         args.output.mkdir(parents=True,exist_ok=True)
         print("Kontrollierter Pegeltest ohne Training.")
         print("Pro Grundsignal bleiben Rauschen, SNR, Frequenz, Phase und Modulation gleich.")
@@ -100,7 +103,7 @@ def main():
             writer.writeheader()
             rows,pairs=run_sweep(classifier,args.per_class,args.seed,writer.writerow)
         report=build_report(rows,pairs)
-        report.update(seed=args.seed,snr_values=SNR_VALUES,amplitudes=AMPLITUDES,
+        report.update(preprocessing=classifier.preprocessing,seed=args.seed,snr_values=SNR_VALUES,amplitudes=AMPLITUDES,
                       model_sha256=model_hash,model=str(args.model.resolve()),
                       source="paired_synthetic_amplitude_sweep",
                       matrix_labels=["noise","carrier","fm"])

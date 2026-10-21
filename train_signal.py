@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import numpy as np
+from signal_preprocessing import MODES, TARGET_RMS
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
@@ -62,6 +63,13 @@ def main():
         test_x, test_y = load_split(args.data, "test")
         metadata = json.loads((args.data / "metadata.json").read_text(encoding="utf-8"))
         labels = metadata["labels"]
+        mode = metadata.get("preprocessing", "raw")
+        if mode not in MODES:
+            raise ValueError("Unbekannte Vorverarbeitung in metadata.json")
+        if mode == "rms-v1" and metadata.get("target_rms") != TARGET_RMS:
+            raise ValueError("RMS-Zielwert in metadata.json passt nicht")
+        if mode != "raw" and args.output == Path("models/signal"):
+            raise ValueError("Normalisiertes Modell separat speichern: --output models/signal-rms")
         if labels != ["noise", "carrier", "fm"]:
             raise ValueError("Klassenreihenfolge passt nicht zum Training")
     except (OSError, KeyError, ValueError) as error:
@@ -122,6 +130,12 @@ def main():
     (args.output / "labels.txt").write_text(
         "\n".join(str(i) + " " + label for i, label in enumerate(labels)) + "\n",
         encoding="utf-8")
+    manifest = dict(schema=1, mode=mode,
+                    target_rms=TARGET_RMS if mode == "rms-v1" else None,
+                    input_shape=[64, 256, 1], labels=labels)
+    (args.output / "preprocessing.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8")
+    print("Vorverarbeitung:", mode)
     print("\nTestgenauigkeit Float: {:.1%}".format(report["float_model"]["accuracy"]))
     print("Testgenauigkeit INT8:  {:.1%}".format(report["quantized_model"]["accuracy"]))
     print("INT8-Konfusionsmatrix (Zeilen: wahr, Spalten: Vorhersage):")

@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 import numpy as np
 from signal_lab import SAMPLE_RATE, SAMPLES, spectrogram
+from signal_preprocessing import model_preprocessing
 
 LABELS = ("noise", "carrier", "fm")
 MAX_LINE = 256 * 1024
@@ -33,12 +34,15 @@ def decode_iq(request):
 
 
 class CoralClassifier:
-    def __init__(self, model, factory=None):
+    def __init__(self, model, factory=None, expected_preprocessing=None):
         if factory is None:
             if not Path(model).is_file():
                 raise ValueError("Kompiliertes Modell fehlt: " + str(model))
             from pycoral.utils.edgetpu import make_interpreter
             factory = make_interpreter
+        self.preprocessing = model_preprocessing(model)
+        if expected_preprocessing is not None and self.preprocessing != expected_preprocessing:
+            raise ValueError("Vorverarbeitung passt nicht; preprocessing.json neben dem Modell pruefen")
         self.interpreter = factory(str(model))
         self.interpreter.allocate_tensors()
         self.inp = self.interpreter.get_input_details()[0]
@@ -53,7 +57,7 @@ class CoralClassifier:
 
     def classify(self, iq):
         start_total = time.perf_counter()
-        feature = spectrogram(iq)
+        feature = spectrogram(iq, self.preprocessing)
         scale, zero = self.inp["quantization"]
         tensor = np.clip(np.rint(feature / scale + zero), 0, 255).astype(np.uint8)[None]
         self.interpreter.set_tensor(self.inp["index"], tensor)

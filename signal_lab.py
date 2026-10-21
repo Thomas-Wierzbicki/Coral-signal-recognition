@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import numpy as np
+from signal_preprocessing import MODES, TARGET_RMS, prepare_iq
 
 LABELS = ("noise", "carrier", "fm")
 SAMPLE_RATE = 240000
@@ -42,8 +43,9 @@ def generate_iq(label, rng, *, return_metadata=False, snr_db=None):
     return iq
 
 
-def spectrogram(iq):
+def spectrogram(iq, preprocessing="raw"):
     """Zeit x Frequenz, feste dBFS-Skalierung; gleiche Funktion fuer spaetere Inferenz."""
+    iq = prepare_iq(iq, preprocessing)
     window = np.hanning(FFT_SIZE)
     blocks = np.asarray(iq).reshape(FRAMES, FFT_SIZE)
     fft = np.fft.fftshift(np.fft.fft(blocks * window, axis=1), axes=1)
@@ -57,7 +59,10 @@ def main():
     p.add_argument("--per-class", type=int, default=200)
     p.add_argument("--seed", type=int, default=2026)
     p.add_argument("--output", type=Path, default=Path("data"))
+    p.add_argument("--preprocessing", choices=MODES, default="raw")
     args = p.parse_args()
+    if args.preprocessing != "raw" and args.output == Path("data"):
+        p.error("Normalisierte Daten separat speichern: --output data/normalized")
     if args.per_class < 10:
         p.error("--per-class muss mindestens 10 sein")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -70,7 +75,7 @@ def main():
         x, y = [], []
         for index, label in enumerate(LABELS):
             for number in range(count):
-                feature = spectrogram(generate_iq(label, rng))
+                feature = spectrogram(generate_iq(label, rng), args.preprocessing)
                 x.append(feature)
                 y.append(index)
                 if number == 0:
@@ -82,7 +87,9 @@ def main():
         print(split + ": " + str(len(y)) + " Beispiele")
     metadata = dict(labels=LABELS, sample_rate=SAMPLE_RATE, fft_size=FFT_SIZE,
                     frames=FRAMES, seed=args.seed, scale_dbfs=[-80, 0],
-                    source="synthetic", version=1)
+                    source="synthetic", version=1,
+                    preprocessing=args.preprocessing,
+                    target_rms=TARGET_RMS if args.preprocessing == "rms-v1" else None)
     (args.output / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     print("Fertig. PNG-Vorschauen und Datensaetze in: " + str(args.output.resolve()))
     print("Noch kein trainiertes Modell; keine Aussage zur Erkennung echter Funksignale.")
