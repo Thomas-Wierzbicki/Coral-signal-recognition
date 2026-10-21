@@ -1,0 +1,4 @@
+# Separate Umgebung coral-train; nicht in coral installieren.
+numpy==1.23.5
+tensorflow==2.10.1
+protobuf==3.19.6
