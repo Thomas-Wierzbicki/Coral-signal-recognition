@@ -1,34 +1,49 @@
 # Coral-signal-recognition
 
-Experimentelle Erkennung von **Rauschen, unmoduliertem Träger und FM-Testsignalen**
-mit dem **Google Coral USB Accelerator**.
+Experimentelle Klassifikation synthetischer HF-Signale mit dem Google Coral USB Accelerator.
 
-**Stand: 21. Oktober 2026.** Die vollständige Kette wurde auf dem Windows-Rechner
-des Projektinhabers ausgeführt: Daten erzeugen → CNN trainieren → INT8-TFLite
-exportieren → unter Ubuntu/WSL kompilieren → auf dem USB-Coral auswerten.
+**Stand: 22. Oktober 2026 – RadioML-I/Q-Modell auf Coral erfolgreich getestet.**
 
-**Aktuell bevorzugte Variante: RMS-Normalisierung (`rms-v1`).**
-Das Modell unter `models/signal-rms` erreichte auf 600 synthetischen
-Testbeispielen **98,7 %**. Alle zehn Modelloperationen wurden der Edge TPU
-zugeordnet. Die Inferenzdauer lag im Median bei **0,464 ms**, am 95. Perzentil
-bei **0,655 ms**, ohne Vorverarbeitung.
+| Variante | Klassen | Coral-Test | invoke Median / p95 |
+|---|---:|---:|---:|
+| Eigener Generator, RMS-Spektrogramm | noise, carrier, fm | 98,7 % (592/600) | 0,464 / 0,655 ms |
+| RadioML-Spektrogramm | AM-DSB-WC, FM, BPSK, QPSK, 16QAM | CPU-INT8 71,6 %; kein Coral-Test dokumentiert | – |
+| **RadioML direkte I/Q, RMS** | dieselben fünf Modulationen | **97,2 % (802/825)** | **0,457 / 0,811 ms** |
 
-Im kontrollierten Pegeltest zeigte die RMS-Variante **0/120 Klassenwechsel**.
-Die Rohdatenreferenz unter `models/signal` erreichte zuvor 91,5 % Testgenauigkeit
-und 64/120 Klassenwechsel. Beide Modellstände sollen erhalten bleiben.
+Beim RadioML-I/Q-Test stimmen **alle 825 Coral-Vorhersagen mit CPU-INT8 überein**.
+Alle zwölf Modelloperationen sind auf einem Edge-TPU-Subgraphen abgebildet.
+invoke-Zeiten enthalten Python/USB, aber keine Vorverarbeitung oder Quantisierung.
+Die verschiedenen Drei-/Fünfklassenaufgaben sind kein direkter Genauigkeitsvergleich.
 
-Der persistente Prozess wurde bisher mit dem Rohdatenmodell auf Hardware
-getestet: 23/30 Treffer, Anfrage-Median 4,61 ms.
-Für die RMS-Variante steht der entsprechende Prozesstest noch aus.
-`checkpoint_rms.py` sichert den lokalen Stand und startet anschließend diesen
-Test mit explizit geprüfter RMS-Vorverarbeitung.
+**Aktuelle Dokumente:**
 
-Es gibt noch keine Anbindung an den SDR-Analyzer und noch keine Bewertung
-anhand echter Empfangssignale. Die folgenden früheren Ergebnisse dokumentieren
-den Entwicklungsweg; für den aktuellen Modellvergleich siehe Abschnitt 20.
+- [RadioML-I/Q: Import, Training, Compiler und Hardwaretest](RADIOML_IQ.md)
+- [Bestätigte Ergebnisse, Matrizen, SNR und Grenzen](RESULTS_RADIOML.md)
+- [Sichern, Prüfen und Wiederherstellen](BACKUP_RADIOML.md)
+- [RadioML-Originalimport](RADIOML.md) und [Klassenherkunft](RADIOML_CLASS_ORDER.md)
 
-**Neue Entwicklungslinie:** [RadioML 2018.01A – Import und Dateiprüfung](RADIOML.md).
-Der Import ist vorbereitet; Download und Klassenprüfung der Originaldaten stehen aus.
+**Aktuellen lokalen Stand sichern (Anaconda Prompt im Projektordner):**
+
+```bat
+git pull --ff-only
+conda activate coral
+python checkpoint_radioml.py
+```
+
+Code und Dokumentation liegen auf GitHub. Trainierte Modelle und NPZ-Daten bleiben
+auf dem Windows-Rechner; das Skript sichert sie dort als neue geprüfte ZIP.
+Die tatsächliche Ausführung dieser Sicherung steht noch aus. Es erfolgt kein Upload.
+Die Original-HDF5 unter Downloads gehört nur mit `--include-source` zum Archiv.
+
+Der frühere persistente RMS-Prozesstest wurde ebenfalls ausgeführt:
+29/30 Treffer, Anfrage-Median 6,63 ms. Dieser Drei-Klassen-Prozess ist noch
+keine Schnittstelle für das neue Fünf-Klassen-I/Q-Modell.
+
+Keine SDR-Anbindung und keine Bewertung echter Empfangssignale.
+Nächster fachlicher Schritt: ein zusätzlicher, bisher unbenutzter Testsatz mit
+ausgeschlossenen bisherigen Quellzeilen; danach reale SDR-Daten.
+Der folgende ausführliche Verlauf beschreibt die ursprüngliche Drei-Klassen-Linie.
+Ältere Aussagen zu damals ausstehenden Schritten sind historisch einzuordnen.
 
 ## Inhaltsverzeichnis
 
@@ -1611,5 +1626,7 @@ python -m unittest test_coral_worker test_diagnosis test_level_sweep test_prepro
 ```
 
 Die aktualisierte Dokumentation und Sicherungs-/Testprogramme sind auf GitHub.
-**Die tatsächliche Sicherung der trainierten Dateien und der RMS-Prozesstest
-stehen aus, bis `checkpoint_rms.py` auf dem Windows-Rechner ausgeführt wurde.**
+Der RMS-Prozesstest wurde inzwischen vom Nutzer ausgeführt: 29/30 Treffer,
+Matrix [[10,0,0],[0,10,0],[1,0,9]], Anfrage-Median 6,63 ms.
+Die frühere RMS-Sicherung blieb dabei erhalten. Für den aktuellen RadioML-Stand
+ist die neue Sicherung nach [BACKUP_RADIOML.md](BACKUP_RADIOML.md) auszuführen.

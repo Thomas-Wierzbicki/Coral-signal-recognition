@@ -89,3 +89,12 @@ coral_report.json und coral_predictions.npz werden im compiled-Ordner gespeicher
 Der Test braucht weder TensorFlow noch h5py. Hier wurden Syntax, Quantisierung
 negativer Eingaben und die fuenf bestehenden Datentests geprueft; keine TPU
 verfuegbar, Hardwaretest erfolgt beim Nutzer.
+
+## Bestaetigter Coral-Lauf
+
+Der anschliessende Windows-Test erreichte 802/825 (97,2 %), mit 100 %
+Uebereinstimmung aller Vorhersagen zur CPU-INT8-Referenz. invoke-Median
+0,457 ms, p95 0,811 ms. AM-DSB-WC/FM/BPSK je 165/165, QPSK 152/165,
+16QAM 155/165. Die zuvor als ausstehend beschriebenen Hardwaretests sind
+somit abgeschlossen. Vollstaendige Matrix und SNR-Werte: [Ergebnisse](RESULTS_RADIOML.md).
+Naechster Schritt: [lokal sichern und pruefen](BACKUP_RADIOML.md).
