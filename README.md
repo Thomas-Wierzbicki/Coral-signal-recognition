@@ -27,6 +27,9 @@ Es gibt noch keine Anbindung an den SDR-Analyzer und noch keine Bewertung
 anhand echter Empfangssignale. Die folgenden früheren Ergebnisse dokumentieren
 den Entwicklungsweg; für den aktuellen Modellvergleich siehe Abschnitt 20.
 
+**Neue Entwicklungslinie:** [RadioML 2018.01A – Import und Dateiprüfung](RADIOML.md).
+Der Import ist vorbereitet; Download und Klassenprüfung der Originaldaten stehen aus.
+
 ## Inhaltsverzeichnis
 
 1. [Aufgabenteilung und Voraussetzungen](#1-aufgabenteilung-und-voraussetzungen)
