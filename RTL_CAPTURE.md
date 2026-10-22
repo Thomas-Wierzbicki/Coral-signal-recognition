@@ -183,3 +183,54 @@ Sechs Tests bestanden, darunter bekannter FM-Testton samt Frequenzoffset,
 Audiobandfilter und WAV-Format/Tonfrequenz. Echte Aufnahme hier nicht verfuegbar;
 Hoerpruefung muss am Windows-Rechner erfolgen. Danach erst experimenteller
 Vergleich realer I/Q-Bloecke mit dem RadioML-Modell.
+
+## Experimenteller Coral-Test der echten Aufnahme
+
+Die FM-Hoerprobe der Aufnahme rtl-20261022-171509-339614 wurde vom Nutzer
+als gut verstaendlich bestaetigt. Damit ist die Empfangs-/Filter-/Demodulations-
+kette praktisch geprueft. Das ist noch keine Bestaetigung des RadioML-Modells.
+
+```bat
+git pull --ff-only
+conda activate coral
+python classify_rtl_channel.py "data\recordings\rtl-20261022-171509-339614\channel-analysis-v1"
+```
+
+Verwendet das vorhandene Modell unter models/radioml2018-iq-v1/compiled.
+Keine Neukompilierung, kein Training, keine Aenderung der Aufnahme.
+Start nach 33 Samples Einschwingabschnitt; nicht ueberlappende 1024-Sample-
+Bloecke entsprechen nominell 32 ms bei 32 kS/s. Bei 1920000 Samples entstehen
+1874 Bloecke. Rest am Ende wird dokumentiert und verworfen. Alle Bloecke
+werden ausgewertet, keine Aktivitaetsselektion oder Auswahl nach Ergebnis.
+Jeder Block wird auf komplexes RMS 0,5 normalisiert und mit I/Q-Kanalfolge
+sowie Modellskala/Nullpunkt quantisiert. Exakte Nullbloecke fuehren zum Abbruch.
+Kein weiterer Frequenz-/DC-Abzug und kein zusaetzliches Resampling.
+
+Neuer Unterordner coral-real-v1:
+
+- predictions.csv: Zeit bezogen auf channel.cf32, RMS vor Normalisierung,
+  Vorhersage, alle fuenf dequantisierten Bewertungen, invoke-Zeit und
+  Anteil beim Eingang geclippter Quantisierungswerte.
+- report.json: Anzahl/Anteile pro Klasse, FM-Referenzuebereinstimmung,
+  Modell-/Kanal-SHA256, Metadaten, Laufzeit und Quantisierungs-Clipping.
+- CLASSIFICATION_COMPLETE: erst nach vollstaendigem Lauf.
+
+Vorhandene Ergebnisordner werden abgelehnt, fuer Wiederholung --output nutzen.
+--expected FM ist die Standard-Hoerreferenz. Es gibt keine einzeln annotierten
+Sollklassen je Block. Deshalb keine Konfusionsmatrix oder Accuracy-Aussage.
+Die Klasse noise/unknown fehlt: Auch Rauschen und unbekannte Signale werden
+einer der fuenf Klassen zugeordnet. Bewertungen sind nicht kalibriert.
+Benachbarte Bloecke sind abhaengig. RadioML und echter NFM-Empfang unterscheiden
+sich in Signalstatistik, Kanal und zeitlicher Skalierung. Das erste Ergebnis
+unveraendert dokumentieren, nicht durch ergebnisgetriebene Vorverarbeitung
+optimieren und dann als unabhaengigen Test ausgeben.
+
+```bat
+python -m unittest test_rtl_classify test_rtl_fm test_rtl_channel -v
+```
+
+Acht Tests bestanden. Klassifikationstests verwenden einen simulierten
+Interpreter und pruefen RMS/Kanalfolge, Warmup, Quantisierung, Blockzeiten,
+CSV/JSON und Ueberschreibschutz. Kein echter Coral-Lauf hier. Nach Auswertung
+mit checkpoint_radioml.py erneut sichern; Aufnahmen und Ergebnisse unter data/
+werden mit archiviert.
