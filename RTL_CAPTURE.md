@@ -143,3 +143,43 @@ Die echte 60-Sekunden-Datei steht hier nicht zur Verfuegung.
 ```bat
 python -m unittest test_rtl_channel -v
 ```
+
+## FM-Hoerprobe des gefilterten Kanals
+
+Nach erfolgreicher Kanalanalyse, Anaconda Prompt:
+
+```bat
+git pull --ff-only
+conda activate coral
+python demodulate_rtl_fm.py "data\recordings\rtl-20261022-171509-339614\channel-analysis-v1"
+start "" "data\recordings\rtl-20261022-171509-339614\channel-analysis-v1\fm-listening-v1\fm_audio.wav"
+```
+
+Neuer Ordner fm-listening-v1 mit fm_audio.wav und audio_report.json.
+Keine neuen Pakete notwendig (NumPy und Python-Standardbibliothek).
+Vorhandener Ausgabeordner wird abgelehnt; Wiederholung mit neuem --output.
+
+Phasendifferenz benachbarter Samples liefert den FM-Diskriminatorwert.
+Sein Median wird entfernt, danach ein 257-Tap-FIR-Sprachband 300..3000 Hz.
+Mono-PCM16 bei nominell 32 kHz, gesamte Datei gemeinsam auf 90 % Spitzenpegel
+skaliert. Keine Deemphasis und keine Rauschsperre. Kanalfilter-Einschwingabschnitt
+und Raender des Audiofilters fehlen in der WAV; sie ist geringfuegig kuerzer.
+Der JSON-Bericht dokumentiert Quellhash, Verarbeitung und Zeitversatz.
+Zeitangabe bezieht sich auf channel.cf32; zusaetzlich dessen RF-Filterlaufzeit
+von 0,5 ms beachten, wenn mit der Rohaufnahme verglichen wird.
+
+Ziel ist ausschliesslich, die Verstaendlichkeit des vom Nutzer gehoerten
+Vortrags nach unserer Kanalfilterung zu pruefen. Rauschen kann ebenfalls
+lautes Audio liefern. Weder erfolgreich erzeugte WAV noch Phasendifferenzen
+allein sind eine Modulationsklassifikation. Entfernten Median nicht als
+kalibrierten Senderfrequenzfehler interpretieren. Hoerprobe mit normaler
+Wiedergabelautstaerke beginnen. Keine automatische Wiedergabe im Skript.
+
+```bat
+python -m unittest test_rtl_fm test_rtl_channel -v
+```
+
+Sechs Tests bestanden, darunter bekannter FM-Testton samt Frequenzoffset,
+Audiobandfilter und WAV-Format/Tonfrequenz. Echte Aufnahme hier nicht verfuegbar;
+Hoerpruefung muss am Windows-Rechner erfolgen. Danach erst experimenteller
+Vergleich realer I/Q-Bloecke mit dem RadioML-Modell.
