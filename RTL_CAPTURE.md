@@ -234,3 +234,10 @@ Interpreter und pruefen RMS/Kanalfolge, Warmup, Quantisierung, Blockzeiten,
 CSV/JSON und Ueberschreibschutz. Kein echter Coral-Lauf hier. Nach Auswertung
 mit checkpoint_radioml.py erneut sichern; Aufnahmen und Ergebnisse unter data/
 werden mit archiviert.
+
+## Ergebnis des ersten Realtests und naechster Diagnoseschritt
+
+Vom Nutzer ausgefuehrt: 192/1874 Bloecke als FM, 1682/1874 als QPSK;
+kein Quantisierungs-Clipping. Der Vortrag bleibt in der FM-Hoerprobe gut
+verstaendlich. Damit zeigt sich eine erhebliche Abweichung zur RadioML-
+Validierung. Analyse ohne Modellanpassung: [I/Q-Domaenendiagnose](RTL_DOMAIN_DIAGNOSIS.md).
