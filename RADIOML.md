@@ -209,10 +209,89 @@ Drei Tests mit kleinen künstlichen HDF5-Dateien bestanden:
 Datenstruktur/Labels, disjunkte stratifizierte Aufteilung und RMS-Spektrogramme.
 Diese Testdaten sind keine Modulationsbenchmarks.
 
-Der tatsächliche RadioML-Download, die Prüfung seiner Klassenreihenfolge
-und der Import der Originaldaten stehen noch aus.
-Nach der Dateiprüfung folgt ein eigener Trainer für die fünf Klassen und
-die Eingangsdimension (29,128,1), anschließend Quantisierung/Coral-Prüfung.
+Der Originaldatensatz wurde inzwischen heruntergeladen und per SHA-256 mit
+der dokumentierten Referenz abgeglichen. Die nachgereichte classes-fixed.json
+stimmt in allen 24 Positionen mit radioml_classes.json überein.
+Der tatsächliche Import erzeugte 3.850 Trainings-, 825 Validierungs- und
+825 Testbeispiele mit Form (29,128,1). Ein eigener Trainer ist nun ergänzt;
+sein vollständiger Lauf und die anschließende Coral-Prüfung stehen noch aus.
 `train_signal.py`, `evaluate_coral.py` und `coral_worker.py` sind weiterhin
 für die bisherige Drei-Klassen-Variante ausgelegt und dürfen nicht einfach
 mit den RadioML-Dateien verwendet werden.
+
+## 8. Fünfklassenmodell trainieren
+
+Der Import auf dem Windows-Rechner ist abgeschlossen:
+
+| Aufteilung | Beispiele |
+|---|---:|
+| Training | 3.850 |
+| Validierung | 825 |
+| Test | 825 |
+
+Quelle: `C:\Users\thwie\Downloads\GOLD_XYZ_OSC.0001_1024.hdf5\GOLD_XYZ_OSC.0001_1024.hdf5`.
+Die Datei stimmt per SHA-256 mit der dokumentierten Referenz überein.
+Für die Details siehe [RADIOML_CLASS_ORDER.md](RADIOML_CLASS_ORDER.md).
+
+Nun in Anaconda Prompt:
+
+```text
+cd /d C:\Users\thwie\source\repos\Coral-signal-recognition
+git pull --ff-only
+conda activate coral-train
+python train_radioml.py
+```
+
+Die bereits funktionierende TensorFlow-Trainingsumgebung wird wiederverwendet.
+Der Trainer liest NPZ-Dateien; h5py wird für diesen Schritt nicht benötigt.
+
+Das Modell erhält Eingaben mit Form (29,128,1) und fünf Ausgänge in der
+importierten Klassenreihenfolge. Es verwendet zwei Conv2D-Schichten mit 16/32
+Filtern, MaxPooling, eine Dense-Schicht mit 32 Einheiten und fünf Softmax-Ausgaben.
+Standard: maximal 50 Epochen, Batchgröße 32, Seed 2031, EarlyStopping nach
+acht Epochen ohne Verbesserung des Validierungsverlusts.
+
+Der Trainer prüft:
+- abgeschlossenen Import und richtige Vorverarbeitung;
+- Tensorformen, gültige Klassen und endliche Werte;
+- keine doppelten Quellzeilen innerhalb oder zwischen den Aufteilungen.
+
+Die Quantisierung verwendet ausschließlich Trainingsbeispiele zur Kalibrierung.
+Float- und INT8-Modell werden anschließend auf den 825 Testbeispielen
+ausgewertet, zusätzlich getrennt nach SNR.
+
+Ausgaben unter `models/radioml2018-v1`:
+
+| Datei | Inhalt |
+|---|---|
+| radioml_float.h5 | Keras-Modell |
+| radioml_int8.tflite | Vollquantisiertes Modell mit uint8-Ein-/Ausgängen |
+| report.json | Konfusionsmatrizen, Recall je Klasse und Ergebnisse je SNR |
+| test_predictions.npz | Einzelvorhersagen von Float-/INT8-Modell mit Sollklasse und SNR |
+| preprocessing.json | RadioML-Aufgabe, Klassen, Eingangsdimension und Vorverarbeitung |
+| labels.txt | Ausgabereihenfolge |
+
+Vorhandene Modellordner werden nicht überschrieben.
+Für einen weiteren Lauf beispielsweise:
+
+```text
+python train_radioml.py --output models/radioml2018-run2
+```
+
+Die bisherigen Drei-Klassenmodelle bleiben in ihren eigenen Ordnern.
+Die RadioML-Ergebnisse sind wegen anderer Klassen, SNR-Verteilung und
+Signalabschnitte nicht direkt mit deren 98,7 % vergleichbar.
+
+Dieser erste RadioML-Versuch verwendet Leistungsspektrogramme.
+Unterscheidungsmerkmale von PSK/QAM können darin fehlen; direkte IQ-Verarbeitung
+bleibt eine mögliche Folgevariante. Es wird keine Mindestgenauigkeit zugesichert.
+
+```text
+python -m unittest test_train_radioml -v
+```
+
+Drei Tests ohne TensorFlow prüften Datenvertrag, Quellzeilentrennung und
+Konfusionsmatrix. Der komplette TensorFlow-Trainingslauf konnte in der
+Entwicklungsumgebung nicht ausgeführt werden und wird auf dem Windows-Rechner
+gestartet. Nach dessen Ergebnis folgen Compilerprüfung und ein eigener
+Coral-Auswerter für fünf Klassen.
