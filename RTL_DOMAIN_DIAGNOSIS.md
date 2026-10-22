@@ -73,3 +73,11 @@ Diagnosebericht mit ausschliesslich Trainings-NPZ. Klassifikationstest mit
 simuliertem Interpreter. Echte Diagnose erfolgt am Nutzerrechner.
 Die erneute Sicherung nach Realtest wurde noch nicht bestaetigt; sie nimmt
 auch neue Diagnoseausgaben unter data/ mit auf.
+
+## Gemeldete Diagnose und kontrollierter Folgetest
+
+Nutzerausgabe, Mediane: reale Amplituden-CV 0,033600, RadioML-FM 0,023509,
+RadioML-QPSK 0,311901 (letztere jeweils SNR >=10 dB). Frequenzlage normiert
+0,013558 / 0,031295 / 0,000219 Zyklen/Sample; spektrale 90-%-Breite
+0,052734 / 0,002930 / 0,098633. Keine isolierte Ursache nachgewiesen.
+Naechster kontrollierter Test: [drei feste Frequenzvarianten](RTL_FREQUENCY_TEST.md).
