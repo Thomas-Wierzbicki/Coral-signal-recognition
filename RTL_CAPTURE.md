@@ -98,3 +98,48 @@ Kein echter Stick/DLL-Test hier ausgefuehrt.
 Referenzen fuer CLI-Parameter und Samplezaehlung:
 https://github.com/osmocom/rtl-sdr/blob/master/src/rtl_sdr.c
 https://github.com/osmocom/rtl-sdr/blob/master/debian/rtl_sdr.1
+
+## Schmalbandkanal ueber die gesamte Minute auswerten
+
+Der Nutzer meldet fuer die Aufnahme rtl-20261022-171509-339614 einen hoerbaren
+Vortrag. Datenpruefung: 61440000 Samples, 60 s nominell, RMS 0,0345851,
+ADC-Randwertanteil 0. Das ist ein menschlicher Referenzhinweis, noch kein
+Coral-Ergebnis. Vom Nutzer angegebener Relaisausgang 438,800 MHz, Kanal 12,5 kHz.
+Standort/ERP und Relaiskennung wurden im Projekt nicht unabhaengig geprueft.
+
+```bat
+git pull --ff-only
+conda activate coral
+python analyze_rtl_channel.py "data\recordings\rtl-20261022-171509-339614" --frequency 438800000
+```
+
+Die Rohaufnahme bleibt erhalten. Neuer Unterordner channel-analysis-v1:
+channel.cf32 (Little-Endian complex64, I/Q), channel_report.json,
+power_timeline.csv, channel_spectrum.npz und CHANNEL_COMPLETE.
+Fuer eine Wiederholung neuen --output-Ordner angeben.
+
+Pipeline: cu8 dekodieren, optionaler Frequenzversatz zur Kanalmitte,
+1025-Tap-Hamming-Sinc-FIR mit 6250 Hz Grenzfrequenz, Dezimierung 32,
+Ausgang 32000 Samples/s. Ganze Aufnahme blockweise mit fortgefuehrtem Filter-
+zustand und Dezimierungsphase. Endlicher Filter mit Uebergangsbereich, keine
+ideale rechteckige 12,5-kHz-Kanalmaske. Gruppenlaufzeit 0,5 ms; kein Ausgleich,
+kein Auffuellen am Ende. Anfanglicher Einschwingabschnitt wird fuer Statistiken
+verworfen. 20-ms-Pegelwerte ueber alle vollstaendigen Folgefenster und gemitteltes
+Spektrum ueber alle vollstaendigen 1024-Sample-Fenster.
+
+Pegel sind relative digitale Leistungen, keine dBm. Schwelle P20+6 dB ist eine
+explorative Heuristik, weder SNR noch Sprecherkennung oder sicherer Aktivitaets-
+nachweis. Bei durchgehendem Sender kann der Anteil oberhalb der Schwelle null
+sein. Ein Gleichanteil bei der Kanalmitte wird absichtlich nicht entfernt,
+um ein dort liegendes Nutzsignal nicht pauschal zu unterdruecken; DC kann die
+Messung beeinflussen. Keine RMS-Normalisierung und noch keine Klassifikation.
+Die RadioML-Zeitskalierung ist noch nicht an reale NFM-Aufnahmen angeglichen.
+
+Drei neue Tests pruefen FFT-Blockfilter gegen direkte Faltung einschliesslich
+Mischung und nicht ausgerichteten Blockgrenzen, Filterdurchlass/Sperrbereich
+sowie eine vollstaendige synthetische cu8-Aufnahme bis zum Kanalbericht.
+Die echte 60-Sekunden-Datei steht hier nicht zur Verfuegung.
+
+```bat
+python -m unittest test_rtl_channel -v
+```
