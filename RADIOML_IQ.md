@@ -61,3 +61,31 @@ TensorFlow-Training, Konvertierung und vollstaendiger HDF5-Import wurden hier
 nicht ausgefuehrt. Nach Nutzer-Training folgt der Compilerbericht und ein
 passender Coral-Test. Bestehende Drei-Klassen-Inferenzskripte passen nicht
 zu diesem Eingang. TPU-Abdeckung und Genauigkeit sind noch offen.
+
+## Training, Compiler und Coral-Test (22.10.2026)
+
+Nutzerergebnis: Float 97,0 %, CPU-INT8 97,2 % (802/825).
+Recall AM-DSB-WC/FM/BPSK je 100 %, QPSK 92,1 %, 16QAM 93,9 %.
+Compiler 14.1.317412892: alle 12 Operationen auf Edge TPU, ein Subgraph,
+124,56 KiB Modell, 154,50 KiB Parametercache, kein Off-Chip-Parameterstreaming.
+Coral-Genauigkeit und Laufzeit stehen noch aus.
+
+compiled/radioml_int8_edgetpu.tflite aus Ubuntu nach Windows unter
+models/radioml2018-iq-v1/compiled/radioml_int8_edgetpu.tflite kopieren.
+preprocessing.json und test_predictions.npz bleiben eine Ebene darueber.
+
+```bat
+git pull --ff-only
+conda activate coral
+python evaluate_radioml_iq_coral.py
+```
+
+Ein geladenes Modell, ein ungemessenes Warmup, danach alle 825 Tests.
+Ausgabe: Matrix, Recall, SNR-Auswertung und invoke-Median/p95 (Python/USB,
+ohne Quantisierung, Vorverarbeitung, Ergebnisabruf und Argmax). Optionaler
+CPU-INT8-Vergleich nutzt test_predictions.npz. Bereits normalisierte negative
+IQ-Werte werden mittels Modellskala und Nullpunkt quantisiert.
+coral_report.json und coral_predictions.npz werden im compiled-Ordner gespeichert.
+Der Test braucht weder TensorFlow noch h5py. Hier wurden Syntax, Quantisierung
+negativer Eingaben und die fuenf bestehenden Datentests geprueft; keine TPU
+verfuegbar, Hardwaretest erfolgt beim Nutzer.
