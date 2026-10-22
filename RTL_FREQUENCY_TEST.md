@@ -62,3 +62,11 @@ Acht Tests bestanden. Tests fuer Frequenzziel, Huellkurvenerhalt, erhaltene
 Phasenvariationen, Uebergangsmatrix, drei vollstaendige Varianten mit simuliertem
 Interpreter und bestehende Diagnose/Klassifikation. Echter Coral-Lauf steht aus.
 Anschliessend Ergebnisse mit checkpoint_radioml.py sichern.
+
+## Gemeldetes Hardwareergebnis
+
+Original 192/1874 FM (10,2 %), centered 0/1874 FM (344 BPSK, 1530 QPSK),
+radioml_fm_offset 1860/1874 FM (99,3 %), 14 QPSK. Original stimmt mit frueherem
+Lauf zu 100 % ueberein. Klassenwechsel 535/1874 bzw. 1668/1874.
+Kein Quantisierungs-Clipping. Naechster Gegencheck:
+[Alle RadioML-Trainingsklassen mit denselben Frequenzvarianten](RADIOML_FREQUENCY_CHECK.md).
