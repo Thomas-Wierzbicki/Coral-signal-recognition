@@ -20,6 +20,7 @@ Die verschiedenen Drei-/Fünfklassenaufgaben sind kein direkter Genauigkeitsverg
 - [RadioML-I/Q: Import, Training, Compiler und Hardwaretest](RADIOML_IQ.md)
 - [Bestätigte Ergebnisse, Matrizen, SNR und Grenzen](RESULTS_RADIOML.md)
 - [Sichern, Prüfen und Wiederherstellen](BACKUP_RADIOML.md)
+- [Zusätzlicher Test mit unbenutzten Quellzeilen](HOLDOUT_RADIOML.md)
 - [RadioML-Originalimport](RADIOML.md) und [Klassenherkunft](RADIOML_CLASS_ORDER.md)
 
 **Aktuellen lokalen Stand sichern (Anaconda Prompt im Projektordner):**
@@ -32,7 +33,8 @@ python checkpoint_radioml.py
 
 Code und Dokumentation liegen auf GitHub. Trainierte Modelle und NPZ-Daten bleiben
 auf dem Windows-Rechner; das Skript sichert sie dort als neue geprüfte ZIP.
-Die tatsächliche Ausführung dieser Sicherung steht noch aus. Es erfolgt kein Upload.
+Die Sicherung wurde am 22.10.2026 erfolgreich lokal ausgeführt und SHA256-geprüft:
+`coral-radioml-20261022-160900-867963.zip`. Es erfolgte kein Upload.
 Die Original-HDF5 unter Downloads gehört nur mit `--include-source` zum Archiv.
 
 Der frühere persistente RMS-Prozesstest wurde ebenfalls ausgeführt:

@@ -20,13 +20,26 @@ def main():
     parser.add_argument("--model", type=Path,
                         default=Path("models/radioml2018-iq-v1/compiled/radioml_int8_edgetpu.tflite"))
     parser.add_argument("--data", type=Path, default=Path("data/radioml2018-iq-v1"))
+    parser.add_argument('--holdout',action='store_true',help='Nur neuen Holdout-Testsatz auswerten')
+    parser.add_argument('--reference',type=Path,default=Path('data/radioml2018-iq-v1'))
+    parser.add_argument('--output',type=Path,help='Neuer Ergebnisordner; bei Holdout erforderlich')
     args = parser.parse_args()
     try:
         if not args.model.is_file():
             raise ValueError("Kompiliertes Modell fehlt: " + str(args.model))
-        metadata,splits=load_dataset(args.data)
-        LABELS=metadata["labels"]
-        x,y,snr=splits["test"]
+        if args.holdout:
+            if args.output is None or args.output.exists():
+                raise ValueError('Holdout braucht einen neuen --output-Ordner')
+            from radioml_holdout import load_holdout
+            metadata,x,y,snr,source_ids=load_holdout(args.data,args.reference,args.model)
+        else:
+            if args.output is not None and args.output.exists():
+                raise ValueError('Ausgabeordner existiert bereits')
+            metadata,splits=load_dataset(args.data)
+            x,y,snr=splits['test']
+            with np.load(args.data/'test.npz',allow_pickle=False) as saved:
+                source_ids=saved['source_index']
+        LABELS=metadata['labels']
         manifest=json.loads((args.model.parent.parent/"preprocessing.json").read_text(encoding="utf-8"))
         if (manifest.get("representation")!="iq-rms-v1" or manifest.get("labels")!=LABELS
                 or manifest.get("input_shape")!=[1,1024,2]
@@ -74,7 +87,7 @@ def main():
                     by_snr={str(float(s)):score(y[snr==s],predictions[snr==s],LABELS)
                             for s in np.unique(snr)})
         reference=args.model.parent.parent/"test_predictions.npz"
-        if reference.is_file():
+        if not args.holdout and reference.is_file():
             with np.load(reference,allow_pickle=False) as saved:
                 if not np.array_equal(saved["true"],y) or not np.array_equal(saved["snr_db"],snr):
                     raise ValueError("CPU-Referenz passt nicht zur Testreihenfolge")
@@ -85,9 +98,15 @@ def main():
             print("Uebereinstimmung mit CPU-INT8: {:.1%}".format(report["cpu_int8_agreement"]))
         for level,stats in report["by_snr"].items():
             print("SNR {} dB: {:.1%}".format(level,stats["accuracy"]))
-        result=args.model.parent/"coral_report.json"
+        from radioml_holdout import file_hash
+        report['model_sha256']=file_hash(args.model)
+        report['holdout']=args.holdout
+        target=args.output if args.output is not None else args.model.parent
+        if args.output is not None:
+            target.mkdir(parents=True,exist_ok=False)
+        result=target/"coral_report.json"
         result.write_text(json.dumps(report,indent=2),encoding="utf-8")
-        np.savez_compressed(args.model.parent/"coral_predictions.npz",true=y,pred=predictions,snr_db=snr)
+        np.savez_compressed(target/"coral_predictions.npz",true=y,pred=predictions,snr_db=snr,source_index=source_ids)
         print("Protokoll:",result.resolve())
         print("Nur synthetische Testdaten; keine Bewertung echter Empfangssignale.")
     except (OSError, ValueError, KeyError, ImportError, RuntimeError) as error:
