@@ -2,13 +2,14 @@
 
 Experimentelle Klassifikation synthetischer HF-Signale mit dem Google Coral USB Accelerator.
 
-**Stand: 22. Oktober 2026 – RadioML-I/Q-Modell auf Coral erfolgreich getestet.**
+**Stand: 22. Oktober 2026 – RadioML-I/Q: 98,1 % auf 11.000 neuen Testzeilen.**
 
 | Variante | Klassen | Coral-Test | invoke Median / p95 |
 |---|---:|---:|---:|
 | Eigener Generator, RMS-Spektrogramm | noise, carrier, fm | 98,7 % (592/600) | 0,464 / 0,655 ms |
 | RadioML-Spektrogramm | AM-DSB-WC, FM, BPSK, QPSK, 16QAM | CPU-INT8 71,6 %; kein Coral-Test dokumentiert | – |
-| **RadioML direkte I/Q, RMS** | dieselben fünf Modulationen | **97,2 % (802/825)** | **0,457 / 0,811 ms** |
+| RadioML direkte I/Q, RMS – ursprünglicher Test | dieselben fünf Modulationen | 97,2 % (802/825) | 0,457 / 0,811 ms |
+| **RadioML I/Q – neuer Holdout, Modell unverändert** | dieselben fünf Modulationen | **98,1 % (10.789/11.000)** | **0,424 / 0,514 ms** |
 
 Beim RadioML-I/Q-Test stimmen **alle 825 Coral-Vorhersagen mit CPU-INT8 überein**.
 Alle zwölf Modelloperationen sind auf einem Edge-TPU-Subgraphen abgebildet.
@@ -21,6 +22,7 @@ Die verschiedenen Drei-/Fünfklassenaufgaben sind kein direkter Genauigkeitsverg
 - [Bestätigte Ergebnisse, Matrizen, SNR und Grenzen](RESULTS_RADIOML.md)
 - [Sichern, Prüfen und Wiederherstellen](BACKUP_RADIOML.md)
 - [Zusätzlicher Test mit unbenutzten Quellzeilen](HOLDOUT_RADIOML.md)
+- [Echte I/Q-Aufnahme mit RTL-SDR Blog V3 vorbereiten](RTL_CAPTURE.md)
 - [RadioML-Originalimport](RADIOML.md) und [Klassenherkunft](RADIOML_CLASS_ORDER.md)
 
 **Aktuellen lokalen Stand sichern (Anaconda Prompt im Projektordner):**
@@ -42,8 +44,10 @@ Der frühere persistente RMS-Prozesstest wurde ebenfalls ausgeführt:
 keine Schnittstelle für das neue Fünf-Klassen-I/Q-Modell.
 
 Keine SDR-Anbindung und keine Bewertung echter Empfangssignale.
-Nächster fachlicher Schritt: ein zusätzlicher, bisher unbenutzter Testsatz mit
-ausgeschlossenen bisherigen Quellzeilen; danach reale SDR-Daten.
+Der zusätzliche Testsatz mit ausgeschlossenen bisherigen Quellzeilen ist abgeschlossen.
+Nächster Schritt: echte RTL-SDR-Aufnahmen erfassen und deren Kanal/Skalierung prüfen.
+Aufnahmewerkzeuge sind vorbereitet, echte Hardwareaufnahme noch nicht durchgeführt.
+Die bestätigte Sicherung liegt vor dem Holdout; den erweiterten Stand erneut sichern.
 Der folgende ausführliche Verlauf beschreibt die ursprüngliche Drei-Klassen-Linie.
 Ältere Aussagen zu damals ausstehenden Schritten sind historisch einzuordnen.
 

@@ -84,3 +84,40 @@ unabhaengigen Aufnahmen. Der Testsatz wurde zur Variantenbewertung angesehen;
 fuer die abschliessende Bewertung ist ein neuer unangetasteter Testsatz noetig.
 Zuerst diesen Stand sichern, dann weitere Quellzeilen ausschliesslich fuer einen
 neuen Test auswaehlen; echte SDR-Aufnahmen anschliessend separat pruefen.
+
+## Zusaetzlicher Holdout: 11000 neue Quellzeilen
+
+Vom Nutzer auf Coral ausgefuehrt, unveraendertes Modell. Alle bisherigen 5500
+Train/Val/Test-Zeilen ausgeschlossen. 200 Beispiele je Klasse/SNR, insgesamt
+2200 je Klasse und 1000 je SNR. 10789/11000 richtig (98,1 % gerundet).
+
+| Soll / erkannt | AM-DSB-WC | FM | BPSK | QPSK | 16QAM |
+|---|---:|---:|---:|---:|---:|
+| AM-DSB-WC | 2200 | 0 | 0 | 0 | 0 |
+| FM | 0 | 2200 | 0 | 0 | 0 |
+| BPSK | 0 | 0 | 2196 | 1 | 3 |
+| QPSK | 0 | 0 | 5 | 2097 | 98 |
+| 16QAM | 0 | 0 | 1 | 103 | 2096 |
+
+Recall: 100 %, 100 %, 99,8 %, 95,3 %, 95,3 % in dieser Reihenfolge.
+201 von 211 Fehlern betreffen QPSK/16QAM. invoke-Median 0,424 ms, p95 0,514 ms.
+Kein gesicherter Geschwindigkeitsgewinn gegenueber frueherem Lauf.
+
+| SNR dB | Genauigkeit |
+|---|---:|
+| 0 | 91,5 % |
+| 2 | 96,8 % |
+| 4 | 98,3 % |
+| 6 | 98,6 % |
+| 8 | 99,4 % |
+| 10 | 99,2 % |
+| 12 | 99,5 % |
+| 14 | 99,4 % |
+| 16 | 98,3 % |
+| 18 | 98,8 % |
+| 20 | 99,1 % |
+
+Protokoll lokal unter models/radioml2018-iq-v1/holdout-v1/coral_report.json.
+Neue Zeilen derselben synthetischen Quelle, weiterhin keine bewiesene Aufnahme-
+Unabhaengigkeit und keine SDR-Validierung. Erneute Sicherung nach dem Holdout
+wurde empfohlen, aber deren Ausfuehrung bisher nicht bestaetigt.
