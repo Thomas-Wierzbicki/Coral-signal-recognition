@@ -161,7 +161,9 @@ def prepare(handle, source, class_map, selected, low, high, cap, seed, output):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("source",type=Path,help="Entpackte HDF5-Datei")
+    parser.add_argument("source",type=Path,nargs="?",
+                        default=Path.home()/"Downloads"/"GOLD_XYZ_OSC.0001_1024.hdf5",
+                        help="HDF5-Datei; Standard: Downloads/GOLD_XYZ_OSC.0001_1024.hdf5")
     parser.add_argument("--inspect",action="store_true")
     parser.add_argument("--class-map",type=Path)
     parser.add_argument("--classes",nargs="+",default=list(DEFAULT_CLASSES))

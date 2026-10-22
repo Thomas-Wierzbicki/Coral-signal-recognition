@@ -16,7 +16,8 @@ Dort unter **RADIOML 2018.01A** den Download öffnen. Der Downloadanbieter verla
 derzeit ein Formular mit Kontaktangaben. Der Importer lädt keine Daten automatisch
 herunter und überträgt keine Kontaktangaben.
 
-Den Download entpacken und beispielsweise hier ablegen:
+Die HDF5-Datei kann im Downloads-Ordner bleiben; siehe Abschnitt 3.
+Zusätzliche Klassen-/Lizenzdateien können beispielsweise hier abgelegt werden:
 
 ```text
 C:\Users\thwie\source\repos\Coral-signal-recognition\data\radioml2018\raw
@@ -55,8 +56,19 @@ Die neue Umgebung benötigt zunächst nur NumPy und h5py, kein TensorFlow.
 
 ## 3. HDF5 prüfen
 
+Der Import verwendet jetzt standardmäßig die Datei im Downloads-Ordner des
+angemeldeten Windows-Benutzers. Auf dem aktuellen Rechner ist das:
+
 ```text
-python radioml_import.py data/radioml2018/raw/GOLD_XYZ_OSC.0001_1024.hdf5 --inspect
+C:\Users\thwie\Downloads\GOLD_XYZ_OSC.0001_1024.hdf5
+```
+
+Die große Datei muss nicht verschoben oder kopiert werden. Ein explizit
+angegebener Dateipfad hat weiterhin Vorrang vor diesem Standard.
+
+
+```text
+python radioml_import.py --inspect
 ```
 
 Erwartete Struktur:
@@ -98,7 +110,7 @@ keine falsche semantische Beschriftung erkennen.
 Mit einer bestätigten JSON-Datei am selben Ort:
 
 ```text
-python radioml_import.py data/radioml2018/raw/GOLD_XYZ_OSC.0001_1024.hdf5 --inspect --class-map data/radioml2018/raw/classes-fixed.json
+python radioml_import.py "C:\Users\thwie\Downloads\GOLD_XYZ_OSC.0001_1024.hdf5" --inspect --class-map data/radioml2018/raw/classes-fixed.json
 ```
 
 Die AMD-Anleitung verwendet ebenfalls eine ausdrückliche Klassenliste:
@@ -109,7 +121,7 @@ https://docs.amd.com/r/en-US/Vitis-Tutorials-AI-Engine-Development/Import-the-Ra
 Erst nach bestätigter Klassenreihenfolge:
 
 ```text
-python radioml_import.py data/radioml2018/raw/GOLD_XYZ_OSC.0001_1024.hdf5 --class-map data/radioml2018/raw/classes-fixed.json
+python radioml_import.py "C:\Users\thwie\Downloads\GOLD_XYZ_OSC.0001_1024.hdf5" --class-map data/radioml2018/raw/classes-fixed.json
 ```
 
 Standardauswahl:
@@ -150,7 +162,7 @@ Ein unvollständiger Import besitzt kein `IMPORT_COMPLETE`.
 Beispiel für andere Parameter:
 
 ```text
-python radioml_import.py data/radioml2018/raw/GOLD_XYZ_OSC.0001_1024.hdf5 --class-map data/radioml2018/raw/classes-fixed.json --snr-min -10 --snr-max 20 --per-bucket 200 --output data/radioml2018-v2
+python radioml_import.py "C:\Users\thwie\Downloads\GOLD_XYZ_OSC.0001_1024.hdf5" --class-map data/radioml2018/raw/classes-fixed.json --snr-min -10 --snr-max 20 --per-bucket 200 --output data/radioml2018-v2
 ```
 
 Mehr Beispiele bedeuten mehr Arbeitsspeicher für die vorbereiteten
