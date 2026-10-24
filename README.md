@@ -1,5 +1,10 @@
 # Coral-signal-recognition
 
+## Aktuell: Lerndiagnose vor weiteren vollständigen Trainingsläufen
+
+Der kontrollierte Vergleich ergab für die Harper-Portierung in drei Läufen konstante Vorhersagen (8,33 %). Der Trainingsverlauf stagniert bereits auf Zufallsniveau. Vor weiteren vollständigen Vergleichen folgt deshalb ein kleiner Lerntest mit **allen zwölf Klassen**, identischen Harper-Anfangsgewichten und einzeln verglichenen Lernraten: [MODULATION12_LEARNING_CHECK.md](MODULATION12_LEARNING_CHECK.md). Start: `python project/check_modulation_learning.py` aus `~/rf-learning`. Die Ausgabe erhält automatisch einen neuen Ordner. Eine bestandene Wiedererkennung derselben Trainingsbeispiele ist keine Testgenauigkeit.
+
+
 ## Aktuell: kontrollierter Zwölfklassen-Vergleich (24.10.2026)
 
 Das erste TorchSig-basierte Zwölfklassen-Modell erreichte 56,0 % auf dem synthetischen Entwicklungsprüfsatz. Als nächster Schritt werden das bisherige Netz und eine dokumentierte PyTorch-Portierung des veröffentlichten Harper-2023-Modells bei gleichen Daten und Trainingsregeln über drei Seeds verglichen. **Alle zwölf Klassen bleiben erhalten.** Start und Aussagegrenzen: [MODULATION12_REFERENCE.md](MODULATION12_REFERENCE.md). Die 89,2 % des separaten Dreiklassen-Merkmalstests sind kein gleichwertiger Architekturvergleich mit dem Zwölfklassen-Netz. Reale Erkennung und Drohnenprotokolle sind weiterhin nicht nachgewiesen.

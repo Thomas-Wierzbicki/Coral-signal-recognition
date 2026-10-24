@@ -1,5 +1,7 @@
 # Zwölfklassen-Vergleich mit veröffentlichter Referenzarchitektur
 
+**Aktueller Befund nach dem Nutzerlauf:** Die Harper-Portierung stagnierte in allen drei Läufen bei 8,33 % mit jeweils konstanter Klasse. Das bisherige Netz erreichte im Mittel 55,4 %. Der Trainingsverlauf zeigt bereits vor Export und Test keinen Lernfortschritt. Vor einer Wiederholung dieses vollständigen Vergleichs ist die [Lerndiagnose mit allen zwölf Klassen](MODULATION12_LEARNING_CHECK.md) auszuführen und auszuwerten. Die nachfolgende Anleitung dokumentiert den bisherigen Vergleich, keine Empfehlung, ihn unverändert erneut zu starten.
+
 Stand: 24. Oktober 2026. Ziel bleibt die Erkennung aller zwölf Kategorien; Drohnenprotokollerkennung bleibt das anschließende eigene Arbeitspaket. Neue Hardware ist nicht erforderlich.
 
 ## Was dieser Versuch klärt
