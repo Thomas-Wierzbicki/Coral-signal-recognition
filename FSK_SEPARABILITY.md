@@ -39,6 +39,8 @@ Das belegt nutzbare Unterschiede unter diesen erleichterten synthetischen Beding
 
 Ausgaben: `report.json`, `parameters.json`, `examples.npz`, `phase_steps.png`, Abschlussmarker `DIAGNOSIS_COMPLETE`. Quellcode- und optional Modellhash sind im Bericht enthalten.
 
-## Weitere Entscheidung
+## Gemeldeter Modellvergleich und korrigierte Einordnung
 
-Zuerst die Referenzvorhersagen auf diesen einfacheren Beispielen prüfen. Bei weiterhin schlechten Ergebnissen folgt ein kontrolliertes Training mit denselben drei Klassen und getrennten Vergleichen von Architektur und Darstellung. Ein gleichzeitiger Austausch mehrerer Komponenten würde keine eindeutige Ursachenanalyse erlauben. Weitere Schritte sind ein Vergleich bei festgehaltener Symbolrate und dokumentiertem Hub sowie Tests über wechselnde Empfangsbedingungen. Reale Modulationserkennung und spätere Drohnenprotokollerkennung bleiben die Ziele.
+Das eingefrorene Zwölfklassen-Modell erreichte auf diesen 120 Prüfbeispielen 5,0 %. Der Merkmalsklassifikator wurde dagegen speziell auf drei Klassen unter festen Bedingungen trainiert. Auch liegt der Diagnose-SNR von 30 dB außerhalb des bisherigen Trainingsrasters (-5 bis +25 dB). Der Abstand 89,2 % gegen 5,0 % isoliert deshalb keinen Architektur- oder Darstellungsfehler. Das Pooling als alleinige Ursache ist nicht nachgewiesen.
+
+Der nächste Entwicklungsversuch behält alle zwölf Klassen, dieselben Daten und dieselbe I/Q-Darstellung. Er vergleicht das bisherige Netz mit einer dokumentierten Portierung einer veröffentlichten Architektur über drei Seeds: [MODULATION12_REFERENCE.md](MODULATION12_REFERENCE.md). Die Ergebnisse bleiben Entwicklungsbefunde; reale Modulationserkennung und spätere Drohnenprotokollerkennung sind weiterhin nicht validiert.

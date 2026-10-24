@@ -47,7 +47,11 @@ def as_tensor(iq):
     return torch.from_numpy(np.stack((iq.real,iq.imag),axis=1).astype(np.float32))[:,:,None,:]
 
 
-def make_model():
+def make_model(architecture='legacy'):
+    if architecture=='harper2023':
+        from modulation_reference import Harper2023
+        return Harper2023(len(CLASSES))
+    if architecture!='legacy': raise ValueError('Unbekannte Architektur: '+architecture)
     return nn.Sequential(
         nn.Conv2d(2,24,(1,9),stride=(1,2),padding=(0,4)),nn.ReLU(),nn.MaxPool2d((1,2)),
         nn.Conv2d(24,48,(1,7),stride=(1,2),padding=(0,3)),nn.ReLU(),nn.MaxPool2d((1,2)),
@@ -79,7 +83,7 @@ def shifted(iq,frequency_hz):
     return (iq*np.exp(2j*np.pi*frequency_hz/RATE*np.arange(SAMPLES))).astype(np.complex64)
 
 
-def train(data,output,epochs=40,batch_size=32,seed=2051,device_name='cuda',patience=8):
+def train(data,output,epochs=40,batch_size=32,seed=2051,device_name='cuda',patience=8,architecture='legacy'):
     data=Path(data); output=Path(output)
     if output.exists(): raise ValueError('Ausgabeordner existiert bereits; neuen --output verwenden')
     if epochs<1 or batch_size<1 or patience<1: raise ValueError('Positive Trainingsparameter erforderlich')
@@ -93,15 +97,22 @@ def train(data,output,epochs=40,batch_size=32,seed=2051,device_name='cuda',patie
     loader=DataLoader(TensorDataset(as_tensor(train_iq),torch.from_numpy(train_y)),
         batch_size=batch_size,shuffle=True,num_workers=0,generator=torch.Generator().manual_seed(seed))
     val_loader=DataLoader(TensorDataset(as_tensor(val_iq),torch.from_numpy(val_y)),batch_size=batch_size,shuffle=False)
-    model=make_model().to(device); optimizer=torch.optim.Adam(model.parameters(),lr=.001)
+    model=make_model(architecture).to(device); optimizer=torch.optim.Adam(model.parameters(),lr=.001)
     criterion=nn.CrossEntropyLoss(); output.mkdir(parents=True)
     config=dict(seed=seed,device=str(device),torch_version=torch.__version__,epochs=epochs,batch_size=batch_size,
         patience=patience,selection='minimum validation cross entropy',classes=CLASSES,
-        model='three Conv2D/ReLU/pooling stages, Dense128, Dropout0.2, 12 logits',
+        architecture=architecture,
+        model=('three Conv2D/ReLU/pooling stages, Dense128, Dropout0.2, 12 logits' if architecture=='legacy'
+               else 'Harper2023 default architecture port; see reference provenance'),
         parameters=sum(p.numel() for p in model.parameters()),training_augmentation='none beyond generated dataset')
+    if architecture=='harper2023':
+        from modulation_reference import REFERENCE
+        config['reference']=REFERENCE
+    config['dataset_metadata_sha256']=sha(data/'metadata.json')
+    config['optimizer']=dict(name='Adam',lr=.001,eps=1e-8,weight_decay=0)
     (output/'training_config.json').write_text(json.dumps(config,indent=2),encoding='utf-8')
     print('Geraet:',torch.cuda.get_device_name(0) if device.type=='cuda' else 'CPU',flush=True)
-    print('Modellparameter:',config['parameters'],flush=True)
+    print('Architektur:',architecture,'Modellparameter:',config['parameters'],flush=True)
     history=[]; best=float('inf'); best_epoch=0; bad=0
     checkpoint=output/'best_state_dict.pt'
     for epoch in range(1,epochs+1):
@@ -187,8 +198,9 @@ def main():
     p.add_argument('--output',type=Path,default=Path('models/modulation12-v1'))
     p.add_argument('--epochs',type=int,default=40); p.add_argument('--batch-size',type=int,default=32)
     p.add_argument('--seed',type=int,default=2051); p.add_argument('--patience',type=int,default=8)
-    p.add_argument('--device',choices=['cuda','cpu'],default='cuda'); args=p.parse_args()
-    try: train(args.data,args.output,args.epochs,args.batch_size,args.seed,args.device,args.patience)
+    p.add_argument('--device',choices=['cuda','cpu'],default='cuda')
+    p.add_argument('--architecture',choices=['legacy','harper2023'],default='legacy'); args=p.parse_args()
+    try: train(args.data,args.output,args.epochs,args.batch_size,args.seed,args.device,args.patience,args.architecture)
     except (OSError,ValueError,KeyError,RuntimeError,AssertionError) as error:
         p.exit(1,'Referenztraining fehlgeschlagen: '+str(error)+'\n')
 
