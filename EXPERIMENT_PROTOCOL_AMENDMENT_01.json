@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "amendment_id": "reference-validation-v1-amendment-01",
+  "date": "2026-10-24",
+  "reason": "Earliest direct parity run failed only two dense-bias gradients per fixture batch; isolated SELU derivative at exactly zero differs between TF 2.4.1 and PyTorch 2.9.1.",
+  "baseline_report": "reports/reference_parity_original_candidate.json",
+  "observed_zero_derivative": {
+    "tensorflow_2_4_1": 1.0507010221481323,
+    "pytorch_2_9_1": 1.7580993175506592
+  },
+  "registered_before_corrected_candidate_evaluation": true,
+  "planned_change": "Add explicitly selectable TensorFlow-compatible SELU derivative at zero. Preserve old default for historical runs. No change to upstream source, data, weights, architecture sizes, optimizer or acceptance tolerance.",
+  "candidate_name": "Harper2023(tensorflow_selu=True)",
+  "unchanged_rule": {
+    "atol": 1e-06,
+    "rtol": 0.0001,
+    "shapes": [
+      [
+        1024,
+        24
+      ],
+      [
+        4096,
+        12
+      ]
+    ],
+    "seeds": [
+      901,
+      902,
+      903
+    ],
+    "fixtures": [
+      "zero",
+      "chirped amplitude-varying sinusoid",
+      "complex Gaussian noise"
+    ]
+  },
+  "next_evaluation": "Repeat complete direct parity on all six pre-existing exported TF cases. Publish baseline failure and corrected result, including any remaining failures.",
+  "claim_limit": "A corner-case gradient mismatch is not established as the cause of full-training collapse. No classification result or optimizer-production equivalence is inferred."
+}

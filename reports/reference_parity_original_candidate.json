@@ -1,0 +1,352 @@
+{
+  "schema": 1,
+  "protocol_id": "reference-validation-v1",
+  "tensorflow_export": {
+    "python": "3.8.20",
+    "tensorflow": "2.4.1",
+    "numpy": "1.19.2",
+    "device": "CPU",
+    "upstream_commit": "902cca45c3bf04b5da9f78030372b5a03f730f42",
+    "cases": [
+      {
+        "name": "samples1024-classes24-seed901",
+        "samples": 1024,
+        "classes": 24,
+        "seed": 901,
+        "parameters": 202880,
+        "sha256": "851aca5b52e0168ac1125d3be777b71d03081946c2159b36e2f8e058cf9ac938"
+      },
+      {
+        "name": "samples1024-classes24-seed902",
+        "samples": 1024,
+        "classes": 24,
+        "seed": 902,
+        "parameters": 202880,
+        "sha256": "c75d9b2a3d090627445d0b2851daf41476eb787266367b954cc8360613012159"
+      },
+      {
+        "name": "samples1024-classes24-seed903",
+        "samples": 1024,
+        "classes": 24,
+        "seed": 903,
+        "parameters": 202880,
+        "sha256": "8f343759504ace6c02f491c2fbfd8b917f54ed8f874eb011b877a0e94d89c6f1"
+      },
+      {
+        "name": "samples4096-classes12-seed901",
+        "samples": 4096,
+        "classes": 12,
+        "seed": 901,
+        "parameters": 201332,
+        "sha256": "71629b73455ae187347b4d67f0431bc509e5d8c9223c17153caeea917db979e7"
+      },
+      {
+        "name": "samples4096-classes12-seed902",
+        "samples": 4096,
+        "classes": 12,
+        "seed": 902,
+        "parameters": 201332,
+        "sha256": "e3a32f7e9e622a881c45710e45ab3430759802a4aa8872088e554de44d0800ba"
+      },
+      {
+        "name": "samples4096-classes12-seed903",
+        "samples": 4096,
+        "classes": 12,
+        "seed": 903,
+        "parameters": 201332,
+        "sha256": "231be59d3dd6c15cb45ddae9f55b121b3d60eed956d5ffbb9cca0c64ba2e3637"
+      }
+    ],
+    "fixtures": [
+      "zero",
+      "chirped amplitude-varying sinusoid",
+      "complex Gaussian noise"
+    ],
+    "loss": "mean sparse softmax cross entropy of logits, labels [0,classes//2,classes-1]",
+    "optimizer": {
+      "name": "original tf.keras.optimizers.Adam",
+      "lr": 0.0001,
+      "clipnorm": 1,
+      "epsilon": 1e-07,
+      "steps": 1
+    },
+    "original_runner_import": "passed",
+    "config_version_missing_upstream": true,
+    "explicit_metadata_addition": "config.version='reference-validation-v1'; get_name checked; no full run started",
+    "limitations": "CPU technical fixtures only, no RadioML training or classification performance reproduction"
+  },
+  "pytorch_version": "2.9.1+cpu",
+  "device": "CPU",
+  "tolerance": {
+    "atol": 1e-06,
+    "rtol": 0.0001
+  },
+  "cases": [
+    {
+      "name": "samples1024-classes24-seed901",
+      "samples": 1024,
+      "classes": 24,
+      "seed": 901,
+      "parameters": 202880,
+      "sha256": "851aca5b52e0168ac1125d3be777b71d03081946c2159b36e2f8e058cf9ac938",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/head.0.bias",
+          "passed": false,
+          "max_abs_error": 0.19639459252357483,
+          "max_relative_error": 102.64911614751963,
+          "max_tolerance_ratio": 69846.53787099921
+        },
+        {
+          "name": "gradient/head.2.bias",
+          "passed": false,
+          "max_abs_error": 0.05842131748795509,
+          "max_relative_error": 14.398917340649971,
+          "max_tolerance_ratio": 31160.39410446334
+        }
+      ],
+      "max_abs_error": 0.19639459252357483,
+      "max_tolerance_ratio": 69846.53787099921,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples1024-classes24-seed902",
+      "samples": 1024,
+      "classes": 24,
+      "seed": 902,
+      "parameters": 202880,
+      "sha256": "c75d9b2a3d090627445d0b2851daf41476eb787266367b954cc8360613012159",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/head.0.bias",
+          "passed": false,
+          "max_abs_error": 0.20989246666431427,
+          "max_relative_error": 65.98971037273927,
+          "max_tolerance_ratio": 143254.95377833163
+        },
+        {
+          "name": "gradient/head.2.bias",
+          "passed": false,
+          "max_abs_error": 0.05058051645755768,
+          "max_relative_error": 178.09296116504854,
+          "max_tolerance_ratio": 39962.59239019749
+        }
+      ],
+      "max_abs_error": 0.20989246666431427,
+      "max_tolerance_ratio": 143254.95377833163,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples1024-classes24-seed903",
+      "samples": 1024,
+      "classes": 24,
+      "seed": 903,
+      "parameters": 202880,
+      "sha256": "8f343759504ace6c02f491c2fbfd8b917f54ed8f874eb011b877a0e94d89c6f1",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/head.0.bias",
+          "passed": false,
+          "max_abs_error": 0.2079891711473465,
+          "max_relative_error": 223.98066857461524,
+          "max_tolerance_ratio": 138279.67115622447
+        },
+        {
+          "name": "gradient/head.2.bias",
+          "passed": false,
+          "max_abs_error": 0.0484437420964241,
+          "max_relative_error": 483.49397882731216,
+          "max_tolerance_ratio": 34658.30249461825
+        }
+      ],
+      "max_abs_error": 0.2079891711473465,
+      "max_tolerance_ratio": 138279.67115622447,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples4096-classes12-seed901",
+      "samples": 4096,
+      "classes": 12,
+      "seed": 901,
+      "parameters": 201332,
+      "sha256": "71629b73455ae187347b4d67f0431bc509e5d8c9223c17153caeea917db979e7",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/head.0.bias",
+          "passed": false,
+          "max_abs_error": 0.18485446274280548,
+          "max_relative_error": 18.590811768525132,
+          "max_tolerance_ratio": 63517.142462561686
+        },
+        {
+          "name": "gradient/head.2.bias",
+          "passed": false,
+          "max_abs_error": 0.06410364806652069,
+          "max_relative_error": 15.774123963938615,
+          "max_tolerance_ratio": 30358.251633001357
+        }
+      ],
+      "max_abs_error": 0.18485446274280548,
+      "max_tolerance_ratio": 63517.142462561686,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 8.940696716308594e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples4096-classes12-seed902",
+      "samples": 4096,
+      "classes": 12,
+      "seed": 902,
+      "parameters": 201332,
+      "sha256": "e3a32f7e9e622a881c45710e45ab3430759802a4aa8872088e554de44d0800ba",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/head.0.bias",
+          "passed": false,
+          "max_abs_error": 0.20283957570791245,
+          "max_relative_error": 114.69443112810544,
+          "max_tolerance_ratio": 121324.5795339946
+        },
+        {
+          "name": "gradient/head.2.bias",
+          "passed": false,
+          "max_abs_error": 0.05348149221390486,
+          "max_relative_error": 21.82095560375762,
+          "max_tolerance_ratio": 34813.012656764666
+        }
+      ],
+      "max_abs_error": 0.20283957570791245,
+      "max_tolerance_ratio": 121324.5795339946,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 8.940696716308594e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples4096-classes12-seed903",
+      "samples": 4096,
+      "classes": 12,
+      "seed": 903,
+      "parameters": 201332,
+      "sha256": "231be59d3dd6c15cb45ddae9f55b121b3d60eed956d5ffbb9cca0c64ba2e3637",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/features.12.bias",
+          "passed": false,
+          "max_abs_error": 3.2102689146995544e-06,
+          "max_relative_error": 0.0012546912147409293,
+          "max_tolerance_ratio": 2.5562289272129233
+        },
+        {
+          "name": "gradient/head.0.bias",
+          "passed": false,
+          "max_abs_error": 0.23847877979278564,
+          "max_relative_error": 385.11850612650903,
+          "max_tolerance_ratio": 108217.30941362747
+        },
+        {
+          "name": "gradient/head.2.bias",
+          "passed": false,
+          "max_abs_error": 0.05416154861450195,
+          "max_relative_error": 59.47745506245557,
+          "max_tolerance_ratio": 34813.6817969222
+        }
+      ],
+      "max_abs_error": 0.23847877979278564,
+      "max_tolerance_ratio": 108217.30941362747,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    }
+  ],
+  "all_passed": false,
+  "scope": "Direct transferred-weight technical parity and single-step equation comparison; no classification accuracy, no full historical training",
+  "source_sha256": {
+    "modulation_reference.py": "a27a08a7fecd89098979d4bbab9d5a2955f6f95df1ccf5969f8fcb0d3ddc77c7",
+    "verify_reference_parity.py": "f6314c0f13f51cd0d967c7b136a338dd119944017caa4ce5c27f507185a9c8dd",
+    "tools/export_harper_tf241.py": "ba6362236aea394d706157e906690af254d3968bba0f951d24d37d87a8b4c101"
+  }
+}

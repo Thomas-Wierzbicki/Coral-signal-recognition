@@ -1,0 +1,60 @@
+{
+  "commit": "902cca45c3bf04b5da9f78030372b5a03f730f42",
+  "files": [
+    {
+      "path": "experiments/radioml2018.01a/models.py",
+      "blob": "88e321d974219486a4cca9509b651003159f791c",
+      "sha256": "3b8ca20346473780e92f2742abe6adcdc10199e444b4c26db131fcfc8a14a441"
+    },
+    {
+      "path": "experiments/radioml2018.01a/layers.py",
+      "blob": "3b554be6900f9b4faac184ee704c324df5f97b2e",
+      "sha256": "685f1ad0c729df084f3a304cdcea4b7d73f9e3c16c122be4d605b754a7e06640"
+    },
+    {
+      "path": "amc_neural_networks/layers.py",
+      "blob": "43813dd9c236ddfd9a8ec0913d3154368f763a49",
+      "sha256": "89cfaf61dd2525dbbaefd28e6f098409cacbab3af6b4f2f05628a2b4bbe58dfb"
+    },
+    {
+      "path": "amc_neural_networks/__init__.py",
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/radioml2018.01a/run.py",
+      "blob": "0f1c71f5f4995f2f802e2e946030644361f8b07b",
+      "sha256": "dee252ac25fcf67c8e6c4c5b2942d8f797a1a9f199f23f6a268dcc1881afc798"
+    },
+    {
+      "path": "experiments/radioml2018.01a/loader.py",
+      "blob": "ced26410ce197d2c0d84fb99aa64d708012eea6d",
+      "sha256": "188eb15e951cc0aeb0c5cf1e98d39a899f2782710e552a69fa07c7f1da86c040"
+    },
+    {
+      "path": "experiments/radioml2018.01a/metrics.py",
+      "blob": "607e465d0c15cb074cf9b5730d0aed12cfbc84b0",
+      "sha256": "8db14fd66515022292f4c2e546d45fe466a0372a0bf7088eebb2d2cbdcbda61a"
+    },
+    {
+      "path": "experiments/radioml2018.01a/configs/sweep-models.py",
+      "blob": "17489746934b1269a1b667a8a0a4cc770a83a8a0",
+      "sha256": "b6761542d3b43fcade5c823e4e36b2c6e1ecd257bf4cc787b4565e9988f1b34e"
+    },
+    {
+      "path": "requirements.txt",
+      "blob": "aa8344d41135d10966e4459c31cff871947ec2d5",
+      "sha256": "bc2c8f59207853aaf2fdfac655af8f4925021a8cf358a7d46ce9ee19da18f715"
+    },
+    {
+      "path": "setup.py",
+      "blob": "f9cbcf38518f7b65467726a8fc1af4dcc76563d3",
+      "sha256": "c08f8710309295985eb6af6db286a0cb8b9439df9d8c66bea6a6d42c5b140883"
+    },
+    {
+      "path": "LICENSE",
+      "blob": "d89b976f13cc1f2b804084d534a4d67680dc6ca9",
+      "sha256": "788910e57fd92b6ced1421c2d21417e3ff1c35d5b1b2bf8d9edc1741e10b9b8d"
+    }
+  ]
+}
