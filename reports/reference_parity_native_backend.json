@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "protocol_id": "reference-validation-v1",
+  "tensorflow_export": {
+    "python": "3.8.20",
+    "tensorflow": "2.4.1",
+    "numpy": "1.19.2",
+    "device": "CPU",
+    "upstream_commit": "902cca45c3bf04b5da9f78030372b5a03f730f42",
+    "cases": [
+      {
+        "name": "samples1024-classes24-seed901",
+        "samples": 1024,
+        "classes": 24,
+        "seed": 901,
+        "parameters": 202880,
+        "sha256": "851aca5b52e0168ac1125d3be777b71d03081946c2159b36e2f8e058cf9ac938"
+      },
+      {
+        "name": "samples1024-classes24-seed902",
+        "samples": 1024,
+        "classes": 24,
+        "seed": 902,
+        "parameters": 202880,
+        "sha256": "c75d9b2a3d090627445d0b2851daf41476eb787266367b954cc8360613012159"
+      },
+      {
+        "name": "samples1024-classes24-seed903",
+        "samples": 1024,
+        "classes": 24,
+        "seed": 903,
+        "parameters": 202880,
+        "sha256": "8f343759504ace6c02f491c2fbfd8b917f54ed8f874eb011b877a0e94d89c6f1"
+      },
+      {
+        "name": "samples4096-classes12-seed901",
+        "samples": 4096,
+        "classes": 12,
+        "seed": 901,
+        "parameters": 201332,
+        "sha256": "71629b73455ae187347b4d67f0431bc509e5d8c9223c17153caeea917db979e7"
+      },
+      {
+        "name": "samples4096-classes12-seed902",
+        "samples": 4096,
+        "classes": 12,
+        "seed": 902,
+        "parameters": 201332,
+        "sha256": "e3a32f7e9e622a881c45710e45ab3430759802a4aa8872088e554de44d0800ba"
+      },
+      {
+        "name": "samples4096-classes12-seed903",
+        "samples": 4096,
+        "classes": 12,
+        "seed": 903,
+        "parameters": 201332,
+        "sha256": "231be59d3dd6c15cb45ddae9f55b121b3d60eed956d5ffbb9cca0c64ba2e3637"
+      }
+    ],
+    "fixtures": [
+      "zero",
+      "chirped amplitude-varying sinusoid",
+      "complex Gaussian noise"
+    ],
+    "loss": "mean sparse softmax cross entropy of logits, labels [0,classes//2,classes-1]",
+    "optimizer": {
+      "name": "original tf.keras.optimizers.Adam",
+      "lr": 0.0001,
+      "clipnorm": 1,
+      "epsilon": 1e-07,
+      "steps": 1
+    },
+    "original_runner_import": "passed",
+    "config_version_missing_upstream": true,
+    "explicit_metadata_addition": "config.version='reference-validation-v1'; get_name checked; no full run started",
+    "limitations": "CPU technical fixtures only, no RadioML training or classification performance reproduction"
+  },
+  "amendment": "EXPERIMENT_PROTOCOL_AMENDMENT_01.json",
+  "candidate": "Harper2023(tensorflow_selu=True)",
+  "convolution_backend": "native CPU",
+  "backend_amendment": "EXPERIMENT_PROTOCOL_AMENDMENT_02.json",
+  "pytorch_version": "2.9.1+cpu",
+  "device": "CPU",
+  "tolerance": {
+    "atol": 1e-06,
+    "rtol": 0.0001
+  },
+  "cases": [
+    {
+      "name": "samples1024-classes24-seed901",
+      "samples": 1024,
+      "classes": 24,
+      "seed": 901,
+      "parameters": 202880,
+      "sha256": "851aca5b52e0168ac1125d3be777b71d03081946c2159b36e2f8e058cf9ac938",
+      "passed": true,
+      "checks": 129,
+      "failures": [],
+      "max_abs_error": 2.8014183044433594e-06,
+      "max_tolerance_ratio": 0.20261839789451722,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples1024-classes24-seed902",
+      "samples": 1024,
+      "classes": 24,
+      "seed": 902,
+      "parameters": 202880,
+      "sha256": "c75d9b2a3d090627445d0b2851daf41476eb787266367b954cc8360613012159",
+      "passed": true,
+      "checks": 129,
+      "failures": [],
+      "max_abs_error": 8.791685104370117e-07,
+      "max_tolerance_ratio": 0.14549341701304502,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples1024-classes24-seed903",
+      "samples": 1024,
+      "classes": 24,
+      "seed": 903,
+      "parameters": 202880,
+      "sha256": "8f343759504ace6c02f491c2fbfd8b917f54ed8f874eb011b877a0e94d89c6f1",
+      "passed": true,
+      "checks": 129,
+      "failures": [],
+      "max_abs_error": 2.384185791015625e-07,
+      "max_tolerance_ratio": 0.12219632056397303,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples4096-classes12-seed901",
+      "samples": 4096,
+      "classes": 12,
+      "seed": 901,
+      "parameters": 201332,
+      "sha256": "71629b73455ae187347b4d67f0431bc509e5d8c9223c17153caeea917db979e7",
+      "passed": false,
+      "checks": 129,
+      "failures": [
+        {
+          "name": "gradient/features.18.bias",
+          "passed": false,
+          "max_abs_error": 1.019984483718872e-05,
+          "max_relative_error": 0.0003665796838218295,
+          "max_tolerance_ratio": 1.2158118114719612
+        }
+      ],
+      "max_abs_error": 1.019984483718872e-05,
+      "max_tolerance_ratio": 1.2158118114719612,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 8.940696716308594e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples4096-classes12-seed902",
+      "samples": 4096,
+      "classes": 12,
+      "seed": 902,
+      "parameters": 201332,
+      "sha256": "e3a32f7e9e622a881c45710e45ab3430759802a4aa8872088e554de44d0800ba",
+      "passed": true,
+      "checks": 129,
+      "failures": [],
+      "max_abs_error": 5.230307579040527e-06,
+      "max_tolerance_ratio": 0.43919404494316955,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 29,
+          "max_abs_difference": 8.940696716308594e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    },
+    {
+      "name": "samples4096-classes12-seed903",
+      "samples": 4096,
+      "classes": 12,
+      "seed": 903,
+      "parameters": 201332,
+      "sha256": "231be59d3dd6c15cb45ddae9f55b121b3d60eed956d5ffbb9cca0c64ba2e3637",
+      "passed": true,
+      "checks": 129,
+      "failures": [],
+      "max_abs_error": 2.428889274597168e-06,
+      "max_tolerance_ratio": 0.8905862730715476,
+      "native_adam": {
+        "1e-07": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 6.982684135437012e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        },
+        "1e-08": {
+          "arrays": 32,
+          "arrays_failing_same_tolerance": 31,
+          "max_abs_difference": 8.937716484069824e-05,
+          "note": "Same learning rate and exported gradients; this is an optimizer difference check, not a required equality gate"
+        }
+      }
+    }
+  ],
+  "all_passed": false,
+  "scope": "Direct transferred-weight technical parity and single-step equation comparison; no classification accuracy, no full historical training",
+  "source_sha256": {
+    "modulation_reference.py": "df0c593d27d8f3a8a66bf71124df9ff54fad1fb3c11ff0534c94fad6bc945de7",
+    "verify_reference_parity.py": "f9466e1b9af20e48c3d5353d27a5c0cd3fdaca1315f6f8b34bc7c44f159abfaf",
+    "tools/export_harper_tf241.py": "ba6362236aea394d706157e906690af254d3968bba0f951d24d37d87a8b4c101"
+  }
+}

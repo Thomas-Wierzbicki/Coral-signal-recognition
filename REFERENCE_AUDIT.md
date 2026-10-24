@@ -1,5 +1,7 @@
 # Referenzaudit und verbindliche Einordnung
 
+**Aktualisierung nach Ausführung:** Die getrennte Original-CPU-Umgebung wurde inzwischen aufgebaut und geprüft. Der direkte Frameworkvergleich hat einen SELU-Ableitungsunterschied bei null sowie verbleibende Gradienten-/Backendgrenzen aufgedeckt. Die G2-Gesamtprüfung ist noch nicht bestanden. Vollständige Befunde und Fehlschläge stehen in [REFERENCE_PARITY_RESULTS.md](REFERENCE_PARITY_RESULTS.md); den ursprünglichen Auditstand unten als historischen Stand lesen. Der eingefrorene Versuchsplan wurde nicht nachträglich überschrieben.
+
 Stand: 24.10.2026. Gegenstand ist die Quellen- und Protokollprüfung, nicht eine bereits erfolgreiche Reproduktion der Literaturergebnisse. Das Projektziel bleibt die Erkennung aller zwölf vereinbarten Kategorien; Drohnenprotokollerkennung bleibt das anschließende eigene Arbeitspaket.
 
 ## Ergebnis

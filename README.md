@@ -1,5 +1,11 @@
 # Coral-signal-recognition
 
+## Aktuell: direkte TensorFlow–PyTorch-Prüfung ausgeführt
+
+Die Original-CPU-Umgebung mit Python 3.8 / TensorFlow 2.4.1 läuft getrennt. Der direkte Gewichtsvergleich hat einen echten Unterschied der SELU-Ableitung bei null gefunden. Eine ausdrücklich auswählbare Kompatibilitätsvariante behebt diesen Befund. Für die ursprüngliche 1024/24-Form bestehen danach alle drei Prüfgruppen; die Projektform 4096/12 besteht die eingefrorene Gesamtprüfung wegen verbleibender Gradientengrenzfälle noch nicht. Deshalb keine Freigabe für weitere vollständige Trainingsvergleiche und kein neuer Leistungsnachweis.
+
+Ergebnisse einschließlich Fehlschlägen: [REFERENCE_PARITY_RESULTS.md](REFERENCE_PARITY_RESULTS.md). Aktueller Freigabestatus: [REFERENCE_VALIDATION_STATUS.json](REFERENCE_VALIDATION_STATUS.json). Alle zwölf Projektklassen bleiben erhalten. Die bisherige Standardimplementierung wurde nicht stillschweigend auf den neuen SELU-Kandidaten umgestellt.
+
 ## Aktueller Arbeitsstand: Referenzaudit und festgelegter Versuchsplan
 
 Die Quellenprüfung ist abgeschlossen: [REFERENCE_AUDIT.md](REFERENCE_AUDIT.md). Preprint und Autoren-Code unterscheiden sich unter anderem bei Batchgröße und Callback-Steuergröße. Die bisherige Harper-Portierung ist daher keine bestätigte Literaturreproduktion. Der Nutzer-GPU-Lerntest ist mit allen zwölf Klassen bestanden; der Stillstand im vollständigen Training bleibt ungeklärt.

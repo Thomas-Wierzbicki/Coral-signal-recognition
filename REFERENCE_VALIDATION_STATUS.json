@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "date": "2026-10-24",
+  "frozen_protocol": "EXPERIMENT_PROTOCOL_V1.json",
+  "amendments": [
+    "EXPERIMENT_PROTOCOL_AMENDMENT_01.json",
+    "EXPERIMENT_PROTOCOL_AMENDMENT_02.json"
+  ],
+  "G1": {
+    "state": "passed for isolated original CPU environment with explicit launcher metadata addition",
+    "evidence": "reports/reference_environment_cpu.json",
+    "full_original_training_executed": false
+  },
+  "G2": {
+    "state": "not passed overall",
+    "original_1024_24_after_selu_correction": "3/3 groups pass in each tested CPU profile",
+    "project_4096_12_after_selu_correction": "2/3 groups pass in each tested CPU profile; different failing seeds",
+    "tolerance_relaxed": false,
+    "failed_seeds_dropped": false,
+    "per_seed_backend_selection_used": false,
+    "scope": "transferred original TensorFlow weights; technical fixtures only"
+  },
+  "G3": "not started; prerequisites not fully met",
+  "G4": "not started; twelve classes retained",
+  "current_next_work": "Localize remaining CPU gradient discrepancy under unchanged acceptance criteria before full training",
+  "full_training_collapse_root_cause": "not established",
+  "gpu_qualification": "not performed in this phase"
+}

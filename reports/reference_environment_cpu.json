@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "python": "3.8.20",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.2.5",
+  "tensorflow": "2.4.1",
+  "numpy": "1.19.2",
+  "scope": "isolated original CPU environment; no historical training or user GPU validation",
+  "original_model_parameters": 202880,
+  "original_input_shape": [
+    null,
+    1024,
+    2
+  ],
+  "original_output_shape": [
+    null,
+    24
+  ],
+  "runner_and_dependencies_import": "passed",
+  "pip_check": "No broken requirements found.",
+  "package_lock": "reference-tf241-linux-py38.lock.txt",
+  "package_lock_sha256": "32ed1514de25222ea2888286c3f5fd3ca9640ba841972a1e43777f24ec4fc639",
+  "source_manifest_sha256": "c6389253a1c1c67406a5c640de9eef13df911477d2e1894b2d1e05e0a53cfa5c",
+  "launcher_metadata_gap": "Upstream config.version is absent; bocas 0.0.3 does not supply it. Export wrapper explicitly adds a run-name string after resolving sweep options, without editing upstream source.",
+  "full_author_runner_training": "not performed",
+  "lock_includes_bootstrap_tools": true
+}

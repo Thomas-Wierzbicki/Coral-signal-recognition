@@ -1,0 +1,9 @@
+{
+  "scope": "Full CLI repeat regenerated original TF fixtures in a fresh subprocess and compared them in PyTorch",
+  "cases": 6,
+  "pass_fail_and_error_metrics_reproduced_exactly": true,
+  "overall_pass": false,
+  "reference_report": "reports/reference_parity_native_backend.json",
+  "remaining_failure": "samples4096-classes12-seed901 gradient/features.18.bias",
+  "does_not_establish": "RF accuracy, GPU equality, long-run optimizer equality, full-training collapse cause"
+}
