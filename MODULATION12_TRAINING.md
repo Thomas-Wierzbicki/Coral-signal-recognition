@@ -46,3 +46,7 @@ Ein vollständiger Ein-Epochen-CPU-Probelauf mit allen 7200 Beispielen einschlie
 Trainings-, Validierungs- und Testsignale stammen aus derselben synthetischen Generatorkette. Gute Ergebnisse belegen daher zunächst nur diese Aufgabe. Die Klassen können trotz gemeinsamer Parameterbereiche unterschiedliche Bandbreitenverteilungen haben. Reale Empfänger, Fading, Bursts, andere Generatoren und Drohnenprotokolle sind dadurch nicht validiert.
 
 Nach dem ersten GPU-Lauf werden Matrix, Lernverlauf und beide Frequenzkontrollen gemeinsam bewertet. Erst danach folgen gezielte Robustheitsprüfungen und unabhängige reale Aufnahmen. Dieses PyTorch-Modell ist noch kein TFLite-/Coral-Modell; eine spätere Konvertierung und vollständige Hardware-Abbildung müssen separat nachgewiesen werden.
+
+## Erster GPU-Lauf und Folgediagnose
+
+Gemeldet: beste Epoche 25, Testgenauigkeit 56,0 %, Macro-F1 0,531. Die Schwäche von GFSK/GMSK bleibt auch bei hohem SNR bestehen. Die gezielte Untersuchung und der nächste ausführbare Schritt stehen in [FSK_SEPARABILITY.md](FSK_SEPARABILITY.md). Der bisherige Testsatz dient nach dieser Rückkopplung als Entwicklungsreferenz.
