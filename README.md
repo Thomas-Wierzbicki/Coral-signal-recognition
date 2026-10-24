@@ -1,5 +1,11 @@
 # Coral-signal-recognition
 
+## Aktueller Arbeitsstand: Referenzaudit und festgelegter Versuchsplan
+
+Die Quellenprüfung ist abgeschlossen: [REFERENCE_AUDIT.md](REFERENCE_AUDIT.md). Preprint und Autoren-Code unterscheiden sich unter anderem bei Batchgröße und Callback-Steuergröße. Die bisherige Harper-Portierung ist daher keine bestätigte Literaturreproduktion. Der Nutzer-GPU-Lerntest ist mit allen zwölf Klassen bestanden; der Stillstand im vollständigen Training bleibt ungeklärt.
+
+Die nächsten Nachweise und Entscheidungskriterien sind vor weiteren Läufen in [EXPERIMENT_PROTOCOL_V1.json](EXPERIMENT_PROTOCOL_V1.json) festgelegt. Nächster Arbeitsschritt ist eine getrennte historische Referenzumgebung, danach der direkte TensorFlow–PyTorch-Vergleich. Noch kein neuer vollständiger Trainingslauf. Originalumgebung und numerische Frameworkgleichwertigkeit sind bislang nicht nachgewiesen. Quellen- und Evidenzprüfsummen: [reference_audit_evidence.json](reference_audit_evidence.json).
+
 ## Aktuell: Lerndiagnose vor weiteren vollständigen Trainingsläufen
 
 Der kontrollierte Vergleich ergab für die Harper-Portierung in drei Läufen konstante Vorhersagen (8,33 %). Der Trainingsverlauf stagniert bereits auf Zufallsniveau. Vor weiteren vollständigen Vergleichen folgt deshalb ein kleiner Lerntest mit **allen zwölf Klassen**, identischen Harper-Anfangsgewichten und einzeln verglichenen Lernraten: [MODULATION12_LEARNING_CHECK.md](MODULATION12_LEARNING_CHECK.md). Start: `python project/check_modulation_learning.py` aus `~/rf-learning`. Die Ausgabe erhält automatisch einen neuen Ordner. Eine bestandene Wiedererkennung derselben Trainingsbeispiele ist keine Testgenauigkeit.

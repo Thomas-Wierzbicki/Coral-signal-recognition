@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "protocol_id": "reference-validation-v1",
+  "date": "2026-10-24",
+  "status": "frozen before future execution; no historical result preregistration claimed",
+  "purpose": "Establish a technically verified reference before further twelve-class performance comparisons",
+  "project_classes": ["am-dsb", "fm", "bpsk", "qpsk", "16qam", "64qam", "2fsk", "2gfsk", "2gmsk", "ofdm-64", "ook", "noise"],
+  "project_scope": "All twelve categories retained; drone protocol recognition retained as subsequent distinct task",
+  "reference_commit": "902cca45c3bf04b5da9f78030372b5a03f730f42",
+  "evidence_manifest": "reference_audit_evidence.json",
+  "principles": [
+    "Historical code reproduction, literature performance reproduction and target-task adaptation have different claim scopes",
+    "Use original 24 outputs only for historical compatibility checks, not as a replacement for the twelve-class project",
+    "Do not silently resolve conflicts between paper and code",
+    "Do not use development/test results to select which seed to report",
+    "Preserve current TorchSig environment, models, datasets and original uploaded evidence",
+    "Register protocol amendments with new version before evaluating the affected result",
+    "No claim that memorization, a parameter-count match, or constant output under perturbations proves useful recognition"
+  ],
+  "stages": [
+    {
+      "id": "G0",
+      "name": "Source and evidence audit",
+      "state": "completed",
+      "artifacts": ["REFERENCE_AUDIT.md", "reference_audit_evidence.json"],
+      "result": "Pinned sources and local parameter-count checks verified; code/paper conflicts and incomplete environment specification recorded"
+    },
+    {
+      "id": "G1",
+      "name": "Isolated historical execution environment",
+      "state": "not executed",
+      "prerequisite": "G0",
+      "next_authorized_work": "Prepare and verify the historical reference environment without modifying the working training environment",
+      "requirements": [
+        "Separate environment compatible with original tensorflow==2.4.1, numpy==1.19.2 and published requirements; Python 3.8 is the initial compatibility target",
+        "Resolve missing direct dependencies and runner configuration fields, recording exact additions and reasons",
+        "Record pip check, import checks, platform, CPU/GPU availability and all resolved versions",
+        "Resolve executable launcher/version configuration rather than silently patching scientific behavior",
+        "Start with CPU model construction; historical WSL/GPU compatibility is an independent check, not assumed"
+      ],
+      "pass": "Original model and runner dependencies import; original 1024x2/24 model constructs; exact environment lock and source hashes recorded",
+      "failure_action": "Record concrete incompatibility and produce a separately named compatibility adaptation; no exact reproduction claim"
+    },
+    {
+      "id": "G2",
+      "name": "Direct TensorFlow versus PyTorch numerical parity",
+      "state": "not executed",
+      "prerequisite": "G1",
+      "seeds": [901, 902, 903],
+      "first_comparison": "Original 1024 samples, 24 outputs; then separately the project adapter with 4096 samples and 12 outputs",
+      "requirements": [
+        "Use actual pinned original TensorFlow model functions, not a second handwritten substitute",
+        "Transfer identical realized weights, explicitly transposing Conv1D and Dense kernels",
+        "Use identical deterministic zero, sinusoidal and complex-noise input fixtures with recorded hashes",
+        "Compare named intermediate activations, population variance pooling, logits/probabilities and gradients of a fixed documented loss",
+        "Test each conversion independently and in the full model; match SELU, biases and channels-last/channels-first semantics",
+        "Run first in CPU float32; treat GPU differences separately",
+        "Compare a single optimizer step only after matching clipping semantics, epsilon placement, moments and initialization"
+      ],
+      "predeclared_numerical_rule": "For forward and gradient arrays require elementwise abs(error) <= 1e-6 + 1e-4*abs(TensorFlow value), finite results, and matching shapes; record maximum absolute and relative errors even when passing",
+      "pass": "All fixtures and seeds meet numerical rule; optimizer-step equivalence either verified or explicitly classified as a different optimizer experiment",
+      "failure_action": "Localize and correct the earliest mismatching layer or update; do not start performance comparisons"
+    },
+    {
+      "id": "G3",
+      "name": "Historical reference reproduction",
+      "state": "not executed",
+      "prerequisite": "G2",
+      "primary_profile": "Reproduction of pinned executable code, not a claim to reproduce the conflicting text procedure",
+      "dataset": "Original RadioML 2018.01A HDF5, original 24-column order, original published train/test index files",
+      "data_requirements": [
+        "Verify HDF5 and index-file hashes, row bounds, duplicate indices, split overlap, class/SNR distributions",
+        "Record actual raw amplitude statistics; do not add RMS normalization",
+        "Keep original 1024 samples without resampling; audit converted TFRecord values against source rows",
+        "Measure actual batch label/SNR composition after the original converter and loader"
+      ],
+      "training": {
+        "framework": "Original TensorFlow 2.4.1 implementation",
+        "options": {"use_se": true, "use_act": true, "residual": false, "dilate": true, "self_attention": false},
+        "batch_size": 128,
+        "optimizer": "tf.keras.optimizers.Adam(lr=1e-4, clipnorm=1)",
+        "lr_monitor": "loss",
+        "lr_factor": 0.1,
+        "lr_patience": 12,
+        "lr_minimum": 1e-7,
+        "early_stop_monitor": "loss",
+        "early_stop_patience": 20,
+        "restore_best_weights": true,
+        "max_epochs": 1000,
+        "recorded_project_run_seeds": [2051, 2052, 2053]
+      },
+      "scope_notes": [
+        "Project seed controls are an explicit reproducibility addition because upstream does not fully specify them",
+        "Upstream test split is displayed during fit and is historical benchmark/development data, never the project's sealed final test",
+        "Original callback defaults beyond the listed fields must be preserved from the pinned framework and logged",
+        "If runtime/storage budget prevents completion, classify result as an incomplete reproduction, not as a successful baseline",
+        "A paper-description profile with batch 32 and validation-based callbacks is distinct; never substitute its result silently for the primary code profile"
+      ],
+      "pass": "Code-faithful execution completes with all artifacts and noncollapsed learning; publication-level accuracy agreement remains a separate assessment because code and text differ",
+      "failure_action": "Document failure or unresolved divergence; no target-task winner or literature reproduction claim"
+    },
+    {
+      "id": "G4",
+      "name": "Twelve-class task transfer",
+      "state": "not executed",
+      "prerequisite": "G3",
+      "requirements": [
+        "Keep all twelve project categories with explicit mathematical definitions and parameter domains",
+        "Record that moving from RadioML24 to TorchSig12 changes task, generators and input distribution together; this is not an isolated architecture experiment",
+        "Reverify TensorFlow and PyTorch parity for the 4096-sample, 12-output configuration",
+        "Run the same training-only memorization selection under the verified reference implementation",
+        "Declare train/validation/development splits and sampling unit before new training",
+        "Compare architecture or input representation in separate experiments, with matched data and a justified verified optimization protocol"
+      ],
+      "pass": "Twelve-class adapted reference passes direct parity and learning checks, with all adaptations and limitations named",
+      "failure_action": "Investigate task-transfer changes before introducing another architecture"
+    },
+    {
+      "id": "G5",
+      "name": "Optional controlled batch-composition diagnosis",
+      "state": "deferred; hypothesis not a selected solution",
+      "prerequisite": "G4",
+      "fixed_design_if_activated_without_amendment": {
+        "source": "train split only; signal SNR >=15 dB; noise has no SNR",
+        "examples_per_class": 20,
+        "selection_seed": 2070,
+        "total_examples": 240,
+        "batch_size": 24,
+        "conditions": ["random permutation without replacement per epoch", "two examples per class per batch, shuffled within each class per epoch"],
+        "exposure_control": "Both conditions visit every selected example exactly once in each 10-update epoch; no oversampling or dropping examples",
+        "seeds": [2071, 2072, 2073],
+        "initial_weights": "Cloned identical state per paired seed",
+        "learning_rate": 0.001,
+        "optimizer": "PyTorch Adam eps=1e-8, no clipping or scheduler; diagnostic profile, not original optimizer reproduction",
+        "updates_per_run": 1000,
+        "early_stopping": false,
+        "primary_measure": "Cross entropy over all 240 selected training examples after update 1000",
+        "secondary_measures": ["training recall all twelve classes", "predicted class counts", "loss trajectory", "activation and gradient statistics"],
+        "interpretation": "Report paired final-loss differences for all three seeds. Direction consistent in all pairs is supportive evidence limited to this diagnosis, not proof of general recognition improvement. No seed selection."
+      }
+    },
+    {
+      "id": "G6",
+      "name": "Independent generator and real-reception validation",
+      "state": "not executed",
+      "prerequisite": "G4 and a frozen candidate protocol",
+      "requirements": [
+        "Current viewed test sets remain development references",
+        "Use an independently implemented generator and real captures; a fresh seed alone is not cross-generator validation",
+        "Split real recordings by capture/session/transmitter as appropriate; adjacent or derived windows stay grouped",
+        "Predeclare primary twelve-class macro-F1, class recalls, confusion matrices and SNR/bandwidth/offset strata",
+        "Report seed variability separately from test-sample or capture uncertainty; repeated predictions of the same examples are not independent new samples",
+        "Specify application-dependent absolute acceptance criteria and unknown-signal handling before unsealing the final evaluation",
+        "Freeze code, preprocessing, weights and class map before final evaluation; no label-dependent frequency alignment",
+        "Drone protocol labels require separate validated protocol examples and competing non-drone signals; modulation prediction alone is insufficient"
+      ],
+      "pass": "Only after preregistered operational criteria and independent validation are satisfied; no universal accuracy target invented in this audit"
+    }
+  ],
+  "current_allowed_conclusion": "The twelve-class port can memorize a small balanced selection on CPU and user GPU. The full-training collapse is unexplained. No real-world or drone recognition performance established.",
+  "current_next_stage": "G1",
+  "no_full_training_command_issued_by_this_protocol": true,
+  "artifact_requirements": ["protocol version and commit", "environment lock", "data/source hashes", "class map", "selection and sampling unit", "all seeds including failures", "complete history", "selected weights and selection rule", "individual predictions with source IDs", "numerical parity and export reports", "limitations and deviations"]
+}

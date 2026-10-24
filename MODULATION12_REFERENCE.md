@@ -1,5 +1,7 @@
 # Zwölfklassen-Vergleich mit veröffentlichter Referenzarchitektur
 
+**Maßgeblich für neue Versuche:** [REFERENCE_AUDIT.md](REFERENCE_AUDIT.md) und [EXPERIMENT_PROTOCOL_V1.json](EXPERIMENT_PROTOCOL_V1.json). Die Quellenprüfung hat Unterschiede zwischen Preprint und Autoren-Code dokumentiert. Der kleine Nutzer-GPU-Lerntest ist bestanden, die historische Literaturreproduktion und direkte TensorFlow–PyTorch-Gleichwertigkeit sind jedoch noch offen. Den nachfolgend dokumentierten Sechsfachlauf derzeit nicht erneut starten.
+
 **Aktueller Befund nach dem Nutzerlauf:** Die Harper-Portierung stagnierte in allen drei Läufen bei 8,33 % mit jeweils konstanter Klasse. Das bisherige Netz erreichte im Mittel 55,4 %. Der Trainingsverlauf zeigt bereits vor Export und Test keinen Lernfortschritt. Vor einer Wiederholung dieses vollständigen Vergleichs ist die [Lerndiagnose mit allen zwölf Klassen](MODULATION12_LEARNING_CHECK.md) auszuführen und auszuwerten. Die nachfolgende Anleitung dokumentiert den bisherigen Vergleich, keine Empfehlung, ihn unverändert erneut zu starten.
 
 Stand: 24. Oktober 2026. Ziel bleibt die Erkennung aller zwölf Kategorien; Drohnenprotokollerkennung bleibt das anschließende eigene Arbeitspaket. Neue Hardware ist nicht erforderlich.

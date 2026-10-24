@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "audit_date": "2026-10-24",
+  "reference_commit": "902cca45c3bf04b5da9f78030372b5a03f730f42",
+  "sources": [
+    {
+      "path": "experiments/radioml2018.01a/models.py",
+      "blob_sha": "88e321d974219486a4cca9509b651003159f791c",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/experiments/radioml2018.01a/models.py",
+      "sha256": "3b8ca20346473780e92f2742abe6adcdc10199e444b4c26db131fcfc8a14a441",
+      "git_blob_verified": true
+    },
+    {
+      "path": "experiments/radioml2018.01a/layers.py",
+      "blob_sha": "3b554be6900f9b4faac184ee704c324df5f97b2e",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/experiments/radioml2018.01a/layers.py",
+      "sha256": "685f1ad0c729df084f3a304cdcea4b7d73f9e3c16c122be4d605b754a7e06640",
+      "git_blob_verified": true
+    },
+    {
+      "path": "amc_neural_networks/layers.py",
+      "blob_sha": "43813dd9c236ddfd9a8ec0913d3154368f763a49",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/amc_neural_networks/layers.py",
+      "sha256": "89cfaf61dd2525dbbaefd28e6f098409cacbab3af6b4f2f05628a2b4bbe58dfb",
+      "git_blob_verified": true
+    },
+    {
+      "path": "experiments/radioml2018.01a/run.py",
+      "blob_sha": "0f1c71f5f4995f2f802e2e946030644361f8b07b",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/experiments/radioml2018.01a/run.py",
+      "sha256": "dee252ac25fcf67c8e6c4c5b2942d8f797a1a9f199f23f6a268dcc1881afc798",
+      "git_blob_verified": true
+    },
+    {
+      "path": "experiments/radioml2018.01a/loader.py",
+      "blob_sha": "ced26410ce197d2c0d84fb99aa64d708012eea6d",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/experiments/radioml2018.01a/loader.py",
+      "sha256": "188eb15e951cc0aeb0c5cf1e98d39a899f2782710e552a69fa07c7f1da86c040",
+      "git_blob_verified": true
+    },
+    {
+      "path": "process_dataset.py",
+      "blob_sha": "cf050d6da054d829701783e1c5335d651431effa",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/process_dataset.py",
+      "sha256": "409cc3c8adb5a37ebc9abc47c686b3f674ff6acbb0e577ef112996a65aeb298f",
+      "git_blob_verified": true
+    },
+    {
+      "path": "experiments/radioml2018.01a/configs/sweep-models.py",
+      "blob_sha": "17489746934b1269a1b667a8a0a4cc770a83a8a0",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/experiments/radioml2018.01a/configs/sweep-models.py",
+      "sha256": "b6761542d3b43fcade5c823e4e36b2c6e1ecd257bf4cc787b4565e9988f1b34e",
+      "git_blob_verified": true
+    },
+    {
+      "path": "requirements.txt",
+      "blob_sha": "aa8344d41135d10966e4459c31cff871947ec2d5",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/requirements.txt",
+      "sha256": "bc2c8f59207853aaf2fdfac655af8f4925021a8cf358a7d46ce9ee19da18f715",
+      "git_blob_verified": true
+    },
+    {
+      "path": "setup.py",
+      "blob_sha": "f9cbcf38518f7b65467726a8fc1af4dcc76563d3",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/setup.py",
+      "sha256": "c08f8710309295985eb6af6db286a0cb8b9439df9d8c66bea6a6d42c5b140883",
+      "git_blob_verified": true
+    },
+    {
+      "path": "experiments/radioml2018.01a/metrics.py",
+      "blob_sha": "607e465d0c15cb074cf9b5730d0aed12cfbc84b0",
+      "url": "https://github.com/caharper/Automatic-Modulation-Classification-with-Deep-Neural-Networks/blob/902cca45c3bf04b5da9f78030372b5a03f730f42/experiments/radioml2018.01a/metrics.py",
+      "sha256": "8db14fd66515022292f4c2e546d45fe466a0372a0bf7088eebb2d2cbdcbda61a",
+      "git_blob_verified": true
+    }
+  ],
+  "scope": "source inspection; original TensorFlow execution not performed",
+  "text_reference": "https://arxiv.org/html/2301.11773v1",
+  "journal_full_methods_independently_verified": false,
+  "observations": {
+    "code_batch_size": 128,
+    "preprint_batch_size": 32,
+    "code_callback_monitor": "loss",
+    "preprint_callback_monitor": "validation loss",
+    "code_learning_rate": 0.0001,
+    "our_learning_rate": 0.001,
+    "code_gradient_clipping_literal": "clipnorm=1",
+    "code_max_epochs": 1000,
+    "our_max_epochs": 40,
+    "code_early_stopping_patience": 20,
+    "our_early_stopping_patience": 8,
+    "code_validation_dataset_name": "test",
+    "code_explicit_block_rms_normalization": false,
+    "source_environment_full_lock_present": false,
+    "upstream_requirements_missing_explicit_imports": [
+      "bocas",
+      "ml_collections",
+      "termcolor",
+      "pandas"
+    ]
+  },
+  "local_checks": {
+    "port_parameters_24_classes": 202880,
+    "port_parameters_12_classes": 201332,
+    "port_forward_1024_samples_24_classes": "passed",
+    "direct_tensorflow_pytorch_weight_transfer_parity": "not run"
+  },
+  "user_evidence_files": [
+    {
+      "name": "comparison.json",
+      "sha256": "3ea3963d5541cf8658834e5d41c391ad1222220b2ed9686718cc0c6e12eba1c2",
+      "raw_content_published": false
+    },
+    {
+      "name": "runs.json",
+      "sha256": "1e57a2c81d4408b7b447519616eeffce77112420328ce58a5161b0288d52c057",
+      "raw_content_published": false
+    },
+    {
+      "name": "history.json",
+      "sha256": "a55ecef22d5e4d075791ba5f3593b085fb3c5765a0049e09bb91283b37749e9e",
+      "raw_content_published": false
+    },
+    {
+      "name": "training_config.json",
+      "sha256": "2a9b229403ae385376133e5866aaf00728d385f210290261fb7a258806a7d30a",
+      "raw_content_published": false
+    },
+    {
+      "name": "report.json",
+      "sha256": "b97eceee9f6c35808ca14fd05e3acf2bf451bf42cc3b0997a6c3a6524cd93994",
+      "raw_content_published": false
+    }
+  ],
+  "project_code_checks": [
+    {
+      "path": "check_modulation_learning.py",
+      "sha256": "733572ba280509427e67dc8bcc8e9c71243b91bf14517134bea622d644a3530b",
+      "user_learning_report_matches": true
+    },
+    {
+      "path": "modulation_reference.py",
+      "sha256": "a27a08a7fecd89098979d4bbab9d5a2955f6f95df1ccf5969f8fcb0d3ddc77c7",
+      "user_learning_report_matches": true
+    },
+    {
+      "path": "train_modulation12.py",
+      "sha256": "5df6de180835e8ee7175023226c67786fefc245d1d5256dd81c17ac11069005a",
+      "user_learning_report_matches": true
+    }
+  ],
+  "findings_status": {
+    "root_cause_of_full_training_collapse": "not isolated",
+    "historical_reference_environment": "not verified",
+    "direct_framework_parity": "not executed",
+    "user_gpu_small_twelve_class_learning": "passed"
+  }
+}

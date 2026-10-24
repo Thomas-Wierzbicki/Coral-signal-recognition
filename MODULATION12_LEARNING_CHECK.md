@@ -63,3 +63,9 @@ Auf einem lokal neu erzeugten vollständigen Datensatz gleicher Builder-Konfigur
 Das ist ein CPU-Lerntest auf 24 mehrfach verwendeten Beispielen, keine neue Testgenauigkeit und keine Ausführung auf dem Nutzerrechner. Die kleinere Lernrate war hier nicht schneller. Damit sind weder eine grundsätzlich lernunfähige Portierung noch die höhere Lernrate allein als Erklärung des vollständigen Lernstillstands belegt. Der Übergang von diesem ausgewogenen festen Batch zum vollständigen Training mit wechselnden Batches und Bedingungen ist der nächste gezielt zu untersuchende Unterschied. Andere Fehlerquellen sind damit nicht sämtlich ausgeschlossen.
 
 Drei neue Prüftests kontrollieren Auswahl und Reproduzierbarkeit, Gewichtsprüfsummen sowie einen tatsächlich erfolgreichen Lernablauf mit protokollierten Parameteränderungen. Zusätzlich bestanden die sechs bestehenden Modell-/Referenztests. Ein separater Ein-Schritt-Ablauf prüft die endgültige Ausgabeform des Diagnosewerkzeugs.
+
+## Bestätigung auf der Nutzer-GPU und verbindlicher Folgestand
+
+Der bereitgestellte GPU-Bericht bestätigt 24/24 richtige Wiedererkennungen für alle drei Fälle. Bisheriges CNN: 75 Schritte, Verlust 0,0162; Harper 0,001: 225 Schritte, Verlust 0,0646; Harper 0,0001: 275 Schritte, Verlust 0,0464. Die beiden Harper-Fälle haben identische Anfangsprüfsummen. Unterschiede zum CPU-Verlauf sind kein direkter Nachweis eines Fehlers.
+
+Vor weiteren Versuchen gilt jetzt das [Referenzaudit](REFERENCE_AUDIT.md) mit dem [festgelegten Versuchsplan](EXPERIMENT_PROTOCOL_V1.json). Insbesondere wird der zuvor vorgeschlagene Batch-Vergleich nicht als bestätigte Lösung oder unmittelbarer nächster Vollversuch behandelt. Zuerst fehlen die historische Referenzumgebung und die direkte numerische Frameworkprüfung.
