@@ -106,3 +106,10 @@ die Generierung, nicht Modulations- oder Drohnenerkennungsleistung. Nutzers GPU-
 Umgebung wurde separat bereits durch die Matrixberechnung bestaetigt.
 Ein zweiter vollstaendiger Generierungslauf lieferte bei gleichem Seed alle
 144 I/Q-Beispiele bitidentisch (zweiter Lauf ohne erneutes Plotten).
+
+## Folgeschritt nach erfolgreicher Nutzerprobe
+
+Die zwoelf Klassen wurden beim Nutzer erfolgreich erzeugt. Gezeigte FM-/QPSK-/
+OFDM-Vorschauen entsprechen dem lokalen Prueflauf. Vor Training folgt der
+[Generatoraudit ueber mehrere Bandbreiten](TORCHSIG_AUDIT.md), inklusive
+FM-Nachrichtenpegel und tatsaechlichen Phasendifferenz-Hubs.
