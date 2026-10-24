@@ -41,8 +41,15 @@ class StatisticsPooling(nn.Module):
         return torch.cat((x.mean(dim=2), x.var(dim=2, correction=0)), dim=1)
 
 
+class TensorFlowSELU(nn.SELU):
+    """Same SELU function; TensorFlow 2.4.1 selects the positive derivative at zero."""
+    def forward(self, x):
+        negative = 1.6732632423543772 * torch.expm1(torch.clamp_max(x, 0))
+        return 1.0507009873554805 * torch.where(x < 0, negative, x)
+
+
 class Harper2023(nn.Module):
-    def __init__(self, classes=12):
+    def __init__(self, classes=12, tensorflow_selu=False):
         super().__init__()
         channels = [2, 32, 48, 64, 72, 84, 96, 108]
         kernels = [7, 5, 7, 5, 3, 3, 3]
@@ -55,8 +62,10 @@ class Harper2023(nn.Module):
                 layers.append(SqueezeExcitation(channels[i+1]))
         self.features = nn.Sequential(*layers)
         self.pool = StatisticsPooling()
-        self.head = nn.Sequential(nn.Linear(216, 128), nn.SELU(),
-                                  nn.Linear(128, 128), nn.SELU(), nn.Linear(128, classes))
+        # Historical default is retained; the qualified parity candidate opts in.
+        activation = TensorFlowSELU if tensorflow_selu else nn.SELU
+        self.head = nn.Sequential(nn.Linear(216, 128), activation(),
+                                  nn.Linear(128, 128), activation(), nn.Linear(128, classes))
         # Match the source's initializer families, not framework default initializers.
         for module in self.modules():
             if isinstance(module, (nn.Conv1d, nn.Linear)):

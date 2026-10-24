@@ -61,7 +61,7 @@ def case_check(folder,spec):
     path=folder/(spec['name']+'.npz')
     if hashlib.sha256(path.read_bytes()).hexdigest()!=spec['sha256']: raise ValueError('Fixture hash changed')
     with np.load(path,allow_pickle=False) as saved: arrays={name:saved[name] for name in saved.files}
-    model=Harper2023(spec['classes']).eval();mapping=parameter_map()
+    model=Harper2023(spec['classes'],tensorflow_selu=True).eval();mapping=parameter_map()
     state=model.state_dict()
     if set(state)!=set(mapping): raise ValueError('Weight mapping incomplete')
     for name in state: state[name]=torch.from_numpy(to_torch_layout(arrays['weight__'+mapping[name]]))
@@ -113,7 +113,8 @@ def case_check(folder,spec):
     return report,checks
 
 
-def main(tf_python,output,fixture_dir=None):
+def main(tf_python,output,fixture_dir=None,native_convolution=False):
+    torch.backends.mkldnn.enabled=not native_convolution
     output=Path(output)
     if output.exists(): raise ValueError('Output exists; choose another --output')
     output.mkdir(parents=True)
@@ -136,6 +137,9 @@ def main(tf_python,output,fixture_dir=None):
         report,checks=case_check(fixture_dir,spec);reports.append(report);details[spec['name']]=checks
         print(spec['name'], 'PASS' if report['passed'] else 'FAIL', 'max abs',report['max_abs_error'],flush=True)
     report=dict(schema=1,protocol_id=protocol['protocol_id'],tensorflow_export=exported,
+        amendment='EXPERIMENT_PROTOCOL_AMENDMENT_01.json',candidate='Harper2023(tensorflow_selu=True)',
+        convolution_backend='native CPU' if native_convolution else 'PyTorch default oneDNN CPU',
+        backend_amendment='EXPERIMENT_PROTOCOL_AMENDMENT_02.json' if native_convolution else None,
         pytorch_version=torch.__version__,device='CPU',tolerance=dict(atol=ATOL,rtol=RTOL),cases=reports,
         all_passed=all(c['passed'] for c in reports),
         scope='Direct transferred-weight technical parity and single-step equation comparison; no classification accuracy, no full historical training',
@@ -151,6 +155,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--tf-python',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--fixture-dir',type=Path)
+    p.add_argument('--native-convolution',action='store_true',help='Use the explicitly documented native CPU profile, not oneDNN')
     args=p.parse_args()
-    try: main(args.tf_python,args.output,args.fixture_dir)
+    try: main(args.tf_python,args.output,args.fixture_dir,args.native_convolution)
     except (OSError,ValueError,RuntimeError,subprocess.CalledProcessError) as e:p.exit(1,'Parity check failed: '+str(e)+'\n')

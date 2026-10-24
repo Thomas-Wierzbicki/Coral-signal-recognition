@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "amendment_id": "reference-validation-v1-amendment-02",
+  "date": "2026-10-24",
+  "baseline_report": "reports/reference_parity_selu_corrected_default_backend.json",
+  "observed_failure": "After SELU correction, 5/6 CPU cases passed; 4096/12/seed903 conv5 bias gradient differs by 3.20957e-6, exceeding unchanged tolerance.",
+  "exploratory_localization": "One conv5 ReLU decision differed at a TF output of about 9.45e-10. Turning off PyTorch oneDNN for this single diagnostic case reduced conv5-bias discrepancy to 3.63e-8; this is a post-hoc exploratory observation, not an independent pass.",
+  "planned_full_evaluation": "Run all six existing fixtures in an explicitly scoped native CPU convolution profile, with the SELU correction. Keep the default-backend failure visible.",
+  "candidate_scope": "CPU native-convolution technical profile only; no GPU equivalence or all-backend guarantee",
+  "registered_before_full_native_profile_evaluation": true,
+  "unchanged_acceptance": {
+    "atol": 1e-06,
+    "rtol": 0.0001,
+    "seeds": [
+      901,
+      902,
+      903
+    ],
+    "shapes": [
+      [
+        1024,
+        24
+      ],
+      [
+        4096,
+        12
+      ]
+    ]
+  },
+  "decision": "Pass only if all six cases pass unchanged array-level rules. Otherwise leave the gate failed. This does not establish the cause of full training collapse."
+}
