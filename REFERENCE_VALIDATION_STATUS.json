@@ -12,17 +12,20 @@
     "full_original_training_executed": false
   },
   "G2": {
-    "state": "not passed overall",
+    "state": "historical FP32 gate remains not passed; remaining discrepancies mechanistically localized",
     "original_1024_24_after_selu_correction": "3/3 groups pass in each tested CPU profile",
     "project_4096_12_after_selu_correction": "2/3 groups pass in each tested CPU profile; different failing seeds",
     "tolerance_relaxed": false,
     "failed_seeds_dropped": false,
     "per_seed_backend_selection_used": false,
-    "scope": "transferred original TensorFlow weights; technical fixtures only"
+    "scope": "transferred original TensorFlow weights; technical fixtures only",
+    "localization": "reports/gradient_localization_summary.json",
+    "float64_diagnostic": "12/12 profile cases pass all tested full gradients; not a replacement for the original FP32 gate",
+    "numerical_mechanisms": "one near-zero ReLU decision and a separately reproduced TF2.4.1 FP32 bias summation error"
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Localize remaining CPU gradient discrepancy under unchanged acceptance criteria before full training",
+  "current_next_work": "Use localized mechanisms to define a separately versioned qualification approach before further full training; do not silently change the existing FP32 gate",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase"
 }

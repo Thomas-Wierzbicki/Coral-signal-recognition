@@ -1,0 +1,40 @@
+{
+  "scope": "Post-hoc diagnostic intervention, not a new production activation or gate pass",
+  "cases": [
+    {
+      "counterfactual_mask_replay": false,
+      "logits_bit_identical_to_baseline": true,
+      "parameter_gradient_checks": 32,
+      "failures": [
+        {
+          "name": "features.12.bias",
+          "passed": false,
+          "max_abs_error": 3.209570422768593e-06,
+          "max_relative_error": 0.0012544182183930744,
+          "max_tolerance_ratio": 2.5556727416325895
+        }
+      ],
+      "conv5_bias": {
+        "name": "features.12.bias",
+        "passed": false,
+        "max_abs_error": 3.209570422768593e-06,
+        "max_relative_error": 0.0012544182183930744,
+        "max_tolerance_ratio": 2.5556727416325895
+      }
+    },
+    {
+      "counterfactual_mask_replay": true,
+      "logits_bit_identical_to_baseline": true,
+      "parameter_gradient_checks": 32,
+      "failures": [],
+      "conv5_bias": {
+        "name": "features.12.bias",
+        "passed": true,
+        "max_abs_error": 7.450580596923828e-09,
+        "max_relative_error": 6.0350003196314984e-06,
+        "max_tolerance_ratio": 0.004023186177138542
+      }
+    }
+  ],
+  "original_float32_gate_overridden": false
+}

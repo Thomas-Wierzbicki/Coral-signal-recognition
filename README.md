@@ -1,5 +1,11 @@
 # Coral-signal-recognition
 
+## Aktuell: verbleibende Gradientenabweichungen lokalisiert
+
+Die Ursachen der beiden CPU-Restfälle sind gemessen: eine einzelne ReLU-Schaltentscheidung nahe null sowie eine isoliert reproduzierte Float32-Summierung in TensorFlow 2.4.1. Mit denselben hochgestuften Werten bestehen alle zwölf Float64-Diagnoseprofile; die historischen Float32-Fehlschläge werden dadurch nicht ersetzt. Der frühere vollständige Trainingsstillstand ist weiterhin nicht erklärt.
+
+Vollständiger Befund, Kausalprobe und Grenzen: [GRADIENT_LOCALIZATION_RESULTS.md](GRADIENT_LOCALIZATION_RESULTS.md). Plan vor Ausführung: [GRADIENT_LOCALIZATION_PLAN.json](GRADIENT_LOCALIZATION_PLAN.json). Aktueller Status: [REFERENCE_VALIDATION_STATUS.json](REFERENCE_VALIDATION_STATUS.json). Keine neue Erkennungsleistung und keine pauschale Umstellung auf Float64.
+
 ## Aktuell: direkte TensorFlow–PyTorch-Prüfung ausgeführt
 
 Die Original-CPU-Umgebung mit Python 3.8 / TensorFlow 2.4.1 läuft getrennt. Der direkte Gewichtsvergleich hat einen echten Unterschied der SELU-Ableitung bei null gefunden. Eine ausdrücklich auswählbare Kompatibilitätsvariante behebt diesen Befund. Für die ursprüngliche 1024/24-Form bestehen danach alle drei Prüfgruppen; die Projektform 4096/12 besteht die eingefrorene Gesamtprüfung wegen verbleibender Gradientengrenzfälle noch nicht. Deshalb keine Freigabe für weitere vollständige Trainingsvergleiche und kein neuer Leistungsnachweis.

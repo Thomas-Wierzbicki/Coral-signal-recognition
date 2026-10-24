@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "plan": "GRADIENT_LOCALIZATION_PLAN.json",
+  "groups": {
+    "float32": {
+      "profile_cases": 12,
+      "full_comparison_passes": 10,
+      "per_input_gradient_failures": 1
+    },
+    "float64": {
+      "profile_cases": 12,
+      "full_comparison_passes": 12,
+      "per_input_gradient_failures": 0
+    }
+  },
+  "full_report": "reports/gradient_localization_full.json",
+  "float32_original_replay": "192 parameter-gradient arrays bit-identical to previous TensorFlow exports",
+  "input_and_weight_promotion": "float64 inputs and weights equal exact promotion of original float32 fixture values",
+  "mask_intervention_report": "reports/gradient_mask_replay.json",
+  "full_training_collapse_cause": "not established",
+  "historical_float32_gate_changed": false,
+  "localized_cases": [
+    {
+      "name": "samples4096-classes12-seed901",
+      "dtype": "float32",
+      "mkldnn_enabled": false,
+      "layer": 7,
+      "decomposition": {
+        "worst_channel": 88,
+        "actual_difference": {
+          "max_abs": 1.019984483718872e-05,
+          "at_worst_channel": -1.019984483718872e-05
+        },
+        "mask_change_term": {
+          "max_abs": 0.0,
+          "at_worst_channel": 0.0
+        },
+        "upstream_change_term": {
+          "max_abs": 6.089237558626337e-08,
+          "at_worst_channel": -1.5783484741405118e-08
+        },
+        "tf_reduction_term": {
+          "max_abs": 1.0180945650972717e-05,
+          "at_worst_channel": -1.0180945650972717e-05
+        },
+        "pt_reduction_term": {
+          "max_abs": 1.2717919162241742e-08,
+          "at_worst_channel": -3.115701474598609e-09
+        },
+        "decomposition_residual_max_abs": 0.0
+      },
+      "isolated_reduction": {
+        "tf_vjp_vs_actual_model_max_abs": 0.0,
+        "tf_vjp_vs_same_q_float64_sum_max_abs": 1.0180945650972717e-05,
+        "pt_channels_first_vs_same_q_float64_sum_max_abs": 1.938610694196541e-08,
+        "pt_channels_last_vs_same_q_float64_sum_max_abs": 2.16423359233886e-08,
+        "tf_vjp_vs_pt_channels_first": {
+          "name": "isolated_bias_vjp",
+          "passed": false,
+          "max_abs_error": 1.017749309539795e-05,
+          "max_relative_error": 0.0002643971935579049,
+          "max_tolerance_ratio": 1.213147505091818
+        }
+      },
+      "mechanism": "TensorFlow 2.4.1 float32 bias reduction; discrepancy reproduced with identical fixed cotangent"
+    },
+    {
+      "name": "samples4096-classes12-seed903",
+      "dtype": "float32",
+      "mkldnn_enabled": true,
+      "layer": 5,
+      "decomposition": {
+        "worst_channel": 73,
+        "actual_difference": {
+          "max_abs": 3.209570422768593e-06,
+          "at_worst_channel": -3.209570422768593e-06
+        },
+        "mask_change_term": {
+          "max_abs": 3.2110635856952285e-06,
+          "at_worst_channel": -3.2110635856952285e-06
+        },
+        "upstream_change_term": {
+          "max_abs": 5.412121029113592e-09,
+          "at_worst_channel": 6.134296404169959e-10
+        },
+        "tf_reduction_term": {
+          "max_abs": 3.328809106140085e-08,
+          "at_worst_channel": -2.0215956686442382e-10
+        },
+        "pt_reduction_term": {
+          "max_abs": 3.554602190369849e-08,
+          "at_worst_channel": 1.0818928530831329e-09
+        },
+        "decomposition_residual_max_abs": 0.0
+      },
+      "isolated_reduction": {
+        "tf_vjp_vs_actual_model_max_abs": 0.0,
+        "tf_vjp_vs_same_q_float64_sum_max_abs": 3.328809106140085e-08,
+        "pt_channels_first_vs_same_q_float64_sum_max_abs": 1.1838292290899943e-09,
+        "pt_channels_last_vs_same_q_float64_sum_max_abs": 1.820576911448768e-09,
+        "tf_vjp_vs_pt_channels_first": {
+          "name": "isolated_bias_vjp",
+          "passed": true,
+          "max_abs_error": 3.3527612686157227e-08,
+          "max_relative_error": 9.558349167394695e-06,
+          "max_tolerance_ratio": 0.016395838926195106
+        }
+      },
+      "mechanism": "one near-zero ReLU decision in noise input; counterfactual mask replay removes failing gradient"
+    }
+  ]
+}

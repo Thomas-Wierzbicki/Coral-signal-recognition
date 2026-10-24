@@ -1,5 +1,7 @@
 # Direkte Prüfung der Originalreferenz: Umgebung und numerische Gleichwertigkeit
 
+**Aktualisierung:** Die zwei Restfälle wurden inzwischen nach Eingabe, Operator und Präzision lokalisiert: [GRADIENT_LOCALIZATION_RESULTS.md](GRADIENT_LOCALIZATION_RESULTS.md). Ein einzelner ReLU-Maskenwechsel und eine isoliert reproduzierte TensorFlow-Float32-Bias-Summierung erklären die konkreten Befunde. Die historischen FP32-Fehlschläge und Toleranzen bleiben bestehen; die Ursache des vollständigen Trainingsstillstands ist weiterhin nicht nachgewiesen.
+
 Stand: 24.10.2026. **Ergebnis: Originalumgebung läuft; die Gesamtfreigabe für die Zwölfklassen-Portierung ist noch nicht erreicht.** Es wurde kein neues Erkennungsmodell auf dem vollständigen Datensatz trainiert.
 
 ## Tatsächlich ausgeführte Umgebung
