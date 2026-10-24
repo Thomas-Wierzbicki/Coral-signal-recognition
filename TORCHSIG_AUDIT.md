@@ -81,3 +81,9 @@ python -m pip freeze > data/torchsig-audit-v1/environment-freeze.txt
 
 Auditdaten und Probe getrennt behalten. Die alten Windows-Sicherungen enthalten
 diese spaeter erzeugten WSL-Dateien nicht automatisch.
+
+## Anschluss
+
+Die erste getrennte zwoelfklassige Datenbasis mit kontrolliertem FM und
+breitem gemeinsamen Parameterplan ist unter [MODULATION12_DATASET.md](MODULATION12_DATASET.md)
+beschrieben. TorchSig-Original-FM und Audit bleiben als Referenz erhalten.
