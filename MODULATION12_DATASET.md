@@ -107,3 +107,7 @@ Entwicklungsreferenz. WSL-Ausgaben gehoeren nicht automatisch zu alten Windows-Z
 Auch die vollstaendige Standardgenerierung mit 7200 Beispielen wurde hier
 mit TorchSig 2.2.0 auf CPU abgeschlossen und alle drei NPZ-Dateien erfolgreich
 zurueckgelesen/geprueft. Das belegt die Datenpipeline, keine Erkennungsleistung.
+
+## Weiter zum Referenztraining
+
+Der vollständige Datensatzlauf auf dem Trainingsrechner ist bestätigt (5040/1080/1080). Anleitung, Modellauswahl und Aussagegrenzen: [MODULATION12_TRAINING.md](MODULATION12_TRAINING.md).
