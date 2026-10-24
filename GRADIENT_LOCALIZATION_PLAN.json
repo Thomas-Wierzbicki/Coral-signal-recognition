@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "id": "gradient-localization-v1",
+  "date": "2026-10-24",
+  "status": "fixed before localization experiment; exploratory mechanism diagnosis, not a new performance benchmark",
+  "reference_protocol": "EXPERIMENT_PROTOCOL_V1.json",
+  "scope": "Localize remaining CPU gradient discrepancies while retaining previous failed FP32 gate results",
+  "source": "Same six saved TensorFlow fixtures and original float32 weights; hashes must match export.json",
+  "cases": {"shapes": [[1024,24],[4096,12]], "seeds": [901,902,903], "input_rows": ["zero","sinusoid","noise"]},
+  "precision_conditions": ["float32 replay", "same input values and realized float32 weights promoted to float64, no new initialization"],
+  "pytorch_conditions": ["oneDNN CPU", "native CPU without oneDNN"],
+  "measurements": [
+    "Replay original TensorFlow and PyTorch losses and all parameter gradients; preserve unchanged parity rule",
+    "Separate gradients by each input row, each contribution scaled by 1/3 to reconstruct the original batch mean",
+    "For Conv5 and Conv7 export actual post-ReLU tensors and loss cotangents",
+    "Compare ReLU masks and predict the isolated mask-change contribution to bias gradients",
+    "Reconstruct bias gradients from identical cotangents using float64 summation",
+    "Apply original TensorFlow BiasAdd gradient and PyTorch bias-add gradient to identical fixed cotangents, isolating reduction from the rest of the network",
+    "Compare corrected candidate across frameworks in float64 as a localization control only"
+  ],
+  "unchanged_numeric_rule": {"atol": 0.000001, "rtol": 0.0001},
+  "interpretation_rules": [
+    "A float64 diagnostic pass does not erase or pass the historical float32 gate",
+    "A discrepancy reproduced with identical cotangents localizes a reduction difference independently of the learned model",
+    "A difference predicted by ReLU mask changes is distinguished from a bias reduction discrepancy",
+    "A remaining discrepancy without a measured mechanism stays unresolved; no cause is assumed",
+    "No clipping, tolerance relaxation, per-seed backend selection, training data or model-architecture change",
+    "This mechanism study does not establish the cause of the full-training collapse"
+  ]
+}
