@@ -1,0 +1,15 @@
+{
+  "id": "feature-diagnostic-v1",
+  "date": "2026-10-26",
+  "scope": "read-only diagnosis of existing learning-rate checkpoints on their selected training examples; no new training",
+  "inputs": "completed training-lr run, its exact selection.npz, initial_state.pt and both last_checkpoint.pt; verify against report hashes",
+  "cases": ["initial", "lr0.001", "lr0.0001"],
+  "measurements": ["activation RMS and exact zero fraction at every feature layer", "SE gate distribution and fraction below 0.05 or above 0.95", "per-channel temporal means and population variances", "raw pool and head features", "between-class / within-class scatter ratio", "leave-one-out nearest class centroid on fixed descriptors", "confusion matrix from actual saved model"],
+  "descriptor": "For temporal tensors concatenate channel means and population variances; vector tensors unchanged. No fitted scaling or representation selection.",
+  "centroid_rule": "Euclidean distance to class means, excluding the queried sample from its own class mean; descriptive training diagnostic only",
+  "controls": "same selected examples and labels, eval mode, no gradients or weight updates, no validation/test access, deterministic batch size 8",
+  "interpretation": "Moment descriptors discard time structure; poor descriptor separation does not establish information loss in full activations. Correlated layer changes do not prove a causal bottleneck. SE gate size alone does not prove gradient failure. No layer chosen by accuracy for deployment.",
+  "decision": "First inspect exact checkpoint prediction reproduction; then identify candidate stages for a separately planned intervention. Do not change the model or launch more training based solely on descriptor scores.",
+  "historical_fp32_gate": "unchanged",
+  "classes": "all twelve retained"
+}
