@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-26",
+  "source_report_sha256": "6afb187026c62137938a8dcb47cc1a6ad03c9e7eb9241a3df1280850f2d49839",
+  "scope": "training checkpoint diagnostics, not generalization accuracy",
+  "cases": {
+    "initial": {
+      "matrix_matches_prior_report": null,
+      "accuracy": 0.06666666666666667,
+      "first_conv_rms": 0.12192381089787865,
+      "last_relu_rms": 0.00012519949922510737,
+      "pool_centroid_accuracy": 0.2916666666666667,
+      "se_gate_medians": {
+        "features.2": 0.4937725067138672,
+        "features.5": 0.49973002076148987,
+        "features.8": 0.5001392960548401,
+        "features.11": 0.4999392032623291,
+        "features.14": 0.5000126957893372,
+        "features.17": 0.5000141859054565
+      }
+    },
+    "lr0.001": {
+      "matrix_matches_prior_report": true,
+      "accuracy": 0.75,
+      "first_conv_rms": 0.13786190926106928,
+      "last_relu_rms": 0.4988562001109023,
+      "pool_centroid_accuracy": 0.6333333333333333,
+      "se_gate_medians": {
+        "features.2": 0.4954792857170105,
+        "features.5": 0.5016181468963623,
+        "features.8": 0.5041149854660034,
+        "features.11": 0.5097191333770752,
+        "features.14": 0.5588011741638184,
+        "features.17": 0.6084860563278198
+      }
+    },
+    "lr0.0001": {
+      "matrix_matches_prior_report": true,
+      "accuracy": 0.7333333333333333,
+      "first_conv_rms": 0.1389466187013882,
+      "last_relu_rms": 1.286781959581127,
+      "pool_centroid_accuracy": 0.5916666666666667,
+      "se_gate_medians": {
+        "features.2": 0.4971984028816223,
+        "features.5": 0.5045400857925415,
+        "features.8": 0.5133854150772095,
+        "features.11": 0.5272437334060669,
+        "features.14": 0.6282002329826355,
+        "features.17": 0.8261038064956665
+      }
+    }
+  },
+  "limits": "Before-pool descriptor already equals pooling moments; identical scores are by construction, not evidence of pooling correctness or failure. Gain2 intervention cannot isolate initialization-only effects."
+}

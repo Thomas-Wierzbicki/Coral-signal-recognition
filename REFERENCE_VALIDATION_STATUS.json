@@ -25,7 +25,7 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run read-only activation/descriptor diagnostic on saved initial state and both learning-rate checkpoints before further interventions",
+  "current_next_work": "Run predeclared paired SE gain1/gain2 intervention at lr0.0001, 400 full-batch steps; not initialization-only attribution",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
@@ -44,7 +44,15 @@
   "feature_diagnostic": {
     "plan": "FEATURE_DIAGNOSTIC_PLAN_V1.json",
     "instructions": "TRAINING_FEATURE_DIAGNOSTIC.md",
-    "state": "prepared; four new CPU tests and eight existing tests pass; user checkpoint execution pending",
-    "limits": "moment descriptors are lossy; no causal bottleneck or generalization claim"
+    "state": "user report inspected; both checkpoint confusion matrices reproduce; initial attenuation observed; no isolated causal bottleneck established",
+    "limits": "moment descriptors are lossy; no causal bottleneck or generalization claim",
+    "evidence": "reports/training_feature_summary.json",
+    "pooling_limit": "pre-pool descriptor already equals pooled statistics; equal scores are by construction"
+  },
+  "se_gain_diagnostic": {
+    "plan": "SE_GAIN_PLAN_V1.json",
+    "instructions": "SE_GAIN_DIAGNOSTIC.md",
+    "state": "prepared; eleven CPU software tests passed; user GPU training pending",
+    "model": "explicit experimental variant; fixed gain persisted in checkpoint graph metadata"
   }
 }

@@ -1,5 +1,15 @@
 # Coral-signal-recognition
 
+## Nächster Versuch: SE-Skalierung kontrolliert verändern (26.10.2026)
+
+Die Schichtdiagnose reproduziert die gespeicherten Trainingsmatrizen. Der starke
+Pegelabfall im Anfangszustand ist ein Ansatzpunkt, keine isolierte Ursache.
+Ein neuer Versuch vergleicht SE-Gain 1 gegen 2 mit identischen Daten und Gewichten,
+400 Full-Batch-Schritten und fester Lernrate 0,0001. Der Gain wirkt während des
+gesamten Trainings. Historische Standardmodelle bleiben unverändert.
+Anleitung: [SE_GAIN_DIAGNOSTIC.md](SE_GAIN_DIAGNOSTIC.md). Technisch geprüft;
+Nutzerlauf ausstehend. Alle zwölf Klassen, keine neue Testgenauigkeit.
+
 ## Nächster Schritt: vorhandene Checkpoints schichtweise auswerten (26.10.2026)
 
 Bei 400 Full-Batch-Schritten ergaben sich 75,0 % bzw. 73,3 % Trainings-Wiedererkennung
