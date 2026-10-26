@@ -1,0 +1,54 @@
+{
+  "id": "se-gain-development-v1",
+  "date": "2026-10-26",
+  "scope": "larger synthetic development comparison, not sealed test or literature reproduction",
+  "controls": {
+    "metadata_sha256": "279f8494aaf8c14d7b9d94e8d914244abe4bbae918ee187191064b23fdefb2ec",
+    "train_sha256": "722fc591a1da3e6b47be9cfd65df3b296d1542b61c3e2178e99cfa229ab9c028",
+    "initial_sha256_by_seed": {
+      "2081": "80f6bb2628a9c9a5f3bae1caf11850d746c86b76874d34853862c055a2947824",
+      "2082": "3d4bf0c5696dd7c7839736a7975719c4214f16b0406846380769c3b33d28ea4c"
+    }
+  },
+  "model_seeds": [
+    2081,
+    2082
+  ],
+  "gains": [
+    1.0,
+    2.0
+  ],
+  "selection_seed": 2080,
+  "per_snr_condition_groups": 20,
+  "snr_levels_db": [
+    -5.0,
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0
+  ],
+  "train_examples": 1680,
+  "per_class": 140,
+  "selection": "sample twenty complete shared nuisance-condition groups at each SNR from train; retain all twelve classes of each group; noise SNR undefined, paired group retained",
+  "validation": "existing full validation split, 1080 examples, previously used for development; check hash via pinned metadata and group/source disjointness",
+  "test_policy": "test.npz is not opened; existing test has already been inspected in earlier work, so no claim of a sealed final test",
+  "epochs": 100,
+  "batch_size": 32,
+  "steps_per_epoch": 53,
+  "optimizer": "fresh Adam lr0.0001 eps1e-8, no scheduler/clipping/augmentation",
+  "batch_order_seed": 2080,
+  "activation": "tf-compatible",
+  "checkpoint_rule": "strictly minimum mean validation cross entropy, evaluated after each epoch; ties keep earliest; always run fixed100 epochs, no early stopping",
+  "primary": "paired validation loss and macro-F1 of selected checkpoints, separately for each seed; accuracy/class recalls secondary",
+  "decision": "advance candidate only if gain2 has strictly smaller selected-checkpoint validation loss and higher macro-F1 in both seeds; otherwise mixed, do not discard seeds or retune using test",
+  "failure": "stop on nonfinite loss/gradients, preserve partial outputs; no automatic retry/resume",
+  "limits": [
+    "larger subset and low SNR regime differ from preceding120-example memorization check; no direct score comparison",
+    "validation reused for selection, results are development estimates",
+    "same synthetic generators, not real RF or drone protocol accuracy",
+    "SE gain acts throughout training",
+    "historical FP32 gate unchanged; explicit experimental port adaptation"
+  ]
+}
