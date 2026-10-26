@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-26",
+  "source_report_sha256": "76d3eef6e16e8dd061fd6200d4ccdb878e60076972053a1e879138854f764672",
+  "scope": "exploratory seed2070; training-only on 120 examples",
+  "gain1_reproduces_prior_lr0001_metrics": true,
+  "cases": {
+    "gain1": {
+      "accuracy": 0.7333333333333333,
+      "loss": 0.6462832728623956,
+      "recall": {
+        "am-dsb": 0.8,
+        "fm": 0.2,
+        "bpsk": 1.0,
+        "qpsk": 0.9,
+        "16qam": 1.0,
+        "64qam": 0.6,
+        "2fsk": 0.1,
+        "2gfsk": 0.8,
+        "2gmsk": 0.6,
+        "ofdm-64": 1.0,
+        "ook": 0.8,
+        "noise": 1.0
+      },
+      "trajectory": {
+        "minimum_loss": 0.6397779756453625,
+        "minimum_loss_epoch": 397,
+        "maximum_accuracy": 0.7666666666666667,
+        "maximum_accuracy_epoch": 392,
+        "largest_loss_increase": 0.021893997617492778,
+        "largest_loss_increase_epoch": 337,
+        "final_loss_minus_minimum": 0.006505297217033079,
+        "maximum_accuracy_minus_final": 0.03333333333333344,
+        "first_epoch_accuracy_ge50": 147,
+        "first_epoch_accuracy_ge90": null
+      },
+      "initial_last_relu_rms": 0.00012857040047299382
+    },
+    "gain2": {
+      "accuracy": 0.8666666666666667,
+      "loss": 0.36026098337553947,
+      "recall": {
+        "am-dsb": 1.0,
+        "fm": 0.7,
+        "bpsk": 1.0,
+        "qpsk": 0.9,
+        "16qam": 0.8,
+        "64qam": 0.8,
+        "2fsk": 0.6,
+        "2gfsk": 0.7,
+        "2gmsk": 0.9,
+        "ofdm-64": 1.0,
+        "ook": 1.0,
+        "noise": 1.0
+      },
+      "trajectory": {
+        "minimum_loss": 0.34647586573589895,
+        "minimum_loss_epoch": 397,
+        "maximum_accuracy": 0.875,
+        "maximum_accuracy_epoch": 355,
+        "largest_loss_increase": 0.1088190507057486,
+        "largest_loss_increase_epoch": 306,
+        "final_loss_minus_minimum": 0.01378511763964052,
+        "maximum_accuracy_minus_final": 0.008333333333333304,
+        "first_epoch_accuracy_ge50": 99,
+        "first_epoch_accuracy_ge90": null
+      },
+      "initial_last_relu_rms": 0.008149349944910388
+    }
+  }
+}

@@ -39,7 +39,7 @@ def score(model, x, y, device):
     return result
 
 
-def run(args):
+def run(args, model_seed=2070, plan_name='SE_GAIN_PLAN_V1.json'):
     if args.epochs < 1 or args.per_class < 1:
         raise ValueError('Positive epochs/per-class required')
     if args.device == 'cuda' and not torch.cuda.is_available():
@@ -51,29 +51,33 @@ def run(args):
     meta = load_metadata(args.data)
     iq, labels, ids, snr = load_split(args.data, 'train', meta, set())
     iq, labels, ids, snr = select_examples(iq, labels, ids, snr, args.per_class, 2070)
-    random.seed(2070); np.random.seed(2070); torch.manual_seed(2070)
+    random.seed(model_seed); np.random.seed(model_seed); torch.manual_seed(model_seed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(2070)
+        torch.cuda.manual_seed_all(model_seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
     torch.backends.cuda.matmul.allow_tf32 = False
     torch.backends.cudnn.allow_tf32 = False
     model = make_gain_model(1., tensorflow_selu=args.activation == 'tf-compatible')
     initial = copy.deepcopy(model.state_dict())
-    expected = json.loads(Path(__file__).with_name('SE_GAIN_PLAN_V1.json').read_text())
+    expected = json.loads(Path(__file__).with_name(plan_name).read_text())
     if sha(args.data/'metadata.json') != expected['controls']['metadata_sha256']:
         raise ValueError('Datensatz stimmt nicht mit dem festgelegten Vergleich ueberein')
     if sha(args.data/'train.npz') != expected['controls']['train_sha256']:
         raise ValueError('Trainingsdatei stimmt nicht mit dem Vergleich ueberein')
-    if state_digest(initial) != expected['controls']['initial_sha256']:
+    expected_initial = expected['controls'].get('initial_sha256_by_seed', {}).get(str(model_seed),
+                              expected['controls'].get('initial_sha256'))
+    if state_digest(initial) != expected_initial:
         raise ValueError('Anfangsgewichte stimmen nicht mit dem Vergleich ueberein')
     args.output.mkdir(parents=True)
     torch.save(initial, args.output/'initial_state.pt')
     np.savez_compressed(args.output/'selection.npz', iq=iq, y=labels, source_id=ids, snr_db=snr)
-    plan_path = Path(__file__).with_name('SE_GAIN_PLAN_V1.json')
+    plan_path = Path(__file__).with_name(plan_name)
     protocol = dict(plan=json.loads(plan_path.read_text()), plan_sha256=sha(plan_path),
         activation=args.activation, epochs=args.epochs, per_class=args.per_class,
-        default_design=(args.epochs == 400 and args.per_class == 10 and args.activation == 'tf-compatible'),
+        model_seed=model_seed, selection_seed=2070, batch_permutation_seed=2070,
+        default_design=(args.epochs == 400 and args.per_class == 10 and args.activation == 'tf-compatible'
+                        and model_seed in expected.get('model_seeds', [2070])),
         torch_version=torch.__version__, numpy_version=np.__version__, cuda=torch.version.cuda,
         device=args.device, device_name=torch.cuda.get_device_name(0) if args.device == 'cuda' else 'CPU',
         metadata_sha256=sha(args.data/'metadata.json'), train_sha256=sha(args.data/'train.npz'),

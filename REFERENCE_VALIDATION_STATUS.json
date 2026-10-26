@@ -25,7 +25,7 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run predeclared paired SE gain1/gain2 intervention at lr0.0001, 400 full-batch steps; not initialization-only attribution",
+  "current_next_work": "Run predeclared paired SE gain replication on initialization seeds2071/2072 with fixed selection and 400 steps; no seed selection",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
@@ -52,7 +52,14 @@
   "se_gain_diagnostic": {
     "plan": "SE_GAIN_PLAN_V1.json",
     "instructions": "SE_GAIN_DIAGNOSTIC.md",
-    "state": "prepared; eleven CPU software tests passed; user GPU training pending",
-    "model": "explicit experimental variant; fixed gain persisted in checkpoint graph metadata"
+    "state": "exploratory user seed2070 report inspected; gain1 73.3%, gain2 86.7% training memorization, lower loss at gain2; one seed only",
+    "model": "explicit experimental variant; fixed gain persisted in checkpoint graph metadata",
+    "evidence": "reports/se_gain_exploratory_summary.json"
+  },
+  "se_gain_replication": {
+    "plan": "SE_GAIN_REPLICATION_PLAN_V1.json",
+    "instructions": "SE_GAIN_REPLICATION.md",
+    "state": "prepared; thirteen CPU software tests pass; user GPU runs pending",
+    "decision": "strict improvement in final accuracy and loss in both new seeds; otherwise mixed/not replicated; no significance or generalization claim"
   }
 }

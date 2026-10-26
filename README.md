@@ -1,5 +1,14 @@
 # Coral-signal-recognition
 
+## Nächster Schritt: SE-Vorteil mit neuen Modell-Seeds prüfen (26.10.2026)
+
+Explorativer Seed 2070: SE-Faktor 2 erreicht 104/120 statt 88/120 richtige
+Trainingszuordnungen nach 400 Schritten bei LR 0,0001. Vor einer Übernahme folgen
+zwei festgelegte Anfangszustände (2071, 2072), jeweils Faktor 1 gegen 2 auf denselben
+120 Beispielen. Anleitung: [SE_GAIN_REPLICATION.md](SE_GAIN_REPLICATION.md).
+Auswertungskriterien vorab festgelegt; 13 Softwaretests bestehen. Nutzerlauf steht
+aus. Alle zwölf Klassen bleiben, keine neue Generalisierungsgenauigkeit.
+
 ## Nächster Versuch: SE-Skalierung kontrolliert verändern (26.10.2026)
 
 Die Schichtdiagnose reproduziert die gespeicherten Trainingsmatrizen. Der starke
