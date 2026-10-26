@@ -25,13 +25,19 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run predeclared bounded training-only diagnostic; no general qualification or full accuracy comparison approved",
+  "current_next_work": "Run predeclared 400-step full-batch comparison of lr0.001 and lr0.0001; no test/validation access or historical gate change",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
     "plan": "TRAINING_COLLAPSE_PLAN_V1.json",
     "instructions": "TRAINING_COLLAPSE_DIAGNOSTIC.md",
-    "state": "prepared; user dataset/GPU execution pending",
-    "scope": "explicit compatible SELU, paired initialization, 120 training examples, all twelve classes; historical FP32 gate unchanged"
+    "state": "user report and both complete 100-epoch histories inspected; delayed learning and regressions, cause not isolated",
+    "scope": "explicit compatible SELU, paired initialization, 120 training examples, all twelve classes; historical FP32 gate unchanged",
+    "evidence": "reports/training_collapse_history_summary.json"
+  },
+  "learning_rate_diagnostic": {
+    "plan": "TRAINING_LR_PLAN_V1.json",
+    "instructions": "TRAINING_LR_DIAGNOSTIC.md",
+    "state": "prepared; eight CPU software tests passed; user GPU execution pending"
   }
 }

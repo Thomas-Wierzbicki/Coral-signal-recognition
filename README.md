@@ -1,5 +1,14 @@
 # Coral-signal-recognition
 
+## Nächster Versuch: Full-Batch-Lernratenvergleich (26.10.2026)
+
+Die hochgeladenen Verläufe zeigen verzögertes Lernen und Rückschläge, keinen
+vollständigen Stillstand im 120-Beispiele-Versuch. Ein Lernratenproblem bleibt
+Hypothese. Der nächste Vergleich hält 400 Full-Batch-Schritte und sämtliche
+Beispiele/Anfangsgewichte gleich: 0,001 gegen 0,0001. Alle zwölf Klassen bleiben.
+Anleitung und Befund: [TRAINING_LR_DIAGNOSTIC.md](TRAINING_LR_DIAGNOSTIC.md).
+Technisch geprüft; neuer Nutzer-GPU-Lauf steht aus. Keine neue Testgenauigkeit.
+
 ## Nächster Schritt: Trainingsstillstand gezielt diagnostizieren (26.10.2026)
 
 Der begrenzte Trainingsversuch ist vorbereitet: identische 120 Trainingsbeispiele,

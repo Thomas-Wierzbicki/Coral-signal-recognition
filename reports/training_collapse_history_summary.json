@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-26",
+  "source_report_sha256": "c91475e56d841b3f956e0092685a9c8d181444ac7b028fbd960f639acc744d33",
+  "scope": "training-only, 120 examples, single seed",
+  "cases": {
+    "full": {
+      "source_history_sha256": "1f2f6bfea8e95514e9f1903ea2e53bacf4ecf8675dcae9b77bfcc6b73a8fcdc5",
+      "rows": 101,
+      "final_matches_report": true,
+      "final": {
+        "epoch": 100,
+        "steps": 100,
+        "examples_processed": 12000
+      },
+      "final_accuracy": 0.26666666666666666,
+      "final_loss": 1.5827396087891732,
+      "best_accuracy": 0.5,
+      "best_accuracy_epoch": 94,
+      "minimum_loss": 1.1853268974771103,
+      "minimum_loss_epoch": 95
+    },
+    "mini32": {
+      "source_history_sha256": "e0edf5ff9ffc1284cc7defb74a4246dd9f83f0cbd0c8bc223a4687cb14a758ac",
+      "rows": 101,
+      "final_matches_report": true,
+      "final": {
+        "epoch": 100,
+        "steps": 400,
+        "examples_processed": 12000
+      },
+      "final_accuracy": 0.5333333333333333,
+      "final_loss": 0.9207268957115756,
+      "best_accuracy": 0.625,
+      "best_accuracy_epoch": 87,
+      "minimum_loss": 0.7700964866714647,
+      "minimum_loss_epoch": 93
+    }
+  }
+}
