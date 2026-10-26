@@ -1,5 +1,14 @@
 # Coral-signal-recognition
 
+## Nächster Schritt: vorhandene Checkpoints schichtweise auswerten (26.10.2026)
+
+Bei 400 Full-Batch-Schritten ergaben sich 75,0 % bzw. 73,3 % Trainings-Wiedererkennung
+für LR 0,001 bzw. 0,0001. Die kleinere Lernrate verringert die beobachteten
+Verlustsprünge, löst das Lernproblem aber nicht vollständig. Jetzt folgt eine
+reine Auswertung der gespeicherten Anfangs-/Endzustände, ohne neues Training.
+Anleitung: [TRAINING_FEATURE_DIAGNOSTIC.md](TRAINING_FEATURE_DIAGNOSTIC.md).
+Alle zwölf Klassen bleiben; keine Testgenauigkeit und keine Änderung des FP32-Gates.
+
 ## Nächster Versuch: Full-Batch-Lernratenvergleich (26.10.2026)
 
 Die hochgeladenen Verläufe zeigen verzögertes Lernen und Rückschläge, keinen

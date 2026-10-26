@@ -25,7 +25,7 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run predeclared 400-step full-batch comparison of lr0.001 and lr0.0001; no test/validation access or historical gate change",
+  "current_next_work": "Run read-only activation/descriptor diagnostic on saved initial state and both learning-rate checkpoints before further interventions",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
@@ -38,6 +38,13 @@
   "learning_rate_diagnostic": {
     "plan": "TRAINING_LR_PLAN_V1.json",
     "instructions": "TRAINING_LR_DIAGNOSTIC.md",
-    "state": "prepared; eight CPU software tests passed; user GPU execution pending"
+    "state": "user report inspected; 75.0% vs 73.3% training memorization after 400 steps; smaller observed loss regressions at lr0.0001, root cause unresolved",
+    "evidence": "reports/training_lr_summary.json"
+  },
+  "feature_diagnostic": {
+    "plan": "FEATURE_DIAGNOSTIC_PLAN_V1.json",
+    "instructions": "TRAINING_FEATURE_DIAGNOSTIC.md",
+    "state": "prepared; four new CPU tests and eight existing tests pass; user checkpoint execution pending",
+    "limits": "moment descriptors are lossy; no causal bottleneck or generalization claim"
   }
 }

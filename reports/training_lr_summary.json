@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-26",
+  "source_report_sha256": "c4c50150450ce800ef16eb1278011d65b013058f0bdd957bbd4e40548d3b065e",
+  "scope": "same 120 training examples, 400 full-batch steps, single seed; no generalization accuracy",
+  "validation": "matrix totals, accuracy, macro-F1 and class losses recalculated; source hashes match prepared code; checkpoint bytes not uploaded",
+  "cases": {
+    "lr0.001": {
+      "steps": 400,
+      "accuracy": 0.75,
+      "loss": 0.6259604595092156,
+      "macro_f1": 0.7386544317783706,
+      "recall": {
+        "am-dsb": 1.0,
+        "fm": 0.9,
+        "bpsk": 1.0,
+        "qpsk": 0.9,
+        "16qam": 0.6,
+        "64qam": 0.5,
+        "2fsk": 0.6,
+        "2gfsk": 0.3,
+        "2gmsk": 0.2,
+        "ofdm-64": 1.0,
+        "ook": 1.0,
+        "noise": 1.0
+      },
+      "trajectory": {
+        "minimum_loss": 0.4866612981082606,
+        "minimum_loss_epoch": 305,
+        "maximum_accuracy": 0.8,
+        "maximum_accuracy_epoch": 294,
+        "largest_loss_increase": 5.897603240662556,
+        "largest_loss_increase_epoch": 156,
+        "final_loss_minus_minimum": 0.13929916140095505,
+        "maximum_accuracy_minus_final": 0.050000000000000044
+      }
+    },
+    "lr0.0001": {
+      "steps": 400,
+      "accuracy": 0.7333333333333333,
+      "loss": 0.6462832728623956,
+      "macro_f1": 0.7165464274584057,
+      "recall": {
+        "am-dsb": 0.8,
+        "fm": 0.2,
+        "bpsk": 1.0,
+        "qpsk": 0.9,
+        "16qam": 1.0,
+        "64qam": 0.6,
+        "2fsk": 0.1,
+        "2gfsk": 0.8,
+        "2gmsk": 0.6,
+        "ofdm-64": 1.0,
+        "ook": 0.8,
+        "noise": 1.0
+      },
+      "trajectory": {
+        "minimum_loss": 0.6397779756453625,
+        "minimum_loss_epoch": 397,
+        "maximum_accuracy": 0.7666666666666667,
+        "maximum_accuracy_epoch": 392,
+        "largest_loss_increase": 0.021893997617492778,
+        "largest_loss_increase_epoch": 337,
+        "final_loss_minus_minimum": 0.006505297217033079,
+        "maximum_accuracy_minus_final": 0.03333333333333344
+      }
+    }
+  }
+}
