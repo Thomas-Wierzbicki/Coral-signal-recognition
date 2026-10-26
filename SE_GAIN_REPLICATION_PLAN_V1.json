@@ -1,0 +1,42 @@
+{
+  "id": "se-gain-replication-v1",
+  "date": "2026-10-26",
+  "scope": "two additional paired initialization seeds; training-only, not generalization",
+  "model_seeds": [
+    2071,
+    2072
+  ],
+  "selection_seed": 2070,
+  "batch_permutation_seed": 2070,
+  "controls": {
+    "metadata_sha256": "279f8494aaf8c14d7b9d94e8d914244abe4bbae918ee187191064b23fdefb2ec",
+    "train_sha256": "722fc591a1da3e6b47be9cfd65df3b296d1542b61c3e2178e99cfa229ab9c028",
+    "initial_sha256_by_seed": {
+      "2071": "03fe31fa3b9bfeffc90a89ce3eeb70d677f3fdff82b63e2f5d8154e96dc99a3e",
+      "2072": "6b606c69b562f5dfcf496886d4d36cf7998ee5d4e1654021dfd150776366f601"
+    }
+  },
+  "per_class": 10,
+  "classes": 12,
+  "signal_min_snr_db": 15,
+  "epochs_and_steps": 400,
+  "learning_rate": 0.0001,
+  "batch_size": 120,
+  "gains": [
+    1.0,
+    2.0
+  ],
+  "activation": "tf-compatible",
+  "optimizer": "fresh Adam eps1e-8, no clipping or scheduler",
+  "fixed": "same 120 selected examples and order in all four cases; initial weights differ between seeds but are paired between gains within seed",
+  "primary": "paired gain2-minus-gain1 final accuracy and loss at step400 for EACH new seed",
+  "decision": "Directional replication only if gain2 has strictly lower final loss AND strictly higher final accuracy in BOTH new seeds. Otherwise mixed/not-replicated; preserve all runs and do not select best seeds. Even directional replication does not prove statistical significance or generalization.",
+  "historical_seed2070": "exploratory result retained separately; not included as a new replication seed",
+  "failure": "nonfinite loss or missing gradients stops; retain partial output without completion marker, no automatic resume or seed replacement",
+  "limits": [
+    "two initializations on one fixed training subset, not independently sampled datasets",
+    "gain acts throughout training, no initialization-only attribution",
+    "historical FP32 gate unchanged",
+    "no recognition accuracy on held-out or real RF data"
+  ]
+}
