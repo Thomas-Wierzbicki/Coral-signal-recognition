@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-26",
+  "source_report_sha256": "c986dee14192c4057829d0d431218e35c23e49fda8e82572a7b0b46821c9d179",
+  "scope": "two initialization seeds, same120 training examples; no held-out recognition accuracy",
+  "complete": true,
+  "directional_replication": true,
+  "cases": {
+    "2071": {
+      "gain1": {
+        "accuracy": 0.725,
+        "loss": 0.6042786766457369,
+        "trajectory": {
+          "minimum_loss": 0.6042786766457369,
+          "minimum_loss_epoch": 400,
+          "maximum_accuracy": 0.7583333333333333,
+          "maximum_accuracy_epoch": 397,
+          "largest_loss_increase": 0.02530617966808668,
+          "largest_loss_increase_epoch": 385,
+          "final_loss_minus_minimum": 0.0,
+          "maximum_accuracy_minus_final": 0.033333333333333326,
+          "first_epoch_accuracy_ge50": 175,
+          "first_epoch_accuracy_ge90": null
+        },
+        "recall": {
+          "am-dsb": 1.0,
+          "fm": 0.8,
+          "bpsk": 0.8,
+          "qpsk": 0.9,
+          "16qam": 0.7,
+          "64qam": 0.4,
+          "2fsk": 0.5,
+          "2gfsk": 0.4,
+          "2gmsk": 0.2,
+          "ofdm-64": 1.0,
+          "ook": 1.0,
+          "noise": 1.0
+        }
+      },
+      "gain2": {
+        "accuracy": 0.9083333333333333,
+        "loss": 0.23040506154744614,
+        "trajectory": {
+          "minimum_loss": 0.23040506154744614,
+          "minimum_loss_epoch": 400,
+          "maximum_accuracy": 0.9333333333333333,
+          "maximum_accuracy_epoch": 389,
+          "largest_loss_increase": 0.05723880691305816,
+          "largest_loss_increase_epoch": 239,
+          "final_loss_minus_minimum": 0.0,
+          "maximum_accuracy_minus_final": 0.025000000000000022,
+          "first_epoch_accuracy_ge50": 111,
+          "first_epoch_accuracy_ge90": 334
+        },
+        "recall": {
+          "am-dsb": 1.0,
+          "fm": 0.7,
+          "bpsk": 1.0,
+          "qpsk": 1.0,
+          "16qam": 1.0,
+          "64qam": 1.0,
+          "2fsk": 0.8,
+          "2gfsk": 0.7,
+          "2gmsk": 0.7,
+          "ofdm-64": 1.0,
+          "ook": 1.0,
+          "noise": 1.0
+        }
+      }
+    },
+    "2072": {
+      "gain1": {
+        "accuracy": 0.7583333333333333,
+        "loss": 0.5844583665778054,
+        "trajectory": {
+          "minimum_loss": 0.5798992809742362,
+          "minimum_loss_epoch": 399,
+          "maximum_accuracy": 0.775,
+          "maximum_accuracy_epoch": 394,
+          "largest_loss_increase": 0.10135314863867584,
+          "largest_loss_increase_epoch": 270,
+          "final_loss_minus_minimum": 0.004559085603569213,
+          "maximum_accuracy_minus_final": 0.01666666666666672,
+          "first_epoch_accuracy_ge50": 210,
+          "first_epoch_accuracy_ge90": null
+        },
+        "recall": {
+          "am-dsb": 0.9,
+          "fm": 0.7,
+          "bpsk": 0.9,
+          "qpsk": 0.8,
+          "16qam": 0.8,
+          "64qam": 0.8,
+          "2fsk": 0.5,
+          "2gfsk": 0.4,
+          "2gmsk": 0.5,
+          "ofdm-64": 1.0,
+          "ook": 0.8,
+          "noise": 1.0
+        }
+      },
+      "gain2": {
+        "accuracy": 0.85,
+        "loss": 0.38793386688280973,
+        "trajectory": {
+          "minimum_loss": 0.17131263509151395,
+          "minimum_loss_epoch": 378,
+          "maximum_accuracy": 0.9666666666666667,
+          "maximum_accuracy_epoch": 352,
+          "largest_loss_increase": 0.3743465953566017,
+          "largest_loss_increase_epoch": 398,
+          "final_loss_minus_minimum": 0.21662123179129578,
+          "maximum_accuracy_minus_final": 0.1166666666666667,
+          "first_epoch_accuracy_ge50": 112,
+          "first_epoch_accuracy_ge90": 286
+        },
+        "recall": {
+          "am-dsb": 1.0,
+          "fm": 0.8,
+          "bpsk": 0.7,
+          "qpsk": 0.8,
+          "16qam": 0.9,
+          "64qam": 0.8,
+          "2fsk": 0.9,
+          "2gfsk": 0.6,
+          "2gmsk": 0.7,
+          "ofdm-64": 1.0,
+          "ook": 1.0,
+          "noise": 1.0
+        }
+      }
+    }
+  }
+}

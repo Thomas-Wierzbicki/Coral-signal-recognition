@@ -25,7 +25,7 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run predeclared paired SE gain replication on initialization seeds2071/2072 with fixed selection and 400 steps; no seed selection",
+  "current_next_work": "Run preregistered grouped 1680-example development comparison with 1080 reused validation examples; minimum validation-loss checkpoints; test unopened",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
@@ -59,7 +59,16 @@
   "se_gain_replication": {
     "plan": "SE_GAIN_REPLICATION_PLAN_V1.json",
     "instructions": "SE_GAIN_REPLICATION.md",
-    "state": "prepared; thirteen CPU software tests pass; user GPU runs pending",
-    "decision": "strict improvement in final accuracy and loss in both new seeds; otherwise mixed/not replicated; no significance or generalization claim"
+    "state": "user report inspected; complete paired seeds2071/2072 meet preregistered directional rule for final training accuracy and loss; not generalization",
+    "decision": "strict improvement in final accuracy and loss in both new seeds; otherwise mixed/not replicated; no significance or generalization claim",
+    "evidence": "reports/se_gain_replication_summary.json"
+  },
+  "se_gain_development": {
+    "plan": "SE_GAIN_DEVELOPMENT_PLAN_V1.json",
+    "instructions": "SE_GAIN_DEVELOPMENT.md",
+    "state": "prepared; fifteen CPU software tests passed; four user GPU 100-epoch runs pending",
+    "scope": "experimental SE-gain port development; no literature reproduction, historical FP32 gate unchanged",
+    "validation_role": "reused development data",
+    "final_test_requirement": "existing test previously inspected; new untouched independent data needed for final claims"
   }
 }

@@ -1,5 +1,16 @@
 # Coral-signal-recognition
 
+## Nächster Versuch: größerer Trainingsausschnitt und Entwicklungsvalidierung (26.10.2026)
+
+Der SE-Gain-2-Vorteil wurde bei den beiden neuen Anfangszuständen auf dem kleinen
+Trainingsausschnitt richtungsgleich bestätigt. Nun folgt ein vorab geplanter
+Vergleich mit 1.680 Trainingsbeispielen, allen zwölf Klassen und allen SNR-Stufen.
+Vier Läufe (Seeds 2081/2082 × Gain1/2), je 100 Epochen; Auswahl ausschließlich nach
+minimalem Validierungsverlust. Anleitung: [SE_GAIN_DEVELOPMENT.md](SE_GAIN_DEVELOPMENT.md).
+15 Softwaretests bestehen; Nutzer-GPU-Ausführung steht aus. Vorhandene Validierung
+ist Entwicklungsdaten; der früher verwendete Testsatz ist kein unberührter
+Abschlussprüfsatz und wird in diesem Versuch nicht geöffnet.
+
 ## Nächster Schritt: SE-Vorteil mit neuen Modell-Seeds prüfen (26.10.2026)
 
 Explorativer Seed 2070: SE-Faktor 2 erreicht 104/120 statt 88/120 richtige
