@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "date": "2026-10-24",
+  "date": "2026-10-26",
   "frozen_protocol": "EXPERIMENT_PROTOCOL_V1.json",
   "amendments": [
     "EXPERIMENT_PROTOCOL_AMENDMENT_01.json",
@@ -25,7 +25,13 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Use localized mechanisms to define a separately versioned qualification approach before further full training; do not silently change the existing FP32 gate",
+  "current_next_work": "Run predeclared bounded training-only diagnostic; no general qualification or full accuracy comparison approved",
   "full_training_collapse_root_cause": "not established",
-  "gpu_qualification": "not performed in this phase"
+  "gpu_qualification": "not performed in this phase",
+  "training_diagnostic": {
+    "plan": "TRAINING_COLLAPSE_PLAN_V1.json",
+    "instructions": "TRAINING_COLLAPSE_DIAGNOSTIC.md",
+    "state": "prepared; user dataset/GPU execution pending",
+    "scope": "explicit compatible SELU, paired initialization, 120 training examples, all twelve classes; historical FP32 gate unchanged"
+  }
 }

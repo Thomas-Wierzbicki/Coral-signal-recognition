@@ -1,5 +1,15 @@
 # Coral-signal-recognition
 
+## Nächster Schritt: Trainingsstillstand gezielt diagnostizieren (26.10.2026)
+
+Der begrenzte Trainingsversuch ist vorbereitet: identische 120 Trainingsbeispiele,
+alle zwölf Klassen, gleiche Anfangsgewichte, Full-Batch gegen gemischte Mini-Batches.
+Die SELU-Kompatibilitätsvariante wird ausdrücklich ausgewählt. Keine Validierungs-
+oder Testdaten, keine neue Erkennungsleistung und keine Änderung der historischen
+FP32-Grenzen. Anleitung: [TRAINING_COLLAPSE_DIAGNOSTIC.md](TRAINING_COLLAPSE_DIAGNOSTIC.md).
+Der Versuch auf dem Nutzerdatensatz/GPU steht noch aus; ältere Abschnitte beschreiben
+frühere Arbeitsstände.
+
 ## Aktuell: verbleibende Gradientenabweichungen lokalisiert
 
 Die Ursachen der beiden CPU-Restfälle sind gemessen: eine einzelne ReLU-Schaltentscheidung nahe null sowie eine isoliert reproduzierte Float32-Summierung in TensorFlow 2.4.1. Mit denselben hochgestuften Werten bestehen alle zwölf Float64-Diagnoseprofile; die historischen Float32-Fehlschläge werden dadurch nicht ersetzt. Der frühere vollständige Trainingsstillstand ist weiterhin nicht erklärt.
