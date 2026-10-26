@@ -1,0 +1,47 @@
+{
+  "id": "training-learning-rate-diagnostic-v1",
+  "date": "2026-10-26",
+  "hypothesis": "Fixed lr0.001 may contribute to late optimization regressions; not established",
+  "scope": "training-only diagnostic, all twelve classes; no test/validation access",
+  "selection": {
+    "per_class": 10,
+    "signal_min_snr_db": 15,
+    "seed": 2070,
+    "algorithm": "same select_examples as preceding diagnostic"
+  },
+  "cases": [
+    {
+      "name": "lr0.001",
+      "learning_rate": 0.001
+    },
+    {
+      "name": "lr0.0001",
+      "learning_rate": 0.0001
+    }
+  ],
+  "epochs_and_steps_per_case": 400,
+  "batch_size": 120,
+  "optimizer": "fresh PyTorch Adam eps1e-8, no scheduler or clipping",
+  "activation": "explicit TensorFlow-compatible SELU",
+  "controls": {
+    "metadata_sha256": "279f8494aaf8c14d7b9d94e8d914244abe4bbae918ee187191064b23fdefb2ec",
+    "train_sha256": "722fc591a1da3e6b47be9cfd65df3b296d1542b61c3e2178e99cfa229ab9c028",
+    "initial_sha256": "cda210d158da1b49f7e5ef47e6dbe429f36a05b07d70cb781b8daff2633b9a08"
+  },
+  "comparison": "same full-batch permutations and initialization, same 400 updates and 48000 examples processed per case; only learning rate differs",
+  "stopping": "fixed horizon, no early stopping; final state is primary, intermediate minima are descriptive",
+  "measurements": [
+    "training loss/accuracy per epoch",
+    "class confusion",
+    "gradient/parameter/update norms",
+    "largest positive consecutive loss jump",
+    "final minus best loss and accuracy"
+  ],
+  "decision": "If lower lr reduces regressions but has worse final loss, insufficient evidence of a better optimization recipe. If both fail to memorize, investigate activations and conditioning before increasing dataset size. A successful memorization run does not establish generalization.",
+  "limitations": [
+    "one seed",
+    "different learning rates imply different effective optimization speed",
+    "historical FP32 gate unchanged",
+    "no original-paper reproduction or GPU numerical qualification"
+  ]
+}
