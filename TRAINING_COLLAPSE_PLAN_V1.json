@@ -1,0 +1,20 @@
+{
+  "id": "training-collapse-diagnostic-v1",
+  "date": "2026-10-26",
+  "scope": "training-only diagnostic; no recognition benchmark or literature reproduction",
+  "historical_fp32_gate": "unchanged and not passed",
+  "qualification": "diagnostic use only of explicitly selected candidate; no general GPU or full-training qualification claimed",
+  "evidence": "GRADIENT_LOCALIZATION_RESULTS.md",
+  "selection": {"split": "train", "per_class": 10, "signal_min_snr_db": 15, "seed": 2070},
+  "classes": 12,
+  "model": "Harper2023 with explicitly selected TensorFlowSELU",
+  "cases": ["full batch", "shuffled batch size 32"],
+  "controls": "identical selected examples and initial weights; independent optimizer reset; fixed batch permutation seed",
+  "optimizer": {"name": "PyTorch Adam", "lr": 0.001, "eps": 1e-8},
+  "epochs": 100,
+  "stopping": "fixed horizon; no accuracy-based early stopping",
+  "measurements": ["training loss by class", "confusion matrix", "prediction counts", "parameter and gradient norms", "parameter update norms", "batch class counts", "optimizer steps", "examples processed"],
+  "interpretation": "Different batch sizes also change updates per epoch. Compare trajectories by steps and examples processed; no isolated batch-size causal claim. One seed is exploratory.",
+  "decision": "If both learn, proceed to a separately planned larger training subset. If both stagnate, inspect earliest activation/gradient attenuation. If only one learns, run a separately planned optimizer-budget control.",
+  "sealed": "validation and test are not opened; existing model defaults and results unchanged"
+}
