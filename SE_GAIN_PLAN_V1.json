@@ -1,0 +1,53 @@
+{
+  "id": "se-gain-diagnostic-v1",
+  "date": "2026-10-26",
+  "scope": "paired training-only intervention, all twelve classes; no literature reproduction",
+  "hypothesis": "SE gain2 may reduce delayed learning associated with initial attenuation; not established",
+  "selection": {
+    "per_class": 10,
+    "signal_min_snr_db": 15,
+    "seed": 2070,
+    "algorithm": "same select_examples as preceding diagnostic"
+  },
+  "controls": {
+    "metadata_sha256": "279f8494aaf8c14d7b9d94e8d914244abe4bbae918ee187191064b23fdefb2ec",
+    "train_sha256": "722fc591a1da3e6b47be9cfd65df3b296d1542b61c3e2178e99cfa229ab9c028",
+    "initial_sha256": "cda210d158da1b49f7e5ef47e6dbe429f36a05b07d70cb781b8daff2633b9a08"
+  },
+  "cases": [
+    {
+      "name": "gain1",
+      "se_gain": 1.0
+    },
+    {
+      "name": "gain2",
+      "se_gain": 2.0
+    }
+  ],
+  "intervention": "all six SE outputs multiplied by fixed gain throughout training; weight tensors, initialization, optimizer, data and order identical",
+  "learning_rate": 0.0001,
+  "optimizer": "fresh Adam eps1e-8, no clipping/scheduler",
+  "epochs_and_steps": 400,
+  "batch_size": 120,
+  "examples_processed_per_case": 48000,
+  "activation": "explicit TensorFlow-compatible SELU",
+  "primary": "final training loss and accuracy at step400; paired result for one seed, no statistical superiority claim",
+  "secondary": [
+    "initial layer activation RMS",
+    "first-batch gradient norms every epoch",
+    "first step at training accuracy>=0.5 and >=0.9, if reached",
+    "minimum loss and maximum accuracy (descriptive)",
+    "largest consecutive loss increase"
+  ],
+  "stopping": "fixed horizon, no early stopping or best-checkpoint selection",
+  "decision": "If gain2 improves final loss/accuracy, replicate on further predefined seeds before larger training. If only onset improves, do not call remaining classification solved. If neither memorizes, examine remaining representation/optimization limitations; do not launch an arbitrary hyperparameter search.",
+  "limitations": [
+    "gain acts throughout training, not only at initialization",
+    "effective input-dependent gates range0..2 instead of0..1",
+    "no generalization or real-signal accuracy",
+    "no isolated proof of original training-collapse cause",
+    "historical FP32 gate unchanged"
+  ],
+  "checkpoint_requirement": "SE gain is graph configuration, not a tensor; serialize se_gain and architecture tag alongside state_dict",
+  "initial_activation_probe": "one first selected example per class, same balanced twelve in both cases"
+}
