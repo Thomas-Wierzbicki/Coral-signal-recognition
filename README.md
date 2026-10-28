@@ -1,5 +1,17 @@
 # Coral-signal-recognition
 
+## Aktueller nächster Schritt: Fehleraudit ohne neues Training (28.10.2026)
+
+Die vier bereits ausgewählten Fortsetzungs-Checkpoints werden unverändert nach
+Klasse, SNR, angeforderter/gemessener Bandbreite und Frequenzversatz ausgewertet.
+Einzelvorhersagen werden mit protokollierten Parametern und tatsächlichen IQ-Hashes
+verknüpft; kleine Zellen und nicht protokollierte interne FSK-Parameter werden
+sichtbar ausgewiesen. Kein Training, keine Testdatei und keine Klassenentfernung.
+Anleitung: [MODULATION_ERROR_AUDIT.md](MODULATION_ERROR_AUDIT.md).
+Vorabplan: [MODULATION_ERROR_AUDIT_PLAN_V1.json](MODULATION_ERROR_AUDIT_PLAN_V1.json).
+Neun gezielte Softwaretests bestehen; Auswertung der Nutzer-Checkpoints steht aus.
+Die folgenden älteren Einstiege gehören zum bisherigen Entwicklungsverlauf.
+
 ## Aktueller Einstieg: vorhandene Checkpoints kontrolliert fortsetzen (28.10.2026)
 
 Ein begrenzter Versuch statt Neustarts und mehrerer gleichzeitiger Änderungen:

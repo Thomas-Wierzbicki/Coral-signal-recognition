@@ -25,7 +25,7 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run predeclared bounded checkpoint continuation: same source models, Adam states and batch RNG; lr1e-4 versus1e-5 for50 extra epochs, one aggregate report",
+  "current_next_work": "Run preregistered read-only error audit on all four validation-selected continuation checkpoints, joining recorded generator metadata and IQ hashes; no more training yet",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
@@ -79,5 +79,12 @@
     "guards": "registered source plan/hash verification, source validation reproduction, full Adam/RNG restoration and paired fingerprints, immutable source artifacts",
     "report": "single aggregate with class/SNR results, block means and volatility diagnostics",
     "historical_gates": "unchanged"
+  },
+  "modulation_error_audit": {
+    "plan": "MODULATION_ERROR_AUDIT_PLAN_V1.json",
+    "instructions": "MODULATION_ERROR_AUDIT.md",
+    "state": "prepared; nine targeted CPU software tests passed; actual user-checkpoint execution pending",
+    "scope": "same1680 train and1080 reused development-validation examples, all four checkpoints and twelve classes, test unopened",
+    "limitations": "descriptive correlations, sparse cells and paired nuisance groups; unlogged FSK internal parameters not imputed; no causal or independent-accuracy claim"
   }
 }
