@@ -1,3 +1,7 @@
+## Aktueller naechster Pruefschritt: Generator-Rekonstruktion
+
+`python project/replay_modulation_generators.py` aus `~/rf-learning` rekonstruiert Training und Validierung aller zwoelf Klassen. Jeder IQ-Hash muss exakt passen; FSK-Parameter werden am tatsaechlichen Aufruf beobachtet und die Beobachtung auf Bitidentitaet geprueft. Kein Training, Testsatz bleibt ungeoeffnet. Anleitung: [GENERATOR_REPLAY.md](GENERATOR_REPLAY.md). Der Plan wurde vor der Implementierung registriert. Acht lokale Tests mit Ersatzgeneratoren bestanden; der reale Datenlauf steht aus.
+
 # Coral-signal-recognition
 
 ## Aktueller nächster Schritt: Fehleraudit ohne neues Training (28.10.2026)
