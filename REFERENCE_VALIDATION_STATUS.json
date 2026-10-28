@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "date": "2026-10-26",
+  "date": "2026-10-28",
   "frozen_protocol": "EXPERIMENT_PROTOCOL_V1.json",
   "amendments": [
     "EXPERIMENT_PROTOCOL_AMENDMENT_01.json",
@@ -25,7 +25,7 @@
   },
   "G3": "not started; prerequisites not fully met",
   "G4": "not started; twelve classes retained",
-  "current_next_work": "Run preregistered grouped 1680-example development comparison with 1080 reused validation examples; minimum validation-loss checkpoints; test unopened",
+  "current_next_work": "Run predeclared bounded checkpoint continuation: same source models, Adam states and batch RNG; lr1e-4 versus1e-5 for50 extra epochs, one aggregate report",
   "full_training_collapse_root_cause": "not established",
   "gpu_qualification": "not performed in this phase",
   "training_diagnostic": {
@@ -70,5 +70,14 @@
     "scope": "experimental SE-gain port development; no literature reproduction, historical FP32 gate unchanged",
     "validation_role": "reused development data",
     "final_test_requirement": "existing test previously inspected; new untouched independent data needed for final claims"
+  },
+  "se_gain_continuation": {
+    "plan": "SE_GAIN_CONTINUATION_PLAN_V1.json",
+    "instructions": "SE_GAIN_CONTINUATION.md",
+    "state": "prepared; nine targeted CPU tests passed, including bit-identical interrupted/uninterrupted optimization; actual source checkpoint preflight and GPU continuation pending",
+    "scope": "four50-epoch continuations, no architecture/data changes or independent-test claim",
+    "guards": "registered source plan/hash verification, source validation reproduction, full Adam/RNG restoration and paired fingerprints, immutable source artifacts",
+    "report": "single aggregate with class/SNR results, block means and volatility diagnostics",
+    "historical_gates": "unchanged"
   }
 }

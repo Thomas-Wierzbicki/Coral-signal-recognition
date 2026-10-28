@@ -1,5 +1,20 @@
 # Coral-signal-recognition
 
+## Aktueller Einstieg: vorhandene Checkpoints kontrolliert fortsetzen (28.10.2026)
+
+Ein begrenzter Versuch statt Neustarts und mehrerer gleichzeitiger Änderungen:
+Seeds 2081/2082, vorhandener Gain2-Stand bei Epoche100, jeweils LR0,0001 beibehalten
+gegen LR0,00001. Erst50 weitere Epochen, volle Wiederherstellung von Modell,
+Adam-Momenten/Schrittzählern und Batchgenerator. Vor Updates werden beide
+Ausgangsvalidierungen reproduziert. Quellen bleiben erhalten, Testdatei geschlossen.
+Ein gemeinsamer Bericht enthält Endstände, Klassen-/SNR-Werte und Schwankungsmaße.
+Anleitung: [SE_GAIN_CONTINUATION.md](SE_GAIN_CONTINUATION.md).
+Vorabplan: [SE_GAIN_CONTINUATION_PLAN_V1.json](SE_GAIN_CONTINUATION_PLAN_V1.json).
+Neun gezielte CPU-Softwaretests bestehen; Nutzer-GPU-Fortsetzung steht noch aus.
+
+Die nachfolgenden älteren Statusabschnitte dokumentieren den bisherigen Verlauf;
+sie sind keine zusätzlichen aktuellen Startaufträge.
+
 ## Nächster Versuch: größerer Trainingsausschnitt und Entwicklungsvalidierung (26.10.2026)
 
 Der SE-Gain-2-Vorteil wurde bei den beiden neuen Anfangszuständen auf dem kleinen
