@@ -1,0 +1,21 @@
+{
+  "id": "modulation-error-audit-v1",
+  "date": "2026-10-28",
+  "scope": "read-only descriptive audit of all four validation-selected continuation checkpoints; no training, checkpoint selection or hyperparameter search",
+  "checkpoints": "seeds2081/2082 x keep_lr/lower_lr, selected by the existing continuation plan; no best-seed filtering",
+  "data": "same1680 selected training and1080 development-validation examples; test not opened",
+  "provenance": "verify completed continuation, its source chain/protocols/code/hashes, selected checkpoint metadata and history, parameter JSONL hashes, one-to-one source/condition/label/SNR joins and each selected IQ hash",
+  "primary_tables": ["class x SNR", "class x requested bandwidth", "class x absolute frequency offset", "class x measured clean90%-power bandwidth", "high-SNR>=15dB class recalls"],
+  "focus_family": ["fm", "2fsk", "2gfsk", "2gmsk"],
+  "secondary_tables": "focus-family class x SNR x requested bandwidth; descriptive only, sparse cells expected",
+  "fixed_bins": {"requested_bandwidth_hz": [1500,4000,8000,12000], "absolute_offset_hz": [0,1600,3200,4800], "clean_width90_hz": [0,2000,4000,8000,16000,32000]},
+  "bin_rule": "left-inclusive/right-exclusive; last upper edge inclusive; missing/not-applicable explicit, never imputed",
+  "counts": "show number of examples, correct, predicted-label counts, unique condition IDs; mark cells with fewer than20 examples as sparse",
+  "score": "record softmax maximum as uncalibrated model score, not probability; count errors with score>=0.8 descriptively",
+  "outputs": "one root report for routine review plus full per-example CSV files and checkpoint/metadata hashes; preserve all four model variants",
+  "generator_limit": "Only actually recorded parameters may be attributed. FSK internal modulation index/pulse/BT draws were not logged by the existing wrapper; list this gap rather than infer numeric values from labels or regenerate silently",
+  "interpretation": "associations are not isolated causes; nuisance conditions paired across classes, cell counts are not independent trial counts; adaptive development data is not an independent accuracy estimate",
+  "decision": "identify reproducible error strata across both seeds/branches before proposing a separately planned intervention or generator replay. No automatic training or class removal",
+  "historical_fp32_gate": "unchanged",
+  "classes": "all twelve retained, including noise with no signal SNR/bandwidth/offset"
+}
