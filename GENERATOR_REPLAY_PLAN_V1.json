@@ -1,0 +1,10 @@
+{
+  "id": "generator-replay-v1",
+  "scope": "Read-only regeneration of every train/validation example, all twelve classes; never open test; no training.",
+  "primary_gate": "Every stored IQ hash and regenerated IQ hash must match exactly. Any mismatch blocks parameter interpretation; retain failure report.",
+  "instrumentation": "For FSK only wrap the original fsk_random_params function: call once with unchanged arguments and RNG, record returned h/BT/span. Compare instrumented and uninstrumented received IQ hashes for each FSK example. Restore function in finally.",
+  "provenance": "Verify metadata NPZ/JSONL hashes, IDs/labels/conditions/SNR, stored IQ digests, recorded generator versions and builder/wrapper hashes. Record installed FSK module hash and environment.",
+  "outputs": "Fresh timestamp folder with report, per-example replay JSONL and completion marker only on full exact success. No source data or model changes.",
+  "interpretation": "Parameter distributions and equality are descriptive, not recognition accuracy or proof of causal failure. GFSK/GMSK boundaries may overlap; no labels dropped.",
+  "failure": "Preserve mismatch counts, first examples and environment; do not relax equality or silently replace data."
+}
