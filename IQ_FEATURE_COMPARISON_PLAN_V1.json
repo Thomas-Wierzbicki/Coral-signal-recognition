@@ -1,0 +1,34 @@
+{
+  "id": "iq-envelope-phase-comparison-v1",
+  "scope": "Paired synthetic development comparison; twelve classes, no test or real reception accuracy claim.",
+  "arms": ["iq_zero", "iq_envelope_phase"],
+  "features": "Both arms N,4,1,4096 float32. Channels0/1 unchanged I/Q. iq_zero: channels2/3 exactly zero. Candidate channel2=abs(IQ); channel3=angle(z[t]*conj(z[t-1]))/pi, first sample zero; zero product has phase zero. Float64 feature calculation then float32. No centering, frequency correction, learned scaling or augmentation.",
+  "architecture": "Existing experimental tf-compatible Harper port, six SE gains fixed2, first Conv1d expanded2->4. Shared original IQ kernels/bias and all remaining tensors from saved pretraining initial_state.pt for seeds2081/2082; new channel kernels exactly zero in both arms. Identical parameter shapes/counts; baseline has inactive extra kernels. No random reinitialization of common tensors. Not an isolated test of envelope versus phase; joint feature treatment.",
+  "source_initial_state_digest": {
+    "2081": "80f6bb2628a9c9a5f3bae1caf11850d746c86b76874d34853862c055a2947824",
+    "2082": "3d4bf0c5696dd7c7839736a7975719c4214f16b0406846380769c3b33d28ea4c"
+  },
+  "data": {
+    "metadata_sha256": "279f8494aaf8c14d7b9d94e8d914244abe4bbae918ee187191064b23fdefb2ec",
+    "train_sha256": "722fc591a1da3e6b47be9cfd65df3b296d1542b61c3e2178e99cfa229ab9c028",
+    "validation_sha256": "f6e17b2be2ec414621963e1798e83ef40252157933e05de2e7cfc1ad4d8b0bae",
+    "original_selection_sha256": "d5b6becb52300ddc6ca8c6c13982c9d2df5041ed18053f60f8258bcd90f28e74",
+    "train_examples": 1680,
+    "validation_examples": 1080,
+    "condition_selection_seed": 2080,
+    "condition_groups_per_snr": 20,
+    "selection": "Recompute original complete-group selection, require exact same source IDs, labels, SNR and conditions as saved selection. Train/validation source IDs and conditions disjoint. Existing validation is reused development data."
+  },
+  "model_seeds": [2081, 2082],
+  "epochs": 100,
+  "batch_size": 32,
+  "steps_per_epoch": 53,
+  "batch_order_seed": 2080,
+  "optimizer": {"name": "Adam", "lr": 0.0001, "eps": 1e-8},
+  "controls": "Fresh optimizer each arm, paired initial tensors, exact paired minibatch permutations, fixed100 epochs/5300 updates, no scheduler/clipping/early stopping. No historic FP32 tolerance changes. Log deterministic settings and environment; no claim of cross-backend bit identity.",
+  "checkpoint_selection": "Strict minimum mean validation cross entropy after epochs1..100; earliest tie. Preserve best and last full model/optimizer/RNG checkpoints and every epoch history. No historical trained weights continued.",
+  "primary_decision": "Candidate advances directionally only if selected-checkpoint validation mean CE strictly lower AND twelve-class macro-F1 strictly higher in BOTH seeds. Otherwise mixed/inconclusive. Never select only best seed.",
+  "secondary": "Per-class recall, FSK-family mean recall, high-SNR>=15dB per-class metrics, accuracy, final-epoch metrics, epoch durations and feature preprocessing time. No independent significance claim.",
+  "failure": "Stop on nonfinite input/loss/gradient/validation or provenance mismatch. Keep incomplete outputs and failure report; no automatic restart/resume.",
+  "limits": "Redundant deterministic features change inductive bias/optimization, not information content. Baseline extra weights inactive; equal nominal parameters/updates are not equal effective capacity or wall time. No current Coral compatibility or drone recognition proof. Existing historical FP32 parity gate remains not passed."
+}
