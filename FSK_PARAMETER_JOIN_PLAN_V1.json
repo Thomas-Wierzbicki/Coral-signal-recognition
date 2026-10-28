@@ -1,0 +1,12 @@
+{
+  "id": "fsk-parameter-error-join-v1",
+  "scope": "Read-only descriptive join of exact generator replay and all four existing prediction audits; all twelve classes retained; train/validation separate; no test, inference or training.",
+  "gate": "Require successful replay and audit completion markers, matching metadata/parameter hashes, verified replay JSONL and CSV hashes, unique complete source-ID joins, correct labels/IQ digests and reproduction of each full CSV confusion matrix.",
+  "h_edges": [0.1, 0.2, 0.3, 0.4, 0.45, 0.5, 0.6, 0.8, 1.1],
+  "bt_edges": [0.1, 0.2, 0.3, 0.4, 0.5],
+  "bin_rule": "left inclusive, right exclusive except final upper edge inclusive; h=0.5 belongs to 0.5:0.6; missing BT explicitly not_applicable; out-of-range fails",
+  "primary": "For each model and split: FSK class x h-bin, class x BT-bin, class x Gaussian span; repeat at SNR>=15dB.",
+  "secondary": "Class x h-bin x BT-bin; descriptive only. Show counts, unique conditions, prediction-label counts, accuracy and sparse flag n<20. Do not pool four models into independent samples.",
+  "interpretation": "Association only; h/BT bins may differ in bandwidth/SNR/offset. No causal attribution, class removal, automatic intervention, threshold search or statistical significance claim.",
+  "outputs": "Fresh timestamp directory with report and success marker only after all four models and both splits pass. Preserve failure report. Existing artifacts unchanged."
+}
