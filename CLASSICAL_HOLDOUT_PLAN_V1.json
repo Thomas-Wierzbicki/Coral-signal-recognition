@@ -1,0 +1,18 @@
+{
+  "id": "classical-new-realizations-holdout-v1",
+  "date": "2026-10-29",
+  "scope": "One fixed new synthetic realization set for the unchanged saved35-feature5NN classifier. No fitting, feature/scaler changes, parameter search or old test access.",
+  "seed": 2100,
+  "split_id": 4,
+  "conditions_per_snr": 20,
+  "snr_levels_db": [-5, 0, 5, 10, 15, 20, 25],
+  "examples_per_class": 140,
+  "total_examples": 1680,
+  "generation": "Use unchanged condition_plan and generators from modulation12-v1: seed components[2100,4,class_id,condition_index,1/2] for signal/noise. All twelve labels share nuisance condition plan but independent signal/noise seeds. Controlled FM, original TorchSig2.2.0 for other modulations, Gaussian noise. New realizations, same distributions/generators; no recording independence or real-world claim.",
+  "freeze": "Before generation verify completed source baseline report, registered baseline plan/code hash, classifier/training feature/validation prediction hashes, stored scaler and ordered training arrays. Write source report and classifier SHA256 plus plan/environment/code hashes to protocol before generating data. No user-specific classifier payload published.",
+  "checks": "Verify source metadata and parameter JSONL hashes, metadata seed differs, source IDs and IQ hashes of all new examples disjoint from old train/validation JSONLs, new IQ hashes unique, balanced groups/classes/SNR and finite RMS0.5 blocks. Never open old test.npz or test parameters. Save all new IQ/parameter records and predictions.",
+  "primary": "Twelve-class macro-F1 and accuracy on the fixed new set. Report per-class matrix/recall, FSK mean recall and SNR signal-only accuracy, high-SNR>=15 metrics. Descriptive comparison to source development validation; no threshold search, causal claim or automatic promotion.",
+  "limits": "Condition groups pair nuisance settings across classes; do not treat all rows as independent trials for confidence intervals. One new seed, no seed cherry-picking. Repeating this seed is the same dataset, not new evidence. Old validation influenced method choice; new set is prospective only for this frozen model.",
+  "outputs": "Fresh folder models/classical-holdout-TIMESTAMP: pre-generation protocol, holdout.npz, parameters.jsonl, feature/prediction arrays, report and manifest hashes; success marker only at end. Existing artifacts unchanged. No automatic retries/resume.",
+  "failure": "Stop on provenance/overlap/nonfinite mismatch; retain incomplete report. Check classifier file and in-memory fitted arrays unchanged after inference."
+}
