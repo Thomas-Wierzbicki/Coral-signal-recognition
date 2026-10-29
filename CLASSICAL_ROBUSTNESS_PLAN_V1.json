@@ -1,0 +1,20 @@
+{
+  "id": "classical-paired-digital-robustness-v1",
+  "date": "2026-10-29",
+  "scope": "Descriptive paired stress test of frozen classical model on existing synthetic holdout. Its unmodified result is already known. No fitting, feature changes, parameter search, new signal generation or old test access.",
+  "crop_each_side": 32,
+  "output_samples": 4032,
+  "control": "Same central4032 source samples for every variant. Apply existing RMS0.5 convention and complex64 output to control and treatments. Reproduce full4096 source predictions separately; report crop-control versus full-reference effect separately from impairment effects.",
+  "frequency_offsets_hz": [-3200, -1600, -800, 800, 1600, 3200],
+  "sample_rate_ppm": [-100, -50, 50, 100],
+  "iq_gain_mismatch_db": [-1, 1],
+  "iq_phase_error_degrees": [-5, 5],
+  "frequency_definition": "Multiply central source samples by exp(j*2*pi*df*n/32000), absolute source indices n=32..4063. Existing signal and noise both transformed. Discrete-time spectrum wraps at Nyquist; no physical front-end alias/rejection claim.",
+  "sample_rate_definition": "Source coordinate p=center+(n-center)*(1+ppm*1e-6), center=(4096-1)/2, n=32..4063. Positive ppm increases source-coordinate step. Normalized33-tap Hamming-windowed sinc interpolation, offsets-16..16 around floor(p). All source taps must lie inside original4096; no padding, periodic wrap or extrapolation. Zero ppm is exact central crop before RMS convention. Interpolation approximates resampling and also changes noise correlation; not a pure measured oscillator effect.",
+  "iq_definition": "I'=10^(g/40)*I; Q'=10^(-g/40)*(cos(theta)*Q+sin(theta)*I). g is relative I/Q amplitude mismatch in dB. Vary either g or theta alone; other zero. Common RMS normalization preserves relative imbalance.",
+  "one_factor": "Control plus6 CFO plus4 sample-rate plus2 gain plus2 phase variants=15. Never combine impairments. All twelve categories retained, IDs/labels/SNR unchanged. SNR labels denote original source condition, not recalculated after transformation; noise has no SNR.",
+  "primary": "For each variant accuracy and twelve-class macro-F1, paired changes and class recalls relative to common cropped control. Full-reference comparison is separate. Also FSK mean recall, per-source-SNR and high-SNR>=15 metrics, prediction changes and both-correct/control-only/variant-only/both-wrong counts.",
+  "integrity": "Verify source holdout report/plan/code/artifact hashes, raw IQ and per-row joins, reproduce original classical features/predictions/matrix; verify frozen classifier/scaler matches baseline training features. Record protocol before transformation; check classifier file/arrays and original holdout unchanged at end.",
+  "outputs": "Fresh models/classical-robustness-TIMESTAMP with protocol, one prediction array per variant, shared IDs/labels/SNR, transform recipe and transformed-IQ digest per variant, complete report and hashes. Do not store15 duplicated IQ datasets; transformations deterministic from frozen source. Success marker only after all variants.",
+  "limits": "Variants are paired transformations of identical examples, not new independent data. No p-values, automatic robustness threshold, model promotion or causal RF-hardware explanation. Same synthetic generators, no real RF/Coral/drone performance proof. Fixed features use variable-length statistics4032 versus trained4096; crop effect explicitly reported."
+}
