@@ -1,0 +1,13 @@
+{
+  "id": "frozen-cnn-classical-paired-holdout-v1",
+  "date": "2026-10-29",
+  "scope": "Inference only on the already generated classical holdout. Its classical result is already known; this is a prospectively specified paired CNN comparison, not a wholly blinded new benchmark.",
+  "models": "All four previously completed iq-feature-comparison models: seeds2081/2082 x iq_zero/iq_envelope_phase. Use their already selected best checkpoints from original development validation CE; no checkpoint/seed selection on holdout.",
+  "data": "Exact persisted holdout.npz source IDs and order, 1680 examples/140 per each twelve classes, seed2100 split4, seven SNRs, paired nuisance groups. Never regenerate signals or open old test. Reproduce saved classical predictions before comparing.",
+  "integrity": "Verify holdout report, plan, artifact hashes and each IQ/label/condition/SNR record. Verify CNN source completion, registered feature plan/source hashes, checkpoint/hash/history/metadata/selected state digest. Reproduce each original validation matrix and CE with unchanged atol1e-7 rtol1e-6. Verify models and source checkpoint files unchanged after inference.",
+  "preprocessing": "Use each checkpoint's registered feature_tensor arm and preprocessing version, eval/inference mode batch32. No fitting, augmentation, calibration or test-driven adjustments.",
+  "primary": "Twelve-class macro-F1 and accuracy for every frozen CNN versus classical on identical rows. Keep all four results; no best-seed-only reporting.",
+  "secondary": "Per-class recalls, FSK mean recall, SNR and high-SNR>=15 metrics; paired correctness counts both correct, classical only correct, CNN only correct, both wrong, and prediction disagreement. No p-values, significance or independence claim for shared-condition rows; no ensemble or oracle selection.",
+  "limits": "Same generators/distributions, one new realization seed; classical score already observed. No matched effective capacity/compute claim. No real RF, Coral or drone accuracy, no isolated causal explanation for training behavior. Historical FP32 gate/tolerances unchanged.",
+  "outputs": "Fresh models/cnn-classical-holdout-TIMESTAMP with protocol, four per-row prediction arrays and report; completion marker only after all four validated. Preserve failure report. Existing data/models unchanged."
+}
