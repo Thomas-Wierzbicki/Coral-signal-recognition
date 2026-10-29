@@ -1,0 +1,22 @@
+{
+  "id": "modulation12-fixed-features-knn-v1",
+  "date": "2026-10-29",
+  "scope": "Methodologically separate fixed-feature baseline on the same synthetic development split; all twelve classes; test never opened.",
+  "classifier": "Single fixed Euclidean 5-nearest-neighbor classifier, uniform votes. Stable distance sort preserves stored training order on equal distances; class vote ties choose lowest class index. No hyperparameter search, feature selection, PCA or validation fitting.",
+  "features": "35 fixed float64 values: centered principal phase-step std, seven std-normalized phase-step quantiles(.01,.1,.25,.5,.75,.9,.99), seven phase-step normalized autocorrelations(lags1,2,4,8,16,32,64), envelope CV; seven RMS-normalized envelope quantiles at same probabilities; normalized envelope fourth moment; normalized envelope first-difference RMS; seven absolute complex lag coherences at same lags; Hann spectrum equal-tail90% width in cycles/sample, normalized spectral entropy and spectral flatness. No mean frequency, FFT peak bin or absolute power feature. Degenerate denominators floored at1e-12 for RMS/energy and1e-9 for phase std; spectral probabilities floor1e-15 only for logs.",
+  "scaling": "Per-feature mean and population std fitted only on the1680 training examples. Std floor1e-6. Apply unchanged to validation. No class labels or generator internal parameters as features.",
+  "data": {
+    "metadata_sha256": "279f8494aaf8c14d7b9d94e8d914244abe4bbae918ee187191064b23fdefb2ec",
+    "train_sha256": "722fc591a1da3e6b47be9cfd65df3b296d1542b61c3e2178e99cfa229ab9c028",
+    "validation_sha256": "f6e17b2be2ec414621963e1798e83ef40252157933e05de2e7cfc1ad4d8b0bae",
+    "selection_sha256": "d5b6becb52300ddc6ca8c6c13982c9d2df5041ed18053f60f8258bcd90f28e74",
+    "train_examples": 1680,
+    "validation_examples": 1080,
+    "selection": "Exactly original saved source-ID/label/condition/SNR selection, preserve dataset row order; complete twelve-class groups, twenty groups at each of seven SNRs. Source IDs and conditions disjoint from validation."
+  },
+  "evaluation": "Primary twelve-class validation macro-F1; report matrix, accuracy, per-class recalls, FSK mean recall and per-SNR signal-only accuracy. Also high-SNR>=15dB recalls, noise explicitly absent. Training metric leave-one-out excludes query row; clearly descriptive, not independent validation. Neighbor votes are not calibrated probabilities.",
+  "decision": "Report as independent-method control, not independent-data validation. No automatic promotion or causal claim. No matched capacity/training-budget claim versus CNN; no exclusion of poor classes. Compare descriptively to existing CNN results without tuning on validation.",
+  "outputs": "New timestamp folder: report, protocol, feature/ID arrays, scaler, labels, ordered training features, validation predictions, SHA256 manifest and completion marker. CPU/NumPy only; no new package installation required on existing environment.",
+  "failure": "Stop on hash/ID/shape/class/group mismatch or nonfinite features; preserve failure report; never replace old data or silently retune.",
+  "limits": "Same generators and repeatedly used development validation. Principal phase steps can wrap at pi; no claim of exact carrier-offset invariance. Noise is not an unknown-signal class. No real RF, Coral deployment or drone recognition claim."
+}
